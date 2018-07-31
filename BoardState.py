@@ -4,10 +4,14 @@ from math import floor
 
 class BoardState:
     def __init__(self):        
-        self.BOARD_SIZE = 4
-        self.Squares = [0] * self.BOARD_SIZE**2
+        self.BOARD_SIZE = 4        
         self.FOUR_CHANCE = .5 # the likelihood that random new squares will be a 4 instead of a 2
+        self.Squares = [0] * self.BOARD_SIZE**2
         self.Lost = False
+
+        # the board starts with two random tiles
+        self.new_random_square()
+        self.new_random_square()
 
     # square positions are as follows
     #    x: 1  2  3  4
@@ -28,7 +32,7 @@ class BoardState:
     # needing to be aware of their actual values.
     @staticmethod
     def display_value(square):
-        return 2 << square
+        return str(2 << square)
 
     def get_display_value(self, x, y):
         return self.display_value(self.get_square(x, y))
@@ -51,16 +55,16 @@ class BoardState:
                     moved_a_square = True
 
     def get_x(self, index):
-        return index - floor(index/self.BOARD_SIZE) * self.BOARD_SIZE + 1
+        return int(index - floor(index/self.BOARD_SIZE) * self.BOARD_SIZE + 1)
     
     def get_y(self, index):
-        return (index - index % self.BOARD_SIZE) / self.BOARD_SIZE + 1
+        return int((index - index % self.BOARD_SIZE) / self.BOARD_SIZE + 1)
 
     # slides a single square to one direction; returns true if successful
     def slide_square(self, square_index, direction):
-        new_y = self.get_y(square_index) + direction[1]
-        new_x = self.get_x(square_index) + direction[0]
-        if (new_y < 1 or new_x < 1):
+        new_y = self.get_y(square_index) + direction.value[1]
+        new_x = self.get_x(square_index) + direction.value[0]
+        if not 1 <= new_y <= self.BOARD_SIZE or not 1 <= new_x <= self.BOARD_SIZE:
             return False
 
         # get the destination square and deal with it if it's not empty
@@ -94,3 +98,7 @@ class BoardState:
         self.Squares[random_square] += 1
         if (random.random() >= self.FOUR_CHANCE):
             self.Squares[random_square] += 1
+
+    def reset_board(self):
+        self.Squares = [0] * self.BOARD_SIZE**2
+        self.Lost = False
