@@ -53,7 +53,8 @@ class BoardState:
         moved_at_least_one = False
         while moved_a_square:
             moved_a_square = False # resets for every loop
-            squares_with_values = [idx for idx, val in enumerate(self.Squares) if val != 0] # TODO: limit based on direction if it actually improves perormance
+            squares_with_values = [idx for idx, val in enumerate(self.Squares) \
+                                        if val != 0] # TODO: limit based on direction if it actually improves perormance
             for index in squares_with_values:
                 if self.slide_square(index, direction):
                     moved_at_least_one = True
@@ -70,7 +71,8 @@ class BoardState:
     def slide_square(self, square_index, direction):
         new_y = self.get_y(square_index) + direction.value[1]
         new_x = self.get_x(square_index) + direction.value[0]
-        if not 1 <= new_y <= self.BOARD_SIZE or not 1 <= new_x <= self.BOARD_SIZE:
+        if not 1 <= new_y <= self.BOARD_SIZE or \
+           not 1 <= new_x <= self.BOARD_SIZE:
             return False
 
         # get the destination square and deal with it if it's not empty
@@ -92,7 +94,8 @@ class BoardState:
     # incidentally, this is also where it is possible to lose
     def new_random_square(self):
         # check if we lost
-        empty_squares = [idx for idx, val in enumerate(self.Squares) if val == 0]
+        empty_squares = [idx for idx, val in enumerate(self.Squares) \
+                              if val == 0]
         if len(empty_squares) == 0: # if there are no more empty squares
             self.Lost = True
             return
