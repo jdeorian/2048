@@ -2,9 +2,9 @@ from tkinter import *
 from Direction import KEY_DIRECTION_DICT
 from BoardState import BoardState
 
-TEXT_COLORS = ["#9e948a", "#eee4da", "#ede0c8", "#f2b179", "#f59563", "#f67c5f",\
+CELL_COLORS = ["#9e948a", "#eee4da", "#ede0c8", "#f2b179", "#f59563", "#f67c5f",\
                "#f65e3b", "#edcf72", "#edcc61", "#edc850", "#edc53f", "#edc22e"]
-CELL_COLORS = ["#9e948a", "#776e65", "#776e65", "#f9f6f2", "#f9f6f2", "#f9f6f2",\
+TEXT_COLORS = ["#9e948a", "#776e65", "#776e65", "#f9f6f2", "#f9f6f2", "#f9f6f2",\
                "#f9f6f2", "#f9f6f2", "#f9f6f2", "#f9f6f2", "#f9f6f2", "#f9f6f2"]
 FONT = ("Verdana", 40, "bold")
 BACKGROUND_COLOR = "#92877d"
