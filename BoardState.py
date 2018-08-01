@@ -33,7 +33,7 @@ class BoardState:
         if direction.value[0] > 0 or direction.value[1] > 0:
             indexes.reverse() # in place reverse
         return indexes
-
+    
     # square values are stored as powers of 2. So:
     # 1 = 2, 2 = 4, 3 = 8, and so on. That way when
     # square combine, they can increment without
@@ -48,7 +48,7 @@ class BoardState:
     # direction must be Direction object
     def move(self, direction):
         if self.slide_squares(direction):
-            pass #self.new_random_square() # only spawn new squares if something was moved or combined
+            self.new_random_square() # only spawn new squares if something was moved or combined
 
     # slide all the squares to one direction on the board
     # returns whether at least one was moved or combined
@@ -64,12 +64,12 @@ class BoardState:
 
         # combine squares if necessary
         combine_indexes = indexes.copy()
-        combine_indexes.reverse()
         while len(combine_indexes) > 0:
             index = combine_indexes.pop()
             if (self.combine_square(combine_indexes, index, direction)): # if the square was combined
                 dest_index = self.get_moved_index(index, direction)
                 combine_indexes.remove(dest_index) # destination square cannot be combined anymore either
+                moved_a_square = True
 
         # once they are combined, move one last time
         for index in indexes:

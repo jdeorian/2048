@@ -60,10 +60,10 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
     def update_grid(self):
         size = self.board.BOARD_SIZE
         for idx in range(size**2):
-            i = self.board.get_x(idx) - 1 # i and j are the 0-based values corresponding to x and y
-            j = self.board.get_y(idx) - 1
+            i = self.board.get_y(idx) - 1 # i and j are the 0-based values corresponding to x and y
+            j = self.board.get_x(idx) - 1
             val = self.board.Squares[idx]
-            txt = str(idx)+"."+self.board.display_value(val)
+            txt = self.board.display_value(val) # str(idx) +"."+self.board.display_value(val) # displays positions for testing purposes
             self.grid_cells[i][j].configure(text=txt,                          \
                                               bg=CELL_COLORS[val],             \
                                               fg=TEXT_COLORS[val])

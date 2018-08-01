@@ -17,3 +17,9 @@ KEY_DIRECTION_DICT = {
     "<Left>": Direction.Left,
     "<Right>": Direction.Right
 }
+
+#        mve cmb
+# left   asc dsc
+# right  dsc asc
+# down   dsc asc
+# up     asc dsc
