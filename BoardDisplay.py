@@ -68,3 +68,4 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
             return # don't process a keypress if it's resetting the board
 
         self.board.move(direction)
+        self.update_grid()

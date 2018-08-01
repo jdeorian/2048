@@ -32,7 +32,7 @@ class BoardState:
     # needing to be aware of their actual values.
     @staticmethod
     def display_value(square):
-        return str(2 << square)
+        return str(1 << square)
 
     def get_display_value(self, x, y):
         return self.display_value(self.get_square(x, y))
@@ -72,7 +72,7 @@ class BoardState:
         if (self.Squares[new_index] != 0): # if the destination isn't empty
             if (self.Squares[new_index] == self.Squares[square_index]): # if they match
                 # combine them
-                self.Squares[new_index] += self.Squares[square_index]
+                self.Squares[new_index] += 1
                 self.Squares[square_index] = 0
                 return True
             else:
