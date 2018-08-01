@@ -12,8 +12,8 @@ KEY_DIRECTION_DICT = {
     "s": Direction.Down,
     "a": Direction.Left,
     "d": Direction.Right,
-    "\\uf700": Direction.Up, #arrow keys
-    "\\uf701": Direction.Down,
-    "\\uf702": Direction.Left,
-    "\\uf703": Direction.Right
+    "<Up>": Direction.Up, #arrow keys
+    "<Down>": Direction.Down,
+    "<Left>": Direction.Left,
+    "<Right>": Direction.Right
 }
