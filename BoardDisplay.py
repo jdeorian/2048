@@ -61,9 +61,11 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
 
 
     def key_down(self, e):
-        direction = KEY_DIRECTION_DICT[e.char]
+        direction = KEY_DIRECTION_DICT[e.char] if e.char != "" else KEY_DIRECTION_DICT["<" + e.keysym + ">"]
+
         if (self.board.Lost):
             self.board.reset_board()
             return # don't process a keypress if it's resetting the board
 
         self.board.move(direction)
+        self.update_grid()

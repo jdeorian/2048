@@ -5,7 +5,7 @@ from math import floor
 class BoardState:
     def __init__(self):        
         self.BOARD_SIZE = 4        
-        self.FOUR_CHANCE = .5 # the likelihood that random new squares will be a 4 instead of a 2
+        self.FOUR_CHANCE = .15 # the likelihood that random new squares will be a 4 instead of a 2
         self.Squares = [0] * self.BOARD_SIZE**2
         self.Lost = False
 
@@ -32,27 +32,33 @@ class BoardState:
     # needing to be aware of their actual values.
     @staticmethod
     def display_value(square):
-        return str(2 << square)
+        return str(1 << square)
 
     def get_display_value(self, x, y):
         return self.display_value(self.get_square(x, y))
 
     # direction must be Direction object
     def move(self, direction):
-        while (self.slide_squares(direction)):
-            pass # slide until the squares won't slide or combine anymore
+        moved_one = False
+        while (self.slide_squares(direction)): # slide until the squares won't slide or combine anymore
+            moved_one = True # if we move at least one, note it
         
-        self.new_random_square()
+        if moved_one:
+            self.new_random_square()
 
-    #slide all the squares to one direction on the board
+    # slide all the squares to one direction on the board
+    # returns whether at least one was moved
     def slide_squares(self, direction):
         moved_a_square = True
+        moved_at_least_one = False
         while moved_a_square:
             moved_a_square = False # resets for every loop
             squares_with_values = [idx for idx, val in enumerate(self.Squares) if val != 0] # TODO: limit based on direction if it actually improves perormance
             for index in squares_with_values:
                 if self.slide_square(index, direction):
+                    moved_at_least_one = True
                     moved_a_square = True
+        return moved_at_least_one
 
     def get_x(self, index):
         return int(index - floor(index/self.BOARD_SIZE) * self.BOARD_SIZE + 1)
@@ -72,7 +78,7 @@ class BoardState:
         if (self.Squares[new_index] != 0): # if the destination isn't empty
             if (self.Squares[new_index] == self.Squares[square_index]): # if they match
                 # combine them
-                self.Squares[new_index] += self.Squares[square_index]
+                self.Squares[new_index] += 1
                 self.Squares[square_index] = 0
                 return True
             else:
@@ -96,7 +102,7 @@ class BoardState:
 
         # increment the random square (twice if necessary)
         self.Squares[random_square] += 1
-        if (random.random() >= self.FOUR_CHANCE):
+        if (random.random() >= (1 - self.FOUR_CHANCE)):
             self.Squares[random_square] += 1
 
     def reset_board(self):
