@@ -77,5 +77,3 @@ class board:
             self.positions[empty_idx[0][idx],empty_idx[1][idx]] = 1
 
 x = board()
-print(x.positions)
-print(np.transpose(x.positions))
