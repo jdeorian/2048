@@ -1,11 +1,10 @@
 import random
-class block:
-    def __init__(self):
-        self.value = 2
+import numpy as np
 
-class board:
-    import random
+class board1:
+    
     def __init__(self): # initialize a new board
+        import random
         self.game_status = "Playing"
         self.positions = [0,0,0,0]
         self.add_block()
@@ -21,7 +20,7 @@ class board:
                 continue
             else: 
                 print("Not a valid entry.")
-    
+
     def swiped_left(self): # activate cascade of methods constituting a swipe to the left
         self.move_left()
         self.combine_left()
@@ -65,4 +64,18 @@ class board:
             print("Game Over")
             self.game_status = "Game Over"
 
+class board:
+    def __init__(self):
+        self.positions = np.zeros((4,4))
+        self.add_block()
+        self.add_block()
+    
+    def add_block(self):
+        empty_idx = np.where(self.positions == 0)
+        if len(empty_idx) > 0:
+            idx = random.randint(0,len(empty_idx[0]))
+            self.positions[empty_idx[0][idx],empty_idx[1][idx]] = 1
+
 x = board()
+print(x.positions)
+print(np.transpose(x.positions))
