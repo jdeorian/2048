@@ -17,11 +17,12 @@ TXT_HEIGHT = 2
 class BoardDisplay(Frame): # inherit from the tkinter frame object
     def __init__(self):
         Frame.__init__(self)
-        self.master.title = TITLE        
+        self.master.title(TITLE)
 
         # bind all keys
         for key in KEY_DIRECTION_DICT:
             self.master.bind(key, self.key_down)
+        self.master.bind("x", self.quit_program) # press 'x' to quit
 
         # create board state
         self.board = BoardState()
@@ -81,3 +82,6 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
 
         self.board.move(direction)
         self.update_grid()
+    
+    def quit_program(self, e):
+        quit()
