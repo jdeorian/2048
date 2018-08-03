@@ -35,16 +35,24 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
 
     def init_grid(self):
         size = self.board.BOARD_SIZE
-        background = Frame(self, bg=BACKGROUND_COLOR, width=size, height=size)
+        background = Frame(self, bg=BACKGROUND_COLOR, \
+                              width=size,             \
+                             height=size)
         background.grid()
         for i in range(size):
-            x = i + 1
             grid_row = []
             for j in range(size):
-                y = j + 1
-                cell = Frame(background, width=SIZE_PX/size, height=SIZE_PX/size)
-                cell.grid(row=x, column=y, padx=GRID_SPACING, pady=GRID_SPACING)
-                cell_text = Label(master=cell, justify=CENTER, font=FONT, width=TXT_WIDTH, height=TXT_HEIGHT)
+                cell = Frame(background, width=SIZE_PX/size, \
+                                        height=SIZE_PX/size)
+                cell.grid(row=i,                    \
+                          column=j,                 \
+                          padx=GRID_SPACING,        \
+                          pady=GRID_SPACING)
+                cell_text = Label(master=cell,      \
+                                  justify=CENTER,   \
+                                  font=FONT,        \
+                                  width=TXT_WIDTH,  \
+                                  height=TXT_HEIGHT)
                 cell_text.grid()
                 grid_row.append(cell_text)
             self.grid_cells.append(grid_row)
@@ -52,16 +60,20 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
     def update_grid(self):
         size = self.board.BOARD_SIZE
         for idx in range(size**2):
-            i = self.board.get_x(idx) - 1 # i and j are the 0-based values corresponding to x and y
-            j = self.board.get_y(idx) - 1
+            i = self.board.get_y(idx) - 1 # i and j are the 0-based values corresponding to x and y
+            j = self.board.get_x(idx) - 1
             val = self.board.Squares[idx]
-            self.grid_cells[i][j].configure(text=self.board.display_value(val), bg=CELL_COLORS[val], fg=TEXT_COLORS[val])
+            txt = self.board.display_value(val) # str(idx) +"."+self.board.display_value(val) # displays positions for testing purposes
+            self.grid_cells[i][j].configure(text=txt,                          \
+                                              bg=CELL_COLORS[val],             \
+                                              fg=TEXT_COLORS[val])
         
         self.update_idletasks() # performs rendering tasks while avoiding race conditions due to callbacks
 
 
     def key_down(self, e):
-        direction = KEY_DIRECTION_DICT[e.char] if e.char != "" else KEY_DIRECTION_DICT["<" + e.keysym + ">"]
+        direction = KEY_DIRECTION_DICT[e.char] if e.char != "" \
+               else KEY_DIRECTION_DICT["<" + e.keysym + ">"]
 
         if (self.board.Lost):
             self.board.reset_board()

@@ -26,6 +26,14 @@ class BoardState:
     def get_index(self, x, y):
         return (x - 1) + self.BOARD_SIZE * (y - 1)
 
+    # to support executing all moves in one iteration, squares must be
+    # evaluated in the correct order based on the direction
+    def get_index_iteration_order(self, direction):
+        indexes = list(range(self.BOARD_SIZE**2))
+        if direction.value[0] > 0 or direction.value[1] > 0:
+            indexes.reverse() # in place reverse
+        return indexes
+    
     # square values are stored as powers of 2. So:
     # 1 = 2, 2 = 4, 3 = 8, and so on. That way when
     # square combine, they can increment without
@@ -39,60 +47,108 @@ class BoardState:
 
     # direction must be Direction object
     def move(self, direction):
-        moved_one = False
-        while (self.slide_squares(direction)): # slide until the squares won't slide or combine anymore
-            moved_one = True # if we move at least one, note it
-        
-        if moved_one:
-            self.new_random_square()
+        if self.slide_squares(direction):
+            self.new_random_square() # only spawn new squares if something was moved or combined
 
     # slide all the squares to one direction on the board
-    # returns whether at least one was moved
+    # returns whether at least one was moved or combined
     def slide_squares(self, direction):
-        moved_a_square = True
-        moved_at_least_one = False
-        while moved_a_square:
-            moved_a_square = False # resets for every loop
-            squares_with_values = [idx for idx, val in enumerate(self.Squares) if val != 0] # TODO: limit based on direction if it actually improves perormance
-            for index in squares_with_values:
-                if self.slide_square(index, direction):
-                    moved_at_least_one = True
-                    moved_a_square = True
-        return moved_at_least_one
+        print(self.Squares)
 
-    def get_x(self, index):
-        return int(index - floor(index/self.BOARD_SIZE) * self.BOARD_SIZE + 1)
-    
+        # slide all the squares over
+        moved_a_square = False
+        indexes = self.get_index_iteration_order(direction)
+        for index in indexes:
+            if self.slide_square(index, direction):
+                moved_a_square = True
+
+        # combine squares if necessary
+        combine_indexes = indexes.copy()
+        while len(combine_indexes) > 0:
+            index = combine_indexes.pop()
+            if (self.combine_square(combine_indexes, index, direction)): # if the square was combined
+                dest_index = self.get_moved_index(index, direction)
+                combine_indexes.remove(dest_index) # destination square cannot be combined anymore either
+                moved_a_square = True
+
+        # once they are combined, move one last time
+        for index in indexes:
+            if self.slide_square(index, direction):
+                moved_a_square = True
+
+        return moved_a_square
+
     def get_y(self, index):
-        return int((index - index % self.BOARD_SIZE) / self.BOARD_SIZE + 1)
+        return int(floor(index/self.BOARD_SIZE) + 1)
+    
+    def get_x(self, index):
+        return int(index % self.BOARD_SIZE + 1)
 
-    # slides a single square to one direction; returns true if successful
+    def get_indexes_with_values(self):
+        return [idx for idx, val in enumerate(self.Squares) \
+                     if val != 0] # TODO: limit based on direction if it actually improves perormance
+    
+    def get_moved_index(self, index, direction):
+        new_y = self.get_y(index) + direction.value[1]
+        new_x = self.get_x(index) + direction.value[0]
+        return -1 if self.invalid_coordinates(new_x, new_y) \
+          else self.get_index(new_x, new_y)
+
+    def invalid_coordinates(self, x, y):
+        return not 1 <= x <= self.BOARD_SIZE or \
+               not 1 <= y <= self.BOARD_SIZE
+
+    # slides a single square to one direction; returns true if any moving or combining was done
     def slide_square(self, square_index, direction):
-        new_y = self.get_y(square_index) + direction.value[1]
-        new_x = self.get_x(square_index) + direction.value[0]
-        if not 1 <= new_y <= self.BOARD_SIZE or not 1 <= new_x <= self.BOARD_SIZE:
+        # make sure this square can be moved at all
+        index = square_index
+        if self.Squares[index] == 0:
+            return False
+        new_index = self.get_moved_index(index, direction)
+        if new_index == -1:
+            return False
+        
+        # make sure it is eligible for moving
+        if self.Squares[new_index] != 0:
+            return False
+        
+        #if it's eligible move it all the way in that direction
+        while (self.Squares[new_index] == 0):
+            self.Squares[new_index] = self.Squares[index] # set the new square value
+            self.Squares[index] = 0 # and empty the old square
+            index = new_index
+            new_index = self.get_moved_index(index, direction)
+            if new_index == -1:
+                return True # a square was moved, but no combining can be done
+        
+        # return whether a move has occurred
+        return index == square_index # if the square has moved, these indexes will be different
+    
+    def combine_square(self, indexes, square_index, direction):
+        # make sure this square can be moved at all
+        index = square_index
+        if self.Squares[index] == 0:
+            return False
+        new_index = self.get_moved_index(index, direction)
+        if new_index == -1:
             return False
 
-        # get the destination square and deal with it if it's not empty
-        new_index = self.get_index(new_x, new_y)
-        if (self.Squares[new_index] != 0): # if the destination isn't empty
-            if (self.Squares[new_index] == self.Squares[square_index]): # if they match
-                # combine them
-                self.Squares[new_index] += 1
-                self.Squares[square_index] = 0
-                return True
-            else:
-                return False # don't change anything
-
-        # but if the destination is empty, move the square
-        self.Squares[new_index] = self.Squares[square_index] # set the new square value
-        self.Squares[square_index] = 0 #and empty the old square
+        # make sure it is eligible for combining
+        if (self.Squares[new_index] != self.Squares[index]):
+            return False
+        if not new_index in indexes: #make sure the destination index is allowed to be combined
+            return False
+        
+        # handle combining
+        self.Squares[new_index] += 1
+        self.Squares[index] = 0
         return True
-    
+
     # incidentally, this is also where it is possible to lose
     def new_random_square(self):
         # check if we lost
-        empty_squares = [idx for idx, val in enumerate(self.Squares) if val == 0]
+        empty_squares = [idx for idx, val in enumerate(self.Squares) \
+                              if val == 0]
         if len(empty_squares) == 0: # if there are no more empty squares
             self.Lost = True
             return
