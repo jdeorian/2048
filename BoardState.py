@@ -1,11 +1,11 @@
 from Direction import Direction
+from math import floor
 from Move import Move
 import random
-from math import floor
 
 class BoardState:
-    def __init__(self):        
-        self.BOARD_SIZE = 4        
+    def __init__(self):
+        self.BOARD_SIZE = 4
         self.FOUR_CHANCE = .15 # the likelihood that random new squares will be a 4 instead of a 2
         self.Squares = [0] * self.BOARD_SIZE**2
         self.Lost = False
@@ -21,11 +21,20 @@ class BoardState:
     # 2:    4  5  6  7
     # 3:    8  9 10 11
     # 4:   12 13 14 15 
-    def get_square(self, x, y):
+    def get_value(self, x, y):
         return self.Squares[self.get_index(x, y)]
 
     def get_index(self, x, y):
         return (x - 1) + self.BOARD_SIZE * (y - 1)
+
+    def get_display_value(self, x, y):
+        return self.display_value(self.get_value(x, y))
+
+    def get_y(self, index):
+        return int(floor(index/self.BOARD_SIZE) + 1)
+    
+    def get_x(self, index):
+        return int(index % self.BOARD_SIZE + 1)
 
     # square values are stored as powers of 2. So:
     # 1 = 2, 2 = 4, 3 = 8, and so on. That way when
@@ -34,9 +43,6 @@ class BoardState:
     @staticmethod
     def display_value(square):
         return str(1 << square)
-
-    def get_display_value(self, x, y):
-        return self.display_value(self.get_square(x, y))
 
     # direction must be Direction object
     def move(self, direction):
@@ -48,12 +54,6 @@ class BoardState:
             self.new_random_square() # only spawn new squares if something was moved or combined
         print("After:")
         print(self.Squares)
-
-    def get_y(self, index):
-        return int(floor(index/self.BOARD_SIZE) + 1)
-    
-    def get_x(self, index):
-        return int(index % self.BOARD_SIZE + 1)
 
     def get_indexes_with_values(self):
         return [idx for idx, val in enumerate(self.Squares) \

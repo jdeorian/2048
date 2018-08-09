@@ -1,6 +1,5 @@
 from tkinter import *
 from Direction import KEY_DIRECTION_DICT
-from BoardState import BoardState
 
 CELL_COLORS = ["#9e948a", "#eee4da", "#ede0c8", "#f2b179", "#f59563", "#f67c5f",\
                "#f65e3b", "#edcf72", "#edcc61", "#edc850", "#edc53f", "#edc22e"]
@@ -15,7 +14,7 @@ TXT_WIDTH = 4
 TXT_HEIGHT = 2
 
 class BoardDisplay(Frame): # inherit from the tkinter frame object
-    def __init__(self):
+    def __init__(self, board_state):
         Frame.__init__(self)
         self.master.title(TITLE)
 
@@ -25,7 +24,7 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
         self.master.bind("x", self.quit_program) # press 'x' to quit
 
         # create board state
-        self.board = BoardState()
+        self.board = board_state
 
         # initialize grid
         self.grid()
@@ -59,16 +58,14 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
             self.grid_cells.append(grid_row)
     
     def update_grid(self):
-        size = self.board.BOARD_SIZE
-        for idx in range(size**2):
-            i = self.board.get_y(idx) - 1 # i and j are the 0-based values corresponding to x and y
-            j = self.board.get_x(idx) - 1
-            val = self.board.Squares[idx]
-            txt = self.board.display_value(val) # str(idx) +"."+self.board.display_value(val) # displays positions for testing purposes
-            self.grid_cells[i][j].configure(text=txt,                          \
-                                              bg=CELL_COLORS[val],             \
-                                              fg=TEXT_COLORS[val])
-        
+        for i in range(self.board.BOARD_SIZE):
+            for j in range(self.board.BOARD_SIZE):
+                val = self.board.get_value(j + 1, i + 1)
+                txt = self.board.get_display_value(j + 1, i + 1)
+                self.grid_cells[i][j].configure(text=txt,                          \
+                                                  bg=CELL_COLORS[val],             \
+                                                  fg=TEXT_COLORS[val])
+     
         self.update_idletasks() # performs rendering tasks while avoiding race conditions due to callbacks
 
 
