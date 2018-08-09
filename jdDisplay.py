@@ -12,7 +12,9 @@
 #  -self.BOARD_SIZE (4 is the only value I've used)
 #
 #  -self.get_value(x, y)     # get the value of a square at x, y; this needs
-#                            # to be an exponent of 2 so the right color is assigned
+#                            # to be an exponent of 2 so the right color is
+#                            # assigned. Luckily that just means you take the
+#                            # actual value and take the square root.
 #  -self.display_value(x, y) # gets the text that should be displayed
 #                            # in the square for a given value
 #
