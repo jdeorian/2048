@@ -30,8 +30,3 @@
 #  -self.reset_board()       # resets the board to starting position
 
 # When you're done, you'll be able to run the following:
-
-from BoardDisplay import BoardDisplay
-from jdGame import board
-
-game = BoardDisplay(board(4))
