@@ -1,54 +1,55 @@
 import random
 import numpy as np
 
-class board:
+class jdBoard:
     def __init__(self,size):
-        self.positions = np.zeros((size,size))
-        self.add_block()
-        self.add_block()
-        print("Enter one of 'w','a','s','d' to swipe up, left, down, right, respectively.")
-        print("Enter 'quit' to quit.")
-        print(self.positions)
-        self.get_input()
+        self.BOARD_SIZE = size
+        self.Lost = False
 
+        self.positions = np.zeros(shape = (self.BOARD_SIZE,self.BOARD_SIZE), dtype = int)
+        self.add_block()
+        self.add_block()
+
+    def get_value(self,x,y):
+        return self.positions[x-1,y-1]
     
+    def get_display_value(self,x,y):
+        return self.positions[x-1,y-1]
+
     def add_block(self):
         empty_idx = np.where(self.positions == 0)
         if len(empty_idx[0]) > 0:
             idx = random.randint(0,len(empty_idx[0])-1)
             self.positions[empty_idx[0][idx],empty_idx[1][idx]] = np.random.choice(a=[2,4],p=[0.85,0.15])
-    
-    def get_input(self):
-        self.user_input = ""
-        while self.user_input != "quit":
-            self.user_input = input()
+        else:
+            self.Lost = True
+            return
 
-            if self.user_input == "a":
+    def reset_board(self):
+        self.positions = np.zeros((self.BOARD_SIZE,self.BOARD_SIZE))
+        self.Lost = False
+    
+    def move(self,direction):
+            if (direction == "a") or (direction == "<Left>"):
                 self.tmp_positions = self.positions
-            elif self.user_input == "w":
+            elif (direction == "w") or (direction == "<Up>"):
                 self.tmp_positions = self.positions.T
-            elif self.user_input == "d":
+            elif (direction == "d") or (direction == "<Right>"):
                 self.tmp_positions = np.flip(self.positions,1)
-            elif self.user_input == "s":
+            elif (direction == "s") or (direction == "<Down>"):
                 self.tmp_positions = np.flip(self.positions.T,1)
-            elif self.user_input == "quit":
-                continue
-            else:
-                print("Invalid input.")
-                self.get_input()
 
             self.swiped()
-            print(self.positions)
         
     def swiped(self): # activate cascade of methods constituting a swipe
         self.any_movement = False
-        self.move()
+        self.shift()
         self.combine()
-        self.move()
+        self.shift()
         if self.any_movement == True:
             self.add_block()
 
-    def move(self): # move blocks
+    def shift(self): # shift blocks
         for rdx,r in enumerate(self.tmp_positions):        # For a given row...
             for cdx, c in enumerate(r):                    # and a given value in that row...                  
                 if c != 0:                                 # If that value doesn't equal 0...
@@ -68,5 +69,3 @@ class board:
                             self.tmp_positions[rdx,cdx] = c*2
                             self.tmp_positions[rdx,cdx+1] = 0
                             self.any_movement = True
-
-x = board(4)
