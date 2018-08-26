@@ -54,7 +54,7 @@ class Move:
             self.board.Squares[index] = 0 # and empty the old square
             index = new_index
             new_index = self.get_moved_index(index)
-            if new_index == -1:
+            if new_index == -1 or new_index > len(self.board.Squares):
                 return True # a square was moved, but no combining can be done
         
         # return whether a move has occurred
