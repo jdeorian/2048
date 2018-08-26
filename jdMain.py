@@ -1,4 +1,4 @@
 from BoardDisplay import BoardDisplay
-from jdGame import board
+from jdGame import jdBoard
 
-game = BoardDisplay(board(4))
+game = BoardDisplay(jdBoard(4))
