@@ -25,6 +25,13 @@ class BoardState:
     def get_value(self, x, y):
         return self.Squares[self.get_index(x, y)]
 
+    def get_score(self):
+        score = 0
+        for val in self.Squares:
+            if val > 0:
+                score += self.score_value(val)
+        return score
+
     def get_index(self, x, y):
         return (x - 1) + self.BOARD_SIZE * (y - 1)
 
@@ -45,19 +52,25 @@ class BoardState:
     # square combine, they can increment without
     # needing to be aware of their actual values.
     @staticmethod
-    def display_value(square):
-        return str(1 << square)
+    def score_value(square_value):
+        return 1 << square_value
+    
+    @staticmethod
+    def display_value(square_value):
+        return str(BoardState.score_value(square_value))
 
     # direction must be Direction object
     def move(self, direction):
         print("Before:")
-        print(self.get_2d_state())        
+        print(self.get_2d_state())  
+        print("Score: " + str(self.get_score()))
         move = Move(direction)
         move.apply(self)
         if (move.trigger_new_block):
             self.new_random_square() # only spawn new squares if something was moved or combined
         print("After:")
         print(self.get_2d_state())
+        print("Score: " + str(self.get_score()))
 
     def get_indexes_with_values(self):
         return [idx for idx, val in enumerate(self.Squares) \
