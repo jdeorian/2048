@@ -61,16 +61,19 @@ class BoardState:
 
     # direction must be Direction object
     def move(self, direction):
-        print("Before:")
-        print(self.get_2d_state())  
-        print("Score: " + str(self.get_score()))
+        # print("Before:")
+        # print(self.get_2d_state())  
+        # print("Score: " + str(self.get_score()))
         move = Move(direction)
         move.apply(self)
+
         if (move.trigger_new_block):
             self.new_random_square() # only spawn new squares if something was moved or combined
-        print("After:")
-        print(self.get_2d_state())
-        print("Score: " + str(self.get_score()))
+
+        self.check_if_lost()
+        # print("After:")
+        # print(self.get_2d_state())
+        # print("Score: " + str(self.get_score()))
 
     def get_indexes_with_values(self):
         return [idx for idx, val in enumerate(self.Squares) \
@@ -80,11 +83,13 @@ class BoardState:
         return not 1 <= x <= self.BOARD_SIZE or \
                not 1 <= y <= self.BOARD_SIZE
 
-    # incidentally, this is also where it is possible to lose
-    def new_random_square(self):
-        # check if we lost
-        empty_squares = [idx for idx, val in enumerate(self.Squares) \
+    def get_empty_squares(self):
+        return [idx for idx, val in enumerate(self.Squares) \
                               if val == 0]
+
+    def new_random_square(self):
+        # if we need an empty square but can't place one, we lost
+        empty_squares = self.get_empty_squares()
         if len(empty_squares) == 0: # if there are no more empty squares
             self.Lost = True
             return
@@ -96,6 +101,21 @@ class BoardState:
         self.Squares[random_square] += 1
         if (random.random() >= (1 - self.FOUR_CHANCE)):
             self.Squares[random_square] += 1
+    
+    def check_if_lost(self):
+        no_empty_squares = len(self.get_empty_squares()) == 0
+        moves = self.moves_on_board()
+        self.Lost = no_empty_squares and not moves
+        
+    # checks to see if there are adjacent numbers
+    def moves_on_board(self):
+        board_matrix = self.get_2d_state()
+        for x in range(self.BOARD_SIZE - 1):
+            for y in range(self.BOARD_SIZE - 1):
+                if board_matrix[x, y] == board_matrix[x + 1, y] or \
+                   board_matrix[x, y] == board_matrix[x, y + 1]:
+                    return True
+        return False # if we weren't able to find any adjacent moves
 
     def reset_board(self):
         self.Squares = [0] * self.BOARD_SIZE**2
