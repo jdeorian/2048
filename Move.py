@@ -12,8 +12,6 @@ class Move:
     # slide all the squares to one direction on the board
     # returns whether at least one was moved or combined
     def slide_squares(self):
-        print(self.board.Squares)
-
         # slide all the squares over
         indexes = self.get_index_iteration_order()
         for index in indexes:

@@ -1,6 +1,7 @@
 from Direction import Direction
 from math import floor
 from Move import Move
+import numpy as np
 import random
 
 class BoardState:
@@ -36,6 +37,9 @@ class BoardState:
     def get_x(self, index):
         return int(index % self.BOARD_SIZE + 1)
 
+    def get_2d_state(self):
+        return np.reshape(self.Squares, (self.BOARD_SIZE, self.BOARD_SIZE))
+
     # square values are stored as powers of 2. So:
     # 1 = 2, 2 = 4, 3 = 8, and so on. That way when
     # square combine, they can increment without
@@ -47,13 +51,13 @@ class BoardState:
     # direction must be Direction object
     def move(self, direction):
         print("Before:")
-        print(self.Squares)        
+        print(self.get_2d_state())        
         move = Move(direction)
         move.apply(self)
         if (move.trigger_new_block):
             self.new_random_square() # only spawn new squares if something was moved or combined
         print("After:")
-        print(self.Squares)
+        print(self.get_2d_state())
 
     def get_indexes_with_values(self):
         return [idx for idx, val in enumerate(self.Squares) \
