@@ -4,6 +4,7 @@ from Direction import Direction
 import random
 import numpy
 import webbrowser
+from pseudo_ML import Pseudo_ML
 
 class AutoPlayMethods:
     choices = [Direction.Down, Direction.Up, Direction.Left, Direction.Right]
@@ -13,8 +14,6 @@ class AutoPlayMethods:
         step_number = 0
         while not board_state.Lost:
             step_number += 1
-            # print(step_number)
-            # print(board_state.get_2d_state())
             board_state.move(random.choice(AutoPlayMethods.choices))
         return step_number # returns number of moves
     
@@ -39,6 +38,17 @@ class AutoPlayMethods:
                     board_state.move(Direction.Right)
                     board_state.move(Direction.Left)
         return step_number
+
+    #an attempt to do some state analysis
+    @staticmethod
+    def pseudo_ML():
+        pml = Pseudo_ML()
+        step_number = 0
+        while not board_state.Lost:
+            step_number += 1
+            direction_recommendation = pml.get_direction_recommendation(board_state)
+            board_state.move(direction_recommendation)
+        return step_number # returns number of moves
 
 ####################### SET TEST PARAMETERS HERE #######################
 save_to_file = True

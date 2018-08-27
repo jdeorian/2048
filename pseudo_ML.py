@@ -8,7 +8,12 @@ class Pseudo_ML:
     def get_direction_recommendation(self, board_state: BoardState):
         currentState = board_state.Squares
         statesAfterMove = []
-        direction_scores = { }
+        direction_scores = { 
+            Direction.Up: 0,
+            Direction.Down: 0,
+            Direction.Left: 0,
+            Direction.Right: 0
+        }
 
         # get a list of the board state after making all legal moves
         for direction in Direction:
@@ -20,7 +25,7 @@ class Pseudo_ML:
                     #                    0:dir     1:state   2:prob   3:score
                     state_assessment = [direction, state[0], state[1], score]
                     direction_scores[direction] += state[1] * score
-                    print(state_assessment)
+                    # print(state_assessment)
                     statesAfterMove.append(state_assessment)
         
         #print scores and get max value
@@ -28,7 +33,7 @@ class Pseudo_ML:
         top_score = 0
         for direction in Direction:
             this_score = direction_scores[direction]
-            print(str(direction) + ": " + str(this_score))
+            # print(str(direction) + ": " + str(this_score))
             if this_score > top_score:
                 top_score = this_score
                 retVal = direction
@@ -56,7 +61,12 @@ class Pseudo_ML:
         # makes it so we only need to score in one direction rather than in four
         board_size = len(board_2d_state[0])
         index_count = int(board_size / 2) # half the board, rounded down
-        direction_scores = { }
+        direction_scores = { 
+            Direction.Up: 0,
+            Direction.Down: 0,
+            Direction.Left: 0,
+            Direction.Right: 0
+        }
         for x in range(board_size): # for each row
             if x < index_count:
                 direction_scores[Direction.Up] += sum(board_2d_state[x])
@@ -85,15 +95,21 @@ class Pseudo_ML:
             working_board = np.rot90(board_2d_state, 3)
         if (orientation == Direction.Down):
             working_board = np.rot90(board_2d_state, 1)
-        
-        # TODO: actually give a score to each item based on how many times the row "switches direction"
 
         score = 0
-        #for every row
-        for x in range(len(board_2d_state[0])):
+        #for every row, score value pairs by whether they are in ascending order
+        for x in range(board_size):
             #for every value pair
-            values = [val for val in enumerate(board_2d_state[x]) if val > 0]
-            for idx in range(len(values) - 1)
-            row = board_2d_state[x]
-            
+            values = [val for val in working_board[x] if val > 0]
+            value_count = len(values)
+            if value_count > 2: # there have to be at least 2 values to score the row
+                for idx in range(len(values) - 1): # for every value except the last
+                    fst_val = values[idx]
+                    sec_val = values[idx + 1]
+                    if sec_val >= fst_val:
+                        score += 1
+                    else:
+                        score -= 1
 
+        return score
+                    

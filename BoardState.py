@@ -81,14 +81,14 @@ class BoardState:
 
     # applies a move and returns the grid, but then immediately restores the state
     def pseudo_move(self, direction, add_random_squares):
-        state = list.copy(self.Squares) # save state
+        state = self.Squares[:] # save state
         move = Move(direction)
         move.apply(self)
         if move.trigger_new_block and add_random_squares:
             self.new_random_square()
         
-        retVal = list.copy(self.Squares)
-        self.Squares = state # restore state
+        retVal = self.Squares[:]
+        self.Squares = state[:] # restore state
         return retVal
 
     def get_indexes_with_values(self):
