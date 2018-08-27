@@ -45,7 +45,11 @@ class BoardState:
         return int(index % self.BOARD_SIZE + 1)
 
     def get_2d_state(self):
-        return np.reshape(self.Squares, (self.BOARD_SIZE, self.BOARD_SIZE))
+        return self.state_to_2d_state(self.Squares, self.BOARD_SIZE)
+
+    @staticmethod
+    def state_to_2d_state(state, size): # state is an array of values, size is the board size
+        return np.reshape(state, (size, size))
 
     # square values are stored as powers of 2. So:
     # 1 = 2, 2 = 4, 3 = 8, and so on. That way when
@@ -74,6 +78,18 @@ class BoardState:
         # print("After:")
         # print(self.get_2d_state())
         # print("Score: " + str(self.get_score()))
+
+    # applies a move and returns the grid, but then immediately restores the state
+    def pseudo_move(self, direction, add_random_squares):
+        state = list.copy(self.Squares) # save state
+        move = Move(direction)
+        move.apply(self)
+        if move.trigger_new_block and add_random_squares:
+            self.new_random_square()
+        
+        retVal = list.copy(self.Squares)
+        self.Squares = state # restore state
+        return retVal
 
     def get_indexes_with_values(self):
         return [idx for idx, val in enumerate(self.Squares) \
