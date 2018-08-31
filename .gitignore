@@ -5,3 +5,6 @@ __pycache__/
 # Don't track these extensions
 *.pyc
 *.json
+
+# Don't track these files
+output.txt
