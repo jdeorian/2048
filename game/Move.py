@@ -1,7 +1,7 @@
 from game.Direction import Direction
 
 class Move:
-    def __init__(self, direction):
+    def __init__(self, direction: Direction):
         self.direction = direction        
     
     def apply(self, board_state):

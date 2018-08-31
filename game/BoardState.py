@@ -64,7 +64,7 @@ class BoardState:
         return str(BoardState.score_value(square_value))
 
     # direction must be Direction object
-    def move(self, direction):
+    def move(self, direction: Direction):
         # print("Before:")
         # print(self.get_2d_state())  
         # print("Score: " + str(self.get_score()))

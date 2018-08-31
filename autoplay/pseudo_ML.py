@@ -5,20 +5,30 @@ import numpy as np
 import webbrowser
 
 class Pseudo_ML:
-    def get_direction_recommendation(self, board_state: BoardState):
-        currentState = board_state.Squares
+    # given a set of weights, returns the top weight [0] and top score [1]
+    def get_direction_recommendation(self, weights):
+        #print scores and get max value
+        retVal = Direction.Down
+        top_score = -100
+        for direction in Direction:
+            this_score = weights[direction]
+            # print(str(direction) + ": " + str(this_score))
+            if this_score > top_score:
+                top_score = this_score
+                retVal = direction
+        
+        #return the top-scoring direction
+        return [retVal, top_score]
+
+    # given a board state, returns scores corresponding to each possible move
+    def get_direction_weights(self, board_state: BoardState):
         statesAfterMove = []
-        direction_scores = { 
-            Direction.Up: 0,
-            Direction.Down: 0,
-            Direction.Left: 0,
-            Direction.Right: 0
-        }
+        direction_scores = { d:0 for d in Direction }
 
         # get a list of the board state after making all legal moves
         for direction in Direction:
             newState = board_state.pseudo_move(direction, False)
-            if newState != currentState: # ignore moves that do not change the board
+            if newState != board_state.Squares: # ignore moves that do not change the board
                 possible_states = self.enumerate_possible_outcomes(newState, board_state.FOUR_CHANCE)
                 for state in possible_states:#move  state      prob             score
                     score = self.score_board_state(BoardState.state_to_2d_state(state[0], board_state.BOARD_SIZE))
@@ -27,20 +37,10 @@ class Pseudo_ML:
                     direction_scores[direction] += state[1] * score
                     # print(state_assessment)
                     statesAfterMove.append(state_assessment)
+            else:
+                direction_scores[direction] -= 100 # never pick a direction that will have no impact
         
-        #print scores and get max value
-        retVal = Direction.Down
-        top_score = 0
-        for direction in Direction:
-            this_score = direction_scores[direction]
-            # print(str(direction) + ": " + str(this_score))
-            if this_score > top_score:
-                top_score = this_score
-                retVal = direction
-        
-        #return the top-scoring direction
-        return retVal
-
+        return direction_scores
     
     def enumerate_possible_outcomes(self, squares_array, four_chance):
         retVal = []
@@ -61,12 +61,8 @@ class Pseudo_ML:
         # makes it so we only need to score in one direction rather than in four
         board_size = len(board_2d_state[0])
         index_count = int(board_size / 2) # half the board, rounded down
-        direction_scores = { 
-            Direction.Up: 0,
-            Direction.Down: 0,
-            Direction.Left: 0,
-            Direction.Right: 0
-        }
+        direction_scores = { d:0 for d in Direction }
+
         for x in range(board_size): # for each row
             if x < index_count:
                 direction_scores[Direction.Up] += sum(board_2d_state[x])
@@ -91,9 +87,9 @@ class Pseudo_ML:
         if orientation == Direction.Right:
             for row in board_2d_state:
                 working_board.append(row[::-1])
-        if orientation == Direction.Up:
+        if orientation == Direction.Down:
             working_board = np.rot90(board_2d_state, 3)
-        if (orientation == Direction.Down):
+        if (orientation == Direction.Up):
             working_board = np.rot90(board_2d_state, 1)
 
         score = 0
