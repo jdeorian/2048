@@ -1,5 +1,5 @@
-from BoardState import BoardState
-from Direction import Direction
+from game.BoardState import BoardState
+from game.Direction import Direction
 import random
 import numpy as np
 import webbrowser

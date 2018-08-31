@@ -1,6 +1,6 @@
-from Direction import Direction
+from game.Direction import Direction
 from math import floor
-from Move import Move
+from game.Move import Move
 import numpy as np
 import random
 

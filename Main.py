@@ -1,4 +1,4 @@
-from BoardDisplay import BoardDisplay
-from BoardState import BoardState
+from game.BoardDisplay import BoardDisplay
+from game.BoardState import BoardState
 
 board = BoardDisplay(BoardState())

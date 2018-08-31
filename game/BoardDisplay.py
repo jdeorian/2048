@@ -1,5 +1,5 @@
 from tkinter import *
-from Direction import KEY_DIRECTION_DICT
+from game.Direction import Direction
 
 CELL_COLORS = ["#9e948a", "#eee4da", "#ede0c8", "#f2b179", "#f59563", "#f67c5f",\
                "#f65e3b", "#edcf72", "#edcc61", "#edc850", "#edc53f", "#edc22e"]
@@ -12,6 +12,18 @@ SIZE_PX = 500
 GRID_SPACING = 10 # space between grid squares
 TXT_WIDTH = 4
 TXT_HEIGHT = 2
+
+KEY_DIRECTION_DICT = { 
+    "w": Direction.Up,
+    "s": Direction.Down,
+    "a": Direction.Left,
+    "d": Direction.Right,
+    "<Up>": Direction.Up, #arrow keys
+    "<Down>": Direction.Down,
+    "<Left>": Direction.Left,
+    "<Right>": Direction.Right
+}
+
 
 class BoardDisplay(Frame): # inherit from the tkinter frame object
     def __init__(self, board_state):
