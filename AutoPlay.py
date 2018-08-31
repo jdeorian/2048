@@ -2,7 +2,7 @@ from game.BoardDisplay import BoardDisplay
 from game.BoardState import BoardState
 import numpy
 import webbrowser
-from AutoPlayMethods import AutoPlayMethods
+from autoplay.AutoPlayMethods import AutoPlayMethods
 
 ####################### SET TEST PARAMETERS HERE #######################
 save_to_file = True

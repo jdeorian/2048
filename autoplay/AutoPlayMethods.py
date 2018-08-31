@@ -1,7 +1,7 @@
 from game.BoardState import BoardState
 from game.Direction import Direction
 import random
-from pseudo_ML import Pseudo_ML
+from autoplay.pseudo_ML import Pseudo_ML
 
 class AutoPlayMethods:
     choices = [Direction.Down, Direction.Up, Direction.Left, Direction.Right]
