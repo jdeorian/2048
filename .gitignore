@@ -1,6 +1,7 @@
 # Don't track content of these folders
 .vscode/  
 __pycache__/
+logs/
 
 # Don't track these extensions
 *.pyc

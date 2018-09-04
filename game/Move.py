@@ -5,9 +5,22 @@ class Move:
         self.direction = direction        
     
     def apply(self, board_state):
+        self.start_state = board_state.Squares[:]
         self.trigger_new_block = False
         self.board = board_state
         self.slide_squares()
+        self.end_state = board_state.Squares[:]
+
+    def changed_board(self):
+        return self.start_state != self.end_state
+
+    # cs start_state|direction|cs end_state
+    def as_log_entry(self):
+        comma = ","
+        pipe = "|"
+        return pipe.join(map(str,[comma.join(map(str,self.start_state)), \
+                                  self.direction,                        \
+                                  comma.join(map(str,self.end_state))]))
     
     # slide all the squares to one direction on the board
     # returns whether at least one was moved or combined

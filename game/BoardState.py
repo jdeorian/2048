@@ -10,6 +10,7 @@ class BoardState:
         self.FOUR_CHANCE = .15 # the likelihood that random new squares will be a 4 instead of a 2
         self.Squares = [0] * self.BOARD_SIZE**2
         self.Lost = False
+        self.move_history = []
 
         # the board starts with two random tiles
         self.new_random_square()
@@ -63,33 +64,32 @@ class BoardState:
     def display_value(square_value):
         return str(BoardState.score_value(square_value))
 
-    # direction must be Direction object
-    def move(self, direction: Direction):
+    # direction must be Direction object. Returns the move object.
+    # :add_random_squares determines whether random squares will be added after the move
+    # :apply_results determines whether the board state will be re-set to its original state
+    #                after the calculation. This is useful for branch assessments.
+    def move(self, direction: Direction, add_random_squares=True, apply_results=True):
         # print("Before:")
         # print(self.get_2d_state())  
         # print("Score: " + str(self.get_score()))
         move = Move(direction)
         move.apply(self)
 
-        if (move.trigger_new_block):
+        if move.trigger_new_block and add_random_squares:
             self.new_random_square() # only spawn new squares if something was moved or combined
 
-        self.check_if_lost()
+        if apply_results:
+           self.check_if_lost()
+           self.move_history.append(move)
+        else: #undo the move
+            self.Squares = move.start_state[:]
+
+        #either way, return the move data
+        return move
+
         # print("After:")
         # print(self.get_2d_state())
         # print("Score: " + str(self.get_score()))
-
-    # applies a move and returns the grid, but then immediately restores the state
-    def pseudo_move(self, direction, add_random_squares):
-        state = self.Squares[:] # save state
-        move = Move(direction)
-        move.apply(self)
-        if move.trigger_new_block and add_random_squares:
-            self.new_random_square()
-        
-        retVal = self.Squares[:]
-        self.Squares = state[:] # restore state
-        return retVal
 
     def get_indexes_with_values(self):
         return [idx for idx, val in enumerate(self.Squares) \

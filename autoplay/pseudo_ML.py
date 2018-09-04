@@ -27,9 +27,9 @@ class Pseudo_ML:
 
         # get a list of the board state after making all legal moves
         for direction in Direction:
-            newState = board_state.pseudo_move(direction, False)
-            if newState != board_state.Squares: # ignore moves that do not change the board
-                possible_states = self.enumerate_possible_outcomes(newState, board_state.FOUR_CHANCE)
+            dir_move = board_state.move(direction, False, False)
+            if dir_move.changed_board(): # ignore moves that do not change the board
+                possible_states = self.enumerate_possible_outcomes(dir_move.end_state, board_state.FOUR_CHANCE)
                 for state in possible_states:#move  state      prob             score
                     score = self.score_board_state(BoardState.state_to_2d_state(state[0], board_state.BOARD_SIZE))
                     #                    0:dir     1:state   2:prob   3:score
