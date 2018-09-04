@@ -11,10 +11,10 @@ import os
 save_to_file = True
 output_filename = "output.txt" # set output filename
 
-save_detailed_legs = True
+save_detailed_legs = True  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
 log_directory = "logs/"
 
-number_of_plays = 10 # number of iterations to test autoplay method
+number_of_plays = 5 # number of iterations to test autoplay method
 autoplay_method = "random" # pick the method to run here
 ########################################################################
 

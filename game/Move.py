@@ -19,8 +19,17 @@ class Move:
         comma = ","
         pipe = "|"
         return pipe.join(map(str,[comma.join(map(str,self.start_state)), \
-                                  self.direction,                        \
+                                  str(self.direction).split('.')[1],     \
                                   comma.join(map(str,self.end_state))]))
+
+    @staticmethod
+    def from_log_entry(text: str):        
+        items = text.split('|')
+        new_move = Move(Direction[items[1]])
+        new_move.start_state = list(map(int, items[0].split(',')))
+        new_move.end_state = list(map(int, items[2].split(',')))
+        return new_move
+
     
     # slide all the squares to one direction on the board
     # returns whether at least one was moved or combined

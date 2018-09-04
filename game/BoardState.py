@@ -136,3 +136,13 @@ class BoardState:
     def reset_board(self):
         self.Squares = [0] * self.BOARD_SIZE**2
         self.Lost = False
+
+    # the import history is a list of Move objects
+    def import_from_log(self, import_history: list):
+        #importing overwrites a board, so reset it
+        self.reset_board()
+        self.move_history = import_history
+
+        #set the current state of the board to the last state
+        last_move = len(import_history) - 1
+        self.Squares = import_history[last_move].end_state
