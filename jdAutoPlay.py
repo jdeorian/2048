@@ -11,10 +11,10 @@ import os
 save_to_file = True
 output_filename = "output.txt" # set output filename
 
-save_detailed_legs = True  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
+save_detailed_logs = True  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
 log_directory = "logs/"
 
-number_of_plays = 100 # number of iterations to test autoplay method
+number_of_plays = 5 # number of iterations to test autoplay method
 autoplay_method = "random" # pick the method to run here
 ########################################################################
 
@@ -34,16 +34,16 @@ for x in range(number_of_plays):
     print(result) # prints results
 
     #save the detailed log, if appropriate
-    ##if save_detailed_legs:
+    if save_detailed_logs:
         #make sure the path exists and get the filename
-        ##os.makedirs(log_directory, exist_ok=True)
-        ##detailed_filename = log_directory + autoplay_method + datetime.now().strftime('_%Y%m%d_%H%M%S.%f.log')
+        os.makedirs(log_directory, exist_ok=True)
+        detailed_filename = log_directory + autoplay_method + datetime.now().strftime('_%Y%m%d_%H%M%S.%f.log')
 
         #create a log file
-        ##log_text = []
-        ##for entry in board_state.move_history:
-            ##log_text.append(entry.as_log_entry())
-        ##numpy.savetxt(detailed_filename, log_text, '%s')        
+        log_text = []
+        for entry in board_state.move_history:
+            log_text.append(entry)
+        numpy.savetxt(detailed_filename, log_text, '%s')        
 
 # save results to text file
 if save_to_file:

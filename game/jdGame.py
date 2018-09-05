@@ -48,12 +48,14 @@ class jdBoard:
         
     def swiped(self,direction): # activate cascade of methods constituting a swipe
         self.any_movement = False
+        self.before_move = self.positions.flatten()
         self.shift()
         self.combine()
         self.shift()
         if self.any_movement == True:
             self.add_block()
-            self.move_history.append(direction)
+            move = (self.before_move,"|",direction,"|",self.positions.flatten())
+            self.move_history.append(move)
         self.check_for_loss()
 
     def get_score(self):
