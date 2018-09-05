@@ -4,16 +4,33 @@ from game.Move import Move
 import random
 
 class BoardState:
-    def __init__(self):
+    moved_index_lookup = {}
+
+    def __init__(self):        
         self.BOARD_SIZE = 4
         self.FOUR_CHANCE = .15 # the likelihood that random new squares will be a 4 instead of a 2
         self.Squares = [0] * self.BOARD_SIZE**2
         self.Lost = False
         self.move_history = []
 
+        #initialize moved_index_lookup if necessary
+        if len(BoardState.moved_index_lookup.keys()) == 0:
+            for d in Direction:
+                for idx in range(self.BOARD_SIZE**2):
+                    old_x = self.get_x(idx)
+                    old_y = self.get_y(idx)
+                    new_x = old_x + d.value[0]
+                    new_y = old_y + d.value[1]                    
+                    invalid = self.invalid_coordinates(new_x, new_y)
+                    new_index = -1 if invalid else self.get_index(new_x, new_y)
+                    BoardState.moved_index_lookup[(d, idx)] = new_index
+
         # the board starts with two random tiles
         self.new_random_square()
         self.new_random_square()
+
+    def get_moved_index_dict(self):
+        return BoardState.moved_index_lookup
 
     # square positions are as follows
     #    x: 1  2  3  4
@@ -39,7 +56,7 @@ class BoardState:
         return self.display_value(self.get_value(x, y))
 
     def get_y(self, index):
-        return int(floor(index/self.BOARD_SIZE) + 1)
+        return int(index/self.BOARD_SIZE + 1)
     
     def get_x(self, index):
         return int(index % self.BOARD_SIZE + 1)
@@ -68,6 +85,14 @@ class BoardState:
     # :apply_results determines whether the board state will be re-set to its original state
     #                after the calculation. This is useful for branch assessments.
     def move(self, direction: Direction, add_random_squares=True, apply_results=True):
+		# shortcut for repeat moves
+        if len(self.move_history) > 0:
+            last_move = self.move_history[len(self.move_history) - 1]
+
+            #if we already tried this move and nothing happened, don't bother re-calculating
+            if last_move.direction == direction and not last_move.trigger_new_block:
+                return last_move
+
         # print("Before:")
         # print(self.get_2d_state())  
         # print("Score: " + str(self.get_score()))
@@ -89,10 +114,6 @@ class BoardState:
         # print("After:")
         # print(self.get_2d_state())
         # print("Score: " + str(self.get_score()))
-
-    def get_indexes_with_values(self):
-        return [idx for idx, val in enumerate(self.Squares) \
-                     if val != 0] # TODO: limit based on direction if it actually improves perormance
     
     def invalid_coordinates(self, x, y):
         return not 1 <= x <= self.BOARD_SIZE or \

@@ -2,7 +2,7 @@ from game.Direction import Direction
 
 class Move:
     def __init__(self, direction: Direction):
-        self.direction = direction        
+        self.direction = direction
     
     def apply(self, board_state):
         self.start_state = board_state.Squares[:]
@@ -54,7 +54,7 @@ class Move:
             if self.slide_square(index):
                 self.trigger_new_block = True
 
-        # slides a single square to one direction; returns true if any moving or combining was done
+    # slides a single square to one direction; returns true if any moving or combining was done
     def slide_square(self, square_index):
         # make sure this square can be moved at all
         index = square_index
@@ -101,10 +101,11 @@ class Move:
         return True
 
     def get_moved_index(self, index):
-        new_y = self.board.get_y(index) + self.direction.value[1]
-        new_x = self.board.get_x(index) + self.direction.value[0]
-        return -1 if self.board.invalid_coordinates(new_x, new_y) \
-          else self.board.get_index(new_x, new_y)
+        return self.board.get_moved_index_dict()[self.direction, index]
+        # new_y = self.board.get_y(index) + self.direction.value[1]
+        # new_x = self.board.get_x(index) + self.direction.value[0]
+        # return -1 if self.board.invalid_coordinates(new_x, new_y) \
+        #   else self.board.get_index(new_x, new_y)
 
     # to support executing all moves in one iteration, squares must be
     # evaluated in the correct order based on the direction

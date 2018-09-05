@@ -11,6 +11,23 @@ class AutoPlayMethods:
     def random(board_state):
         while not board_state.Lost:
             board_state.move(random.choice([d for d in Direction]))
+
+    directions = []
+
+    @staticmethod
+    def predetermined_random(board_state: BoardState):
+        # get the pre-determined set of random moves if it hasn't already been loaded
+        if len(AutoPlayMethods.directions) == 0:
+            rnd_filename = "random.dat"
+            rnd_file = open(rnd_filename, "r")
+            AutoPlayMethods.directions = [Direction[str.rstrip(line)] for idx, line in enumerate(rnd_file.readlines())]
+
+        #run the random simulation
+        i = 0
+        while not board_state.Lost:            
+            board_state.move(AutoPlayMethods.directions[i])
+            i += 1
+
     
     # a simple improvement on random play. Alternate corner directions for a
     # while, then occasionally throw in another direction so it doesn't stall out
