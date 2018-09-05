@@ -1,5 +1,7 @@
 import random
+import math
 import numpy as np
+from game.Direction import Direction
 
 class jdBoard:
     def __init__(self,size):
@@ -10,17 +12,20 @@ class jdBoard:
         self.add_block()
         self.add_block()
 
-    def get_value(self,x,y):
-        return self.positions[x-1,y-1]
+    def get_value(self,y,x):
+        if self.positions[x-1,y-1] == 0:
+            return 0
+        else:
+            return int(math.log(self.positions[x-1,y-1],2))
     
-    def get_display_value(self,x,y):
+    def get_display_value(self,y,x):
         return self.positions[x-1,y-1]
 
     def add_block(self):
         empty_idx = np.where(self.positions == 0)
         if len(empty_idx[0]) > 0:
             idx = random.randint(0,len(empty_idx[0])-1)
-            self.positions[empty_idx[0][idx],empty_idx[1][idx]] = np.random.choice(a=[2,4],p=[0.85,0.15])
+            self.positions[empty_idx[0][idx],empty_idx[1][idx]] = np.random.choice(a=[2,4],p=[0.9,0.1])
         else:
             self.Lost = True
             return
@@ -30,13 +35,13 @@ class jdBoard:
         self.Lost = False
     
     def move(self,direction):
-            if (direction == "a") or (direction == "<Left>"):
+            if direction == Direction.Left:
                 self.tmp_positions = self.positions
-            elif (direction == "w") or (direction == "<Up>"):
+            elif direction == Direction.Up:
                 self.tmp_positions = self.positions.T
-            elif (direction == "d") or (direction == "<Right>"):
+            elif direction == Direction.Right:
                 self.tmp_positions = np.flip(self.positions,1)
-            elif (direction == "s") or (direction == "<Down>"):
+            elif direction == Direction.Down:
                 self.tmp_positions = np.flip(self.positions.T,1)
 
             self.swiped()
