@@ -49,12 +49,7 @@ class BoardState:
 
     @staticmethod
     def state_to_2d_state(state, size): # state is an array of values, size is the board size
-        retval = []
-        for x in range(size):
-            start = x * size
-            end = start + size
-            retval.append(state[start:end])
-        return retval
+        return [state[x:x+size] for x in range(0, size**2, size)]
 
     # square values are stored as powers of 2. So:
     # 1 = 2, 2 = 4, 3 = 8, and so on. That way when
