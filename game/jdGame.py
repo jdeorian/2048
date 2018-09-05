@@ -6,8 +6,12 @@ from game.Direction import Direction
 class jdBoard:
     def __init__(self,size):
         self.BOARD_SIZE = size
-        self.Lost = False
+        self.startup_board()
 
+    def startup_board(self):
+        self.Lost = False
+        self.Score = 0
+        self.move_history = []
         self.positions = np.zeros(shape = (self.BOARD_SIZE,self.BOARD_SIZE), dtype = int)
         self.add_block()
         self.add_block()
@@ -26,13 +30,9 @@ class jdBoard:
         if len(empty_idx[0]) > 0:
             idx = random.randint(0,len(empty_idx[0])-1)
             self.positions[empty_idx[0][idx],empty_idx[1][idx]] = np.random.choice(a=[2,4],p=[0.9,0.1])
-        else:
-            self.Lost = True
-            return
 
     def reset_board(self):
-        self.positions = np.zeros((self.BOARD_SIZE,self.BOARD_SIZE))
-        self.Lost = False
+        self.startup_board()
     
     def move(self,direction):
             if direction == Direction.Left:
@@ -44,15 +44,21 @@ class jdBoard:
             elif direction == Direction.Down:
                 self.tmp_positions = np.flip(self.positions.T,1)
 
-            self.swiped()
+            self.swiped(direction)
         
-    def swiped(self): # activate cascade of methods constituting a swipe
+    def swiped(self,direction): # activate cascade of methods constituting a swipe
         self.any_movement = False
         self.shift()
         self.combine()
         self.shift()
         if self.any_movement == True:
             self.add_block()
+            self.move_history.append(direction)
+        self.check_for_loss()
+
+    def get_score(self):
+        #return self.Score
+        return self.positions.sum()
 
     def shift(self): # shift blocks
         for rdx,r in enumerate(self.tmp_positions):        # For a given row...
@@ -71,6 +77,20 @@ class jdBoard:
                 if c != 0:
                     if cdx != len(r)-1:
                         if self.tmp_positions[rdx,cdx] == self.tmp_positions[rdx,cdx+1]:
-                            self.tmp_positions[rdx,cdx] = c*2
+                            combined_value = c*2
+                            self.tmp_positions[rdx,cdx] = combined_value
                             self.tmp_positions[rdx,cdx+1] = 0
                             self.any_movement = True
+                            self.Score += combined_value
+    
+    def check_for_loss(self):
+        no_empty_squares = len(np.where(self.positions == 0)[0]) == 0
+        no_moves = not self.moves_on_board()
+        self.Lost = no_empty_squares and no_moves
+
+    def moves_on_board(self):
+        for r in range(self.BOARD_SIZE-1):
+            for c in range(self.BOARD_SIZE-1):
+                if self.positions[r,c] == self.positions[r+1,c] or self.positions[r,c] == self.positions[r,c+1]:
+                    return True
+        return False
