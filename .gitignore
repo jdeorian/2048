@@ -2,6 +2,7 @@
 .vscode/  
 __pycache__/
 logs/
+.vs/
 
 # Don't track these extensions
 *.pyc
