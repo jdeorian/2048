@@ -8,11 +8,11 @@ from autoplay.AutoPlayMethods import AutoPlayMethods
 import os
 
 ####################### SET TEST PARAMETERS HERE #######################
-save_to_file = False
+save_to_file = True
 output_filename = "output.txt" # set output filename
 open_on_finish = True
 
-save_detailed_legs = False  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
+save_detailed_logs = False  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
 log_directory = "logs/"
 
 number_of_plays = 100 # number of iterations to test autoplay method
@@ -35,7 +35,7 @@ for x in range(number_of_plays):
     print(result) # prints results
 
     #save the detailed log, if appropriate
-    if save_detailed_legs:
+    if save_detailed_logs:
         #make sure the path exists and get the filename
         os.makedirs(log_directory, exist_ok=True)
         detailed_filename = log_directory + autoplay_method + datetime.now().strftime('_%Y%m%d_%H%M%S.%f.log')

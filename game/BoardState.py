@@ -1,7 +1,6 @@
 from game.Direction import Direction
 from math import floor
 from game.Move import Move
-import numpy as np
 import random
 
 class BoardState:
@@ -50,7 +49,12 @@ class BoardState:
 
     @staticmethod
     def state_to_2d_state(state, size): # state is an array of values, size is the board size
-        return np.reshape(state, (size, size))
+        retval = []
+        for x in range(size):
+            start = x * size
+            end = start + size
+            retval.append(state[start:end])
+        return retval
 
     # square values are stored as powers of 2. So:
     # 1 = 2, 2 = 4, 3 = 8, and so on. That way when
@@ -128,8 +132,8 @@ class BoardState:
         board_matrix = self.get_2d_state()
         for x in range(self.BOARD_SIZE - 1):
             for y in range(self.BOARD_SIZE - 1):
-                if board_matrix[x, y] == board_matrix[x + 1, y] or \
-                   board_matrix[x, y] == board_matrix[x, y + 1]:
+                if board_matrix[x][y] == board_matrix[x + 1][y] or \
+                   board_matrix[x][y] == board_matrix[x][y + 1]:
                     return True
         return False # if we weren't able to find any adjacent moves
 
