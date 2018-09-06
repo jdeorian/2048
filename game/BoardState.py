@@ -147,10 +147,10 @@ class BoardState:
     # checks to see if there are adjacent numbers
     def moves_on_board(self):
         board_matrix = self.get_2d_state()
-        for x in range(self.BOARD_SIZE - 1):
-            for y in range(self.BOARD_SIZE - 1):
-                if board_matrix[x][y] == board_matrix[x + 1][y] or \
-                   board_matrix[x][y] == board_matrix[x][y + 1]:
+        for x in range(self.BOARD_SIZE):
+            for y in range(self.BOARD_SIZE):
+                if (x != (self.BOARD_SIZE - 1) and board_matrix[x][y] == board_matrix[x + 1][y]) or \
+                   (y != (self.BOARD_SIZE - 1) and board_matrix[x][y] == board_matrix[x][y + 1]):
                     return True
         return False # if we weren't able to find any adjacent moves
 
