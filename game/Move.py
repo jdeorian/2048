@@ -76,10 +76,6 @@ class Move:
 
     def get_moved_index(self, index):
         return -1 if index == -1 else self.board.moved_index_lookup[(self.direction, index)]
-        # new_y = self.board.get_y(index) + self.direction.value[1]
-        # new_x = self.board.get_x(index) + self.direction.value[0]
-        # return -1 if self.board.invalid_coordinates(new_x, new_y) \
-        #   else self.board.get_index(new_x, new_y)
 
     # to support executing all moves in one iteration, squares must be
     # evaluated in the correct order based on the direction
