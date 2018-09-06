@@ -29,7 +29,6 @@ KEY_DIRECTION_DICT = {
 class BoardDisplay(Frame): # inherit from the tkinter frame object
     def __init__(self, board_state):
         Frame.__init__(self)
-        self.master.title(TITLE)
 
         # bind all keys
         for key in KEY_DIRECTION_DICT:
@@ -45,6 +44,7 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
         self.grid_cells = []
         self.init_grid()
         self.update_grid()
+        self.master.title(TITLE)
         self.mainloop()
 
     def init_grid(self):
@@ -79,7 +79,7 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
                 self.grid_cells[i][j].configure(text=txt,                             \
                                                   bg=CELL_COLORS[((val+1) % 12) - 1], \
                                                   fg=TEXT_COLORS[((val+1) % 12) - 1])
-     
+        self.master.title("Score: " + str(self.board.get_score()))
         self.update_idletasks() # performs rendering tasks while avoiding race conditions due to callbacks
 
 
@@ -88,7 +88,7 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
                else KEY_DIRECTION_DICT["<" + e.keysym + ">"]
 
         if (self.board.Lost):
-            self.board.reset_board()
+            self.master.title("You lost! How embarassing!")
             return # don't process a keypress if it's resetting the board
 
         self.board.move(direction)
@@ -98,6 +98,7 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
         self.board.reset_board()
         self.board = BoardState()
         self.update_grid()
+        self.master.title(TITLE)
     
     def quit_program(self, e):
         quit()
