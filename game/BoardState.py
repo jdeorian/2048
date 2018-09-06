@@ -38,8 +38,8 @@ class BoardState:
                 for idx in range(self.BOARD_SIZE**2):
                     old_x = self.get_x(idx)
                     old_y = self.get_y(idx)
-                    new_x = old_x + (d.value[0] * -1)
-                    new_y = old_y + d.value[1]
+                    new_x = old_x - d.value[0]
+                    new_y = old_y - d.value[1]
                     invalid = self.invalid_coordinates(new_x, new_y)
                     new_index = -1 if invalid else self.get_index(new_x, new_y)
                     BoardState.combined_index_lookup[(d, idx)] = new_index
