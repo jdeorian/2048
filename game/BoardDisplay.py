@@ -74,9 +74,9 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
             for j in range(self.board.BOARD_SIZE):
                 val = self.board.get_value(j + 1, i + 1)
                 txt = self.board.get_display_value(j + 1, i + 1)
-                self.grid_cells[i][j].configure(text=txt,                          \
-                                                  bg=CELL_COLORS[val],             \
-                                                  fg=TEXT_COLORS[val])
+                self.grid_cells[i][j].configure(text=txt,                             \
+                                                  bg=CELL_COLORS[((val+1) % 12) - 1], \
+                                                  fg=TEXT_COLORS[((val+1) % 12) - 1])
      
         self.update_idletasks() # performs rendering tasks while avoiding race conditions due to callbacks
 
