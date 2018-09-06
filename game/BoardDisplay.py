@@ -1,5 +1,6 @@
 from tkinter import *
 from game.Direction import Direction
+from game.BoardState import BoardState
 
 CELL_COLORS = ["#9e948a", "#eee4da", "#ede0c8", "#f2b179", "#f59563", "#f67c5f",\
                "#f65e3b", "#edcf72", "#edcc61", "#edc850", "#edc53f", "#edc22e"]
@@ -34,6 +35,7 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
         for key in KEY_DIRECTION_DICT:
             self.master.bind(key, self.key_down)
         self.master.bind("x", self.quit_program) # press 'x' to quit
+        self.master.bind("r", self.reset)
 
         # create board state
         self.board = board_state
@@ -90,6 +92,11 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
             return # don't process a keypress if it's resetting the board
 
         self.board.move(direction)
+        self.update_grid()
+
+    def reset(self, e):
+        self.board.reset_board()
+        self.board = BoardState()
         self.update_grid()
     
     def quit_program(self, e):
