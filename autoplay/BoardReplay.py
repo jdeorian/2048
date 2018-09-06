@@ -32,8 +32,8 @@ class BoardReplay(tk.Tk): # inherit from the tkinter frame object
         self.frame.pack(side=tk.TOP)
 
         # bind all keys
-        self.bind("<Left>", self.go_back)
-        self.bind("<Right>", self.go_forward)
+        self.bind("<Left>", self.key_down)
+        self.bind("<Right>", self.key_down)
         self.bind("x", self.quit_program) # press 'x' to quit
         self.bind("q", self.quit_program) # press 'x' to quit   
 
@@ -145,6 +145,13 @@ class BoardReplay(tk.Tk): # inherit from the tkinter frame object
                                                   fg=TEXT_COLORS[((val+1) % 12) - 1])
      
         self.update_idletasks() # performs rendering tasks while avoiding race conditions due to callbacks
+
+    def key_down(self, e):
+        if e.keysym == "Left":
+            self.go_back()
+        if e.keysym == "Right":
+            if self.current_move < (len(self.board.move_history) - 1):
+                self.go_forward()
 
     def quit_program(self, e):
         quit()
