@@ -101,6 +101,7 @@ class BoardState:
 
         if move.trigger_new_block and add_random_squares:
             self.new_random_square() # only spawn new squares if something was moved or combined
+            move.end_state = self.Squares[:]
 
         if apply_results:
            self.check_if_lost()

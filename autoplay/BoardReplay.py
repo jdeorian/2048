@@ -63,10 +63,14 @@ class BoardReplay(tk.Tk): # inherit from the tkinter frame object
         self.mainloop()
 
     def go_forward(self):
-        if self.current_move < len(self.board.move_history):
+        last_move_index = len(self.board.move_history) - 1
+        already_at_end = self.current_move >= last_move_index
+        if not already_at_end:
             self.current_move += 1
             self.update_board()
-            self.update_grid()
+        else:
+            self.set_end()
+        self.update_grid()
 
     def go_back(self):
         if self.current_move > 0:
@@ -82,34 +86,24 @@ class BoardReplay(tk.Tk): # inherit from the tkinter frame object
 
     def go_end(self):
         last_move_index = len(self.board.move_history) - 1
-        already_at_end = self.current_move >= last_move_index
-
-        if already_at_end:
-            self.update_board()
-            self.update_grid()
-        else:
-            self.current_move = last_move_index
-            self.update_board()
-            self.update_board() #this happens twice to trigger the final state
-            self.update_grid()
+        self.current_move = last_move_index
+        self.update_board()
+        self.set_end()
+        self.update_grid()
 
     def update_board(self):
         mv = self.board.move_history[self.current_move]
         self.lbl_move_num["text"] = str(self.current_move + 1)
-
-        # handle end case
-        if self.current_move == (len(self.board.move_history) - 1) and self.lbl_next_move.cget("text") != "(end)":
-            self.board.Squares = mv.end_state
-            self.lbl_next_move.config(text="(end)")
-            self.btn_to_end.config(state=tk.DISABLED)
-            self.btn_forward.config(state=tk.DISABLED)
-            return
-        
-        # all other cases
         self.board.Squares = mv.start_state
         self.btn_to_end.config(state=tk.NORMAL)
         self.btn_forward.config(state=tk.NORMAL)
-        self.lbl_next_move.config(text=str(mv.direction))        
+        self.lbl_next_move.config(text=str(mv.direction))
+
+    def set_end(self):
+        self.lbl_next_move.config(text="(end)")
+        self.btn_to_end.config(state=tk.DISABLED)
+        self.btn_forward.config(state=tk.DISABLED)
+        self.board.Squares = self.board.move_history[self.current_move].end_state
 
     def init_grid(self):
         size = self.board.BOARD_SIZE
