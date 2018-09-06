@@ -6,10 +6,10 @@ class Move:
     
     def apply(self, board_state):
         self.start_state = board_state.Squares[:]
-        self.trigger_new_block = False
         self.board = board_state
         self.slide_squares()
         self.end_state = board_state.Squares[:]
+        self.trigger_new_block = self.start_state != self.end_state
 
     def changed_board(self):
         return self.start_state != self.end_state
@@ -37,36 +37,24 @@ class Move:
         # slide all the squares over
         indexes = self.get_index_iteration_order()
         for index in indexes:
-            if self.slide_square(index):
-                self.trigger_new_block = True
+            self.slide_square(index)
 
         # combine squares if necessary
-        combine_indexes = indexes.copy()
-        while len(combine_indexes) > 0:
-            index = combine_indexes.pop()
-            if (self.combine_square(combine_indexes, index)): # if the square was combined
-                dest_index = self.get_moved_index(index)
-                combine_indexes.remove(dest_index) # destination square cannot be combined anymore either
-                self.trigger_new_block = True
+        self.combine_squares(indexes)
 
         # once they are combined, move one last time
         for index in indexes:
-            if self.slide_square(index):
-                self.trigger_new_block = True
+            self.slide_square(index)
 
-    # slides a single square to one direction; returns true if any moving or combining was done
+    # slides a single square to one direction
     def slide_square(self, square_index):
         # make sure this square can be moved at all
         index = square_index
         if self.board.Squares[index] == 0:
-            return False
+            return
         new_index = self.get_moved_index(index)
-        if new_index == -1:
-            return False
-        
-        # make sure it is eligible for moving
-        if self.board.Squares[new_index] != 0:
-            return False
+        if new_index == -1 or self.board.Squares[new_index] != 0:
+            return
         
         #if it's eligible move it all the way in that direction
         while (self.board.Squares[new_index] == 0):
@@ -74,34 +62,20 @@ class Move:
             self.board.Squares[index] = 0 # and empty the old square
             index = new_index
             new_index = self.get_moved_index(index)
-            if new_index == -1 or new_index > len(self.board.Squares):
-                return True # a square was moved, but no combining can be done
-        
-        # return whether a move has occurred
-        return index == square_index # if the square has moved, these indexes will be different
-    
-    def combine_square(self, indexes, square_index):
-        # make sure this square can be moved at all
-        index = square_index
-        if self.board.Squares[index] == 0:
-            return False
-        new_index = self.get_moved_index(index)
-        if new_index == -1:
-            return False
 
-        # make sure it is eligible for combining
-        if (self.board.Squares[new_index] != self.board.Squares[index]):
-            return False
-        if not new_index in indexes: #make sure the destination index is allowed to be combined
-            return False
-        
-        # handle combining
-        self.board.Squares[new_index] += 1
-        self.board.Squares[index] = 0
-        return True
+    def combine_squares(self, indexes):
+        sq = self.board.Squares
+        for idx in indexes:
+            idx_new = self.board.combined_index_lookup[(self.direction, idx)]
+            if idx_new == -1 or sq[idx] == 0:
+                continue
+            if sq[idx] == sq[idx_new]:
+                sq[idx] += 1
+                sq[idx_new] = 0
+
 
     def get_moved_index(self, index):
-        return self.board.get_moved_index_dict()[self.direction, index]
+        return -1 if index == -1 else self.board.moved_index_lookup[(self.direction, index)]
         # new_y = self.board.get_y(index) + self.direction.value[1]
         # new_x = self.board.get_x(index) + self.direction.value[0]
         # return -1 if self.board.invalid_coordinates(new_x, new_y) \

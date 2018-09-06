@@ -5,6 +5,7 @@ import random
 
 class BoardState:
     moved_index_lookup = {}
+    combined_index_lookup = {}
 
     def __init__(self):        
         self.BOARD_SIZE = 4
@@ -12,8 +13,15 @@ class BoardState:
         self.Squares = [0] * self.BOARD_SIZE**2
         self.Lost = False
         self.move_history = []
+        self.initialize_dictionaries()
 
-        #initialize moved_index_lookup if necessary
+        # the board starts with two random tiles
+        self.new_random_square()
+        self.new_random_square()
+
+    def initialize_dictionaries(self):
+        # initialize moved_index_lookup if necessary, which looks like this:
+        #   (Direction.Left, 0): -1 <--this means index 0 can't move left
         if len(BoardState.moved_index_lookup.keys()) == 0:
             for d in Direction:
                 for idx in range(self.BOARD_SIZE**2):
@@ -25,12 +33,16 @@ class BoardState:
                     new_index = -1 if invalid else self.get_index(new_x, new_y)
                     BoardState.moved_index_lookup[(d, idx)] = new_index
 
-        # the board starts with two random tiles
-        self.new_random_square()
-        self.new_random_square()
-
-    def get_moved_index_dict(self):
-        return BoardState.moved_index_lookup
+        if len(BoardState.combined_index_lookup.keys()) == 0:
+            for d in Direction:
+                for idx in range(self.BOARD_SIZE**2):
+                    old_x = self.get_x(idx)
+                    old_y = self.get_y(idx)
+                    new_x = old_x + (d.value[0] * -1)
+                    new_y = old_y + d.value[1]
+                    invalid = self.invalid_coordinates(new_x, new_y)
+                    new_index = -1 if invalid else self.get_index(new_x, new_y)
+                    BoardState.combined_index_lookup[(d, idx)] = new_index
 
     # square positions are as follows
     #    x: 1  2  3  4
