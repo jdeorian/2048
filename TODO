@@ -1,3 +1,3 @@
--Build a "playback feature" where a game can be "imported" and played back, with forward/backward controls
 -Add averages to autoplay output
 -Add methodology to statistics, and allow "method" autoplay parameters to contain pipe-delimited contents so that multiple methods can be run at once
+-Can we make the autoplay multi-threaded?

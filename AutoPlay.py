@@ -12,7 +12,7 @@ save_to_file = True
 output_filename = "output.txt" # set output filename
 open_on_finish = True
 
-save_detailed_logs = False  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
+save_detailed_logs = True  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
 log_directory = "logs/"
 
 number_of_plays = 100 # number of iterations to test autoplay method
@@ -32,7 +32,7 @@ for x in range(number_of_plays):
     end_time = time.time()
     result = [x + 1, len(board_state.move_history), board_state.get_score(), end_time - start_time]
     results.append(result)
-    print(result) # prints results
+    # print(result) # prints results
 
     #save the detailed log, if appropriate
     if save_detailed_logs:
