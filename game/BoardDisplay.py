@@ -74,8 +74,8 @@ class BoardDisplay(Frame): # inherit from the tkinter frame object
     def update_grid(self):
         for i in range(self.board.BOARD_SIZE):
             for j in range(self.board.BOARD_SIZE):
-                val = self.board.get_value(j + 1, i + 1)
-                txt = self.board.get_display_value(j + 1, i + 1)
+                val = self.board.get_value(j, i)
+                txt = self.board.get_display_value(j,i)
                 self.grid_cells[i][j].configure(text=txt,                             \
                                                   bg=CELL_COLORS[((val+1) % 12) - 1], \
                                                   fg=TEXT_COLORS[((val+1) % 12) - 1])
