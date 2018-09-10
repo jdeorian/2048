@@ -21,14 +21,14 @@ class BoardDisplay(DisplayBase): # inherit from the tkinter frame object
     def key_binds(self):
         # bind all keys
         for key in KEY_DIRECTION_DICT:
-            self.master.bind(key, self.key_down)
+            self.bind(key, self.key_down)
 
     def key_down(self, e):
         direction = KEY_DIRECTION_DICT[e.char] if e.char != "" \
                else KEY_DIRECTION_DICT["<" + e.keysym + ">"]
 
         if (self.board.Lost):
-            self.master.title("You lost! How embarassing!")
+            self.title("You lost! How embarassing!")
             return # don't process a keypress if it's resetting the board
 
         self.board.move(direction)
