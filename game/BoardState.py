@@ -9,14 +9,14 @@ class BoardState:
     combined_index_lookup = {}
     # (do, undo)
     transform_dict = { 
-        Direction.Left:  (lambda board, field: array_2d_copy(field),\
-                          lambda board, field: array_2d_copy(field)),  
-        Direction.Right: (lambda board, field: invert(field),\
-                          lambda board, field: invert(field)),                       
-        Direction.Up:    (lambda board, field: transpose(invert(field)),\
-                          lambda board, field: invert(transpose(field))),
-        Direction.Down:  (lambda board, field: invert(transpose(field)),\
-                          lambda board, field: transpose(invert(field)))
+        Direction.Left:  (lambda field: array_2d_copy(field),\
+                          lambda field: array_2d_copy(field)),  
+        Direction.Right: (lambda field: invert(field),\
+                          lambda field: invert(field)),                       
+        Direction.Up:    (lambda field: transpose(invert(field)),\
+                          lambda field: invert(transpose(field))),
+        Direction.Down:  (lambda field: invert(transpose(field)),\
+                          lambda field: transpose(invert(field)))
     }
 
     def __init__(self):        

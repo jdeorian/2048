@@ -16,9 +16,9 @@ class Move:
         return self.start_state != self.end_state
 
     def slide(self):
-        transformed = self.board.transform_dict[self.direction][0](self.board, self.start_state)
+        transformed = self.board.transform_dict[self.direction][0](self.start_state)
         moved = [self.slide_row_left(row) for row in transformed]
-        self.board.field = self.board.transform_dict[self.direction][1](self.board, moved)
+        self.board.field = self.board.transform_dict[self.direction][1](moved)
 
     # the board will be transformed to suit this
     def slide_row_left(self, row):
