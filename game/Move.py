@@ -1,86 +1,63 @@
 from game.Direction import Direction
+from util.ArrayMagic import flatten, unflatten, array_2d_copy
 
 class Move:
     def __init__(self, direction: Direction):
         self.direction = direction
     
     def apply(self, board_state):
-        self.start_state = board_state.Squares[:]
+        self.start_state = array_2d_copy(board_state.field)
         self.board = board_state
-        self.slide_squares()
-        self.end_state = board_state.Squares[:]
-        self.trigger_new_block = self.start_state != self.end_state
+        self.slide()
+        self.end_state = array_2d_copy(board_state.field)
+        self.trigger_new_block = self.changed_board()
 
     def changed_board(self):
         return self.start_state != self.end_state
+
+    def slide(self):
+        transformed = self.board.transform_dict[self.direction][0](self.board, self.start_state)
+        moved = [self.slide_row_left(row) for row in transformed]
+        self.board.field = self.board.transform_dict[self.direction][1](self.board, moved)
+
+    # build a self-sliding mechanism; the board will be transformed to suit this
+    def slide_row_left(self, row):
+        # remove 0's from 1d row
+        def tighten_row(row):
+            new_row = [i for i in row if i != 0]
+            new_row += [0 for i in range(len(row) - len(new_row))]
+            return new_row
+
+        # merge items with the same value in a 1d row
+        def merge_row(row):
+            pair = False
+            new_row = []
+            for i in range(len(row)):
+                if pair:
+                    new_row.append(row[i]+1)
+                    pair = False
+                else:
+                    if i + 1 < len(row) and row[i] == row[i + 1] and row[i] != 0:
+                        pair = True
+                        new_row.append(0)
+                    else:
+                        new_row.append(row[i])
+            return new_row
+        
+        return tighten_row(merge_row(tighten_row(row)))
 
     # cs start_state|direction|cs end_state
     def as_log_entry(self):
         comma = ","
         pipe = "|"
-        return pipe.join(map(str,[comma.join(map(str,self.start_state)), \
+        return pipe.join(map(str,[comma.join(map(str,flatten(self.start_state))), \
                                   str(self.direction).split('.')[1],     \
-                                  comma.join(map(str,self.end_state))]))
-
+                                  comma.join(map(str,flatten(self.end_state)))]))
+    
     @staticmethod
     def from_log_entry(text: str):        
         items = text.split('|')
         new_move = Move(Direction[items[1]])
-        new_move.start_state = list(map(int, items[0].split(',')))
-        new_move.end_state = list(map(int, items[2].split(',')))
+        new_move.start_state = unflatten(list(map(int, items[0].split(','))), 4) # TODO: make this so it accepts an arbitary size
+        new_move.end_state = unflatten(list(map(int, items[2].split(','))),4)
         return new_move
-
-    
-    # slide all the squares to one direction on the board
-    # returns whether at least one was moved or combined
-    def slide_squares(self):
-        # slide all the squares over
-        indexes = self.get_index_iteration_order()
-        for index in indexes:
-            self.slide_square(index)
-
-        # combine squares if necessary
-        self.combine_squares(indexes)
-
-        # once they are combined, move one last time
-        for index in indexes:
-            self.slide_square(index)
-
-    # slides a single square to one direction
-    def slide_square(self, square_index):
-        # make sure this square can be moved at all
-        index = square_index
-        if self.board.Squares[index] == 0:
-            return
-        new_index = self.get_moved_index(index)
-        if new_index == -1 or self.board.Squares[new_index] != 0:
-            return
-        
-        #if it's eligible move it all the way in that direction
-        while (self.board.Squares[new_index] == 0):
-            self.board.Squares[new_index] = self.board.Squares[index] # set the new square value
-            self.board.Squares[index] = 0 # and empty the old square
-            index = new_index
-            new_index = self.get_moved_index(index)
-
-    def combine_squares(self, indexes):
-        sq = self.board.Squares
-        for idx in indexes:
-            idx_new = self.board.combined_index_lookup[(self.direction, idx)]
-            if idx_new == -1 or sq[idx] == 0:
-                continue
-            if sq[idx] == sq[idx_new]:
-                sq[idx] += 1
-                sq[idx_new] = 0
-
-
-    def get_moved_index(self, index):
-        return -1 if index == -1 else self.board.moved_index_lookup[(self.direction, index)]
-
-    # to support executing all moves in one iteration, squares must be
-    # evaluated in the correct order based on the direction
-    def get_index_iteration_order(self):
-        indexes = list(range(self.board.BOARD_SIZE**2))
-        if self.direction.value[0] > 0 or self.direction.value[1] > 0:
-            indexes.reverse() # in place reverse
-        return indexes

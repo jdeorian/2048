@@ -1,48 +1,32 @@
 from game.Direction import Direction
 from math import floor
 from game.Move import Move
+from util.ArrayMagic import invert, transpose, array_2d_copy
 import random
 
 class BoardState:
     moved_index_lookup = {}
     combined_index_lookup = {}
+    # (do, undo)
+    transform_dict = { 
+        Direction.Left:  (lambda board, field: array_2d_copy(field),\
+                          lambda board, field: array_2d_copy(field)),  
+        Direction.Right: (lambda board, field: invert(field),\
+                          lambda board, field: invert(field)),                       
+        Direction.Up:    (lambda board, field: transpose(invert(field)),\
+                          lambda board, field: invert(transpose(field))),
+        Direction.Down:  (lambda board, field: invert(transpose(field)),\
+                          lambda board, field: transpose(invert(field)))
+    }
 
     def __init__(self):        
         self.BOARD_SIZE = 4
-        self.FOUR_CHANCE = .15 # the likelihood that random new squares will be a 4 instead of a 2
-        self.Squares = [0] * self.BOARD_SIZE**2
-        self.Lost = False
-        self.move_history = []
-        self.initialize_dictionaries()
+        self.FOUR_CHANCE = .11 # the likelihood that random new squares will be a 4 instead of a 2
+        self.reset_board()
 
         # the board starts with two random tiles
         self.new_random_square()
         self.new_random_square()
-
-    def initialize_dictionaries(self):
-        # initialize moved_index_lookup if necessary, which looks like this:
-        #   (Direction.Left, 0): -1 <--this means index 0 can't move left
-        if len(BoardState.moved_index_lookup.keys()) == 0:
-            for d in Direction:
-                for idx in range(self.BOARD_SIZE**2):
-                    old_x = self.get_x(idx)
-                    old_y = self.get_y(idx)
-                    new_x = old_x + d.value[0]
-                    new_y = old_y + d.value[1]                    
-                    invalid = self.invalid_coordinates(new_x, new_y)
-                    new_index = -1 if invalid else self.get_index(new_x, new_y)
-                    BoardState.moved_index_lookup[(d, idx)] = new_index
-
-        if len(BoardState.combined_index_lookup.keys()) == 0:
-            for d in Direction:
-                for idx in range(self.BOARD_SIZE**2):
-                    old_x = self.get_x(idx)
-                    old_y = self.get_y(idx)
-                    new_x = old_x - d.value[0]
-                    new_y = old_y - d.value[1]
-                    invalid = self.invalid_coordinates(new_x, new_y)
-                    new_index = -1 if invalid else self.get_index(new_x, new_y)
-                    BoardState.combined_index_lookup[(d, idx)] = new_index
 
     # square positions are as follows
     #    x: 1  2  3  4
@@ -52,33 +36,22 @@ class BoardState:
     # 3:    8  9 10 11
     # 4:   12 13 14 15 
     def get_value(self, x, y):
-        return self.Squares[self.get_index(x, y)]
+        return self.field[x][y]
 
     def get_score(self):
-        score = 0
-        for val in self.Squares:
-            if val > 0:
-                score += self.score_value(val)
-        return score
+        return sum([self.score_value(item) for row in self.field for item in row])
 
     def get_index(self, x, y):
         return (x - 1) + self.BOARD_SIZE * (y - 1)
 
     def get_display_value(self, x, y):
-        return self.display_value(self.get_value(x, y))
+        return self.display_value(self.field[x][y])
 
     def get_y(self, index):
         return int(index/self.BOARD_SIZE + 1)
     
     def get_x(self, index):
         return int(index % self.BOARD_SIZE + 1)
-
-    def get_2d_state(self):
-        return self.state_to_2d_state(self.Squares, self.BOARD_SIZE)
-
-    @staticmethod
-    def state_to_2d_state(state, size): # state is an array of values, size is the board size
-        return [state[x:x+size] for x in range(0, size**2, size)]
 
     # square values are stored as powers of 2. So:
     # 1 = 2, 2 = 4, 3 = 8, and so on. That way when
@@ -113,13 +86,13 @@ class BoardState:
 
         if move.trigger_new_block and add_random_squares:
             self.new_random_square() # only spawn new squares if something was moved or combined
-            move.end_state = self.Squares[:]
+            move.end_state = array_2d_copy(self.field)
 
         if apply_results:
            self.check_if_lost()
            self.move_history.append(move)
         else: #undo the move
-            self.Squares = move.start_state[:]
+            self.field = [row[:] for row in move.start_state]
 
         #either way, return the move data
         return move
@@ -133,42 +106,40 @@ class BoardState:
                not 1 <= y <= self.BOARD_SIZE
 
     def get_empty_squares(self):
-        return [idx for idx, val in enumerate(self.Squares) \
-                              if val == 0]
+        return [(i,j) for i in range(self.BOARD_SIZE) \
+                      for j in range(self.BOARD_SIZE) \
+                      if self.field[i][j] == 0]
 
     def new_random_square(self):
-        # if we need an empty square but can't place one, we lost
-        empty_squares = self.get_empty_squares()
-        if len(empty_squares) == 0: # if there are no more empty squares
-            self.Lost = True
-            return
-        
-        # get a random index
-        random_square = random.choice(empty_squares)
+        # get the value of the new square
+        new_val = 2 if random.random() <= self.FOUR_CHANCE else 1
 
-        # increment the random square (twice if necessary)
-        self.Squares[random_square] += 1
-        if (random.random() >= (1 - self.FOUR_CHANCE)):
-            self.Squares[random_square] += 1
+        # get coordinates of new square
+        (i,j) = random.choice([(i,j) for i in range(self.BOARD_SIZE) \
+                                     for j in range(self.BOARD_SIZE) \
+                                     if self.field[i][j] == 0])
+
+        # set the value
+        self.field[i][j] = new_val
     
     def check_if_lost(self):
-        no_empty_squares = len(self.get_empty_squares()) == 0
+        no_empty_squares = not any([item == 0 for row in self.field for item in row])
         moves = self.moves_on_board()
         self.Lost = no_empty_squares and not moves
         
     # checks to see if there are adjacent numbers
     def moves_on_board(self):
-        board_matrix = self.get_2d_state()
         for x in range(self.BOARD_SIZE):
             for y in range(self.BOARD_SIZE):
-                if (x != (self.BOARD_SIZE - 1) and board_matrix[x][y] == board_matrix[x + 1][y]) or \
-                   (y != (self.BOARD_SIZE - 1) and board_matrix[x][y] == board_matrix[x][y + 1]):
+                if (x != (self.BOARD_SIZE - 1) and self.field[x][y] == self.field[x + 1][y]) or \
+                   (y != (self.BOARD_SIZE - 1) and self.field[x][y] == self.field[x][y + 1]):
                     return True
         return False # if we weren't able to find any adjacent moves
 
     def reset_board(self):
-        self.Squares = [0] * self.BOARD_SIZE**2
+        self.field = [[0 for i in range(self.BOARD_SIZE)] for j in range(self.BOARD_SIZE)]
         self.Lost = False
+        self.move_history = []
 
     # the import history is a list of Move objects
     def import_from_log(self, import_history: list):
@@ -178,4 +149,4 @@ class BoardState:
 
         #set the current state of the board to the last state
         last_move = len(import_history) - 1
-        self.Squares = import_history[last_move].end_state
+        self.field = import_history[last_move].end_state
