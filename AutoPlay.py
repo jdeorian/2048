@@ -25,10 +25,6 @@ methods = AutoPlayMethods()
 method_to_call = getattr(methods, autoplay_method)
 results = []
 
-def log_result(result):
-    print(result)
-    results.append(result)
-
 def run_method(x):
     new_board = BoardState()
     start_time = time.time()
@@ -58,7 +54,7 @@ if __name__ == '__main__':
     # perform test iterations
     p = mp.Pool()
     for x in range(number_of_plays):
-        p.apply_async(run_method, (x,), callback=log_result)
+        p.apply_async(run_method, (x,), callback=results.append)
     p.close()
     p.join()
 
