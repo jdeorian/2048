@@ -1,23 +1,24 @@
 from game.Direction import Direction
+from util.ArrayMagic import flatten, unflatten, array_2d_copy
 
 class Move:
     def __init__(self, direction: Direction):
         self.direction = direction
     
     def apply(self, board_state):
-        self.start_state = board_state.get_field_copy()
+        self.start_state = array_2d_copy(board_state.field)
         self.board = board_state
         self.slide()
-        self.end_state = [row[:] for row in board_state.field]
+        self.end_state = array_2d_copy(board_state.field)
         self.trigger_new_block = self.changed_board()
 
     def changed_board(self):
         return self.start_state != self.end_state
 
     def slide(self):
-        transformed = self.board.transform_dict[self.direction](self.board, self.start_state)
+        transformed = self.board.transform_dict[self.direction][0](self.board, self.start_state)
         moved = [self.slide_row_left(row) for row in transformed]
-        self.end_state = self.board.transform_dict[self.direction](self.board, moved)
+        self.board.field = self.board.transform_dict[self.direction][1](self.board, moved)
 
     # build a self-sliding mechanism; the board will be transformed to suit this
     def slide_row_left(self, row):
@@ -33,10 +34,10 @@ class Move:
             new_row = []
             for i in range(len(row)):
                 if pair:
-                    new_row.append(2 * row[i])
+                    new_row.append(row[i]+1)
                     pair = False
                 else:
-                    if i + 1 < len(row) and row[i] == row[i + 1]:
+                    if i + 1 < len(row) and row[i] == row[i + 1] and row[i] != 0:
                         pair = True
                         new_row.append(0)
                     else:
@@ -45,21 +46,18 @@ class Move:
         
         return tighten_row(merge_row(tighten_row(row)))
 
-    # TODO needs to handle new export format
     # cs start_state|direction|cs end_state
     def as_log_entry(self):
         comma = ","
         pipe = "|"
-        return pipe.join(map(str,[comma.join(map(str,self.start_state)), \
+        return pipe.join(map(str,[comma.join(map(str,flatten(self.start_state))), \
                                   str(self.direction).split('.')[1],     \
-                                  comma.join(map(str,self.end_state))]))
-
-    # TODO needs to handle new import format
+                                  comma.join(map(str,flatten(self.end_state)))]))
+    
     @staticmethod
     def from_log_entry(text: str):        
         items = text.split('|')
         new_move = Move(Direction[items[1]])
-        new_move.start_state = list(map(int, items[0].split(',')))
-        new_move.end_state = list(map(int, items[2].split(',')))
-        return new_move\
-        
+        new_move.start_state = unflatten(list(map(int, items[0].split(','))), 4) # TODO: make this so it accepts an arbitary size
+        new_move.end_state = unflatten(list(map(int, items[2].split(','))),4)
+        return new_move
