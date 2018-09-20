@@ -69,7 +69,7 @@ class BoardState:
     # :add_random_squares determines whether random squares will be added after the move
     # :apply_results determines whether the board state will be re-set to its original state
     #                after the calculation. This is useful for branch assessments.
-    def move(self, direction: Direction, add_random_squares=True, apply_results=True):
+    def move(self, direction: Direction, weights:dict = {}, add_random_squares=True, apply_results=True):            
 		# shortcut for repeat moves
         if len(self.move_history) > 0:
             last_move = self.move_history[len(self.move_history) - 1]
@@ -90,6 +90,8 @@ class BoardState:
 
         if apply_results:
            self.check_if_lost()
+           if weights: # if the dictionary provided isn't empty
+               move.weights = weights #assign it
            self.move_history.append(move)
         else: #undo the move
             self.field = [row[:] for row in move.start_state]
@@ -137,7 +139,7 @@ class BoardState:
         return False # if we weren't able to find any adjacent moves
 
     def reset_board(self):
-        self.field = [[0 for i in range(self.BOARD_SIZE)] for j in range(self.BOARD_SIZE)]
+        self.field = [[0] * self.BOARD_SIZE] * self.BOARD_SIZE
         self.Lost = False
         self.move_history = []
 

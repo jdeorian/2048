@@ -17,6 +17,8 @@ class BoardReplay(DisplayBase): # inherit from the tkinter frame object
 
     def custom_components(self):
         # initialize control buttons
+        self.lbl_weights = tk.Label(self, text="", font=VAL_FONT)
+        self.lbl_weights.pack(side=tk.BOTTOM)
         self.btn_to_beginning = tk.Button(self, text="<<", font=BTN_FONT, command=self.go_beginning)
         self.btn_to_beginning.pack(side=tk.LEFT)
         self.btn_back = tk.Button(self, text="<", font=BTN_FONT, command=self.go_back)
@@ -65,6 +67,7 @@ class BoardReplay(DisplayBase): # inherit from the tkinter frame object
         self.lbl_move_num["text"] = str(self.current_move + 1)
         self.board.field = mv.end_state if self.show_end else mv.start_state
         self.lbl_next_move.config(text=str(mv.direction))
+        self.lbl_weights.config(text=mv.get_weight_str())
 
     def set_end(self):
         self.show_end = True

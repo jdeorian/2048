@@ -6,18 +6,18 @@ from autoplay.pseudo_ML import Pseudo_ML
 MAX_MOVES = 5000 # after this point we're probably going in a circle for some reason
 
 # All play methods must accept board_state (a BoardState object) as a parameter,
-# and no other parameters.
+# a parameter dictionary (optional), and no other parameters.
 class AutoPlayMethods:
 
     @staticmethod
-    def random(board_state):
+    def random(board_state, params: dict = None):
         while not board_state.Lost:
             board_state.move(random.choice([d for d in Direction]))
 
     directions = []
 
     @staticmethod
-    def predetermined_random(board_state: BoardState):
+    def predetermined_random(board_state: BoardState, params: dict = None):
         # get the pre-determined set of random moves if it hasn't already been loaded
         if len(AutoPlayMethods.directions) == 0:
             rnd_filename = "random.dat"
@@ -34,7 +34,7 @@ class AutoPlayMethods:
     # a simple improvement on random play. Alternate corner directions for a
     # while, then occasionally throw in another direction so it doesn't stall out
     @staticmethod
-    def stutter(board_state):
+    def stutter(board_state, params: dict = None):
         stutters = 5 # number of repetitions of corner keys before random direction
         while not board_state.Lost:
             start_score = board_state.get_score()
@@ -65,4 +65,4 @@ class AutoPlayMethods:
             if (len(top_scorers) > 1):
                 this_dir = random.choice(top_scorers)
 
-            board_state.move(this_dir)
+            board_state.move(this_dir, weights.copy())

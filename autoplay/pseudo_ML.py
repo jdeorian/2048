@@ -36,7 +36,7 @@ class Pseudo_ML:
         squares_array = flatten(board_state.field)
         # get a list of the board state after making all legal moves
         for direction in Direction:
-            dir_move = board_state.move(direction, False, False)
+            dir_move = board_state.move(direction, {}, False, False)
             if dir_move.changed_board(): # ignore moves that do not change the board
                 possible_states = self.enumerate_possible_outcomes(squares_array, board_state.FOUR_CHANCE, board_state.BOARD_SIZE)
                 for state, prob in possible_states:
