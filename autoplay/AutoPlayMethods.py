@@ -3,6 +3,8 @@ from game.Direction import Direction
 import random
 from autoplay.pseudo_ML import Pseudo_ML
 
+MAX_MOVES = 5000 # after this point we're probably going in a circle for some reason
+
 # All play methods must accept board_state (a BoardState object) as a parameter,
 # and no other parameters.
 class AutoPlayMethods:
@@ -50,8 +52,8 @@ class AutoPlayMethods:
 
     #an attempt to do some state analysis
     @staticmethod
-    def pseudo_ML(board_state):
-        pml = Pseudo_ML()
+    def pseudo_ML(board_state: BoardState, params: dict = None):
+        pml = Pseudo_ML() if params == None else Pseudo_ML(params)
         while not board_state.Lost:
             weights = pml.get_direction_weights(board_state)
             direction_rec = pml.get_direction_recommendation(weights)
