@@ -60,8 +60,8 @@ class Move:
         new_move = Move(Direction[items[1]])
         new_move.start_state = unflatten(list(map(int, items[0].split(comma))), 4) # TODO: make this so it accepts an arbitary size
         new_move.end_state = unflatten(list(map(int, items[2].split(comma))),4)
-        # new_move.weights = { Direction[weight[0]]:float(weight[1]) for w_str in items[3].split(comma) for weight in w_str.rstrip().split(colon) }
-
+        
+        # TODO: Do this with list comprehension
         for w in items[3].split(comma):
             weight = w.rstrip().split(colon)
             w_d = Direction[weight[0]]

@@ -1,18 +1,8 @@
 import time
-from autoplay.AutoPlay import run_method, get_headers, get_formats, run_iterations, save_summary, print_process_summary, get_param_permutations
+from autoplay.AutoPlay import run_iterations
 
 ####################### SET TEST PARAMETERS HERE #######################
-save_to_file = True
-output_filename = "output.txt" # set output filename
-open_on_finish = True
-multiprocessing_enabled = True
-file_delim = '\t' #tab-delimited file output
-
-save_detailed_logs = True  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
-log_directory = "logs"
-
-number_of_plays = 2 # number of iterations to test autoplay method
-autoplay_method = "pseudo_ML" # pick the method to run here
+#Set all other parameters in the autoplay module
 
 # name: min, max, step
 PARAM_DICT = {
@@ -28,14 +18,5 @@ PARAM_DICT = {
 ########################################################################
 
 if __name__ == '__main__':
-    #make a list of all the possibilities to try
-    iterations = get_param_permutations(PARAM_DICT)
-
     results = []
-    p_start = time.time()
-    run_iterations(autoplay_method, number_of_plays, results, multiprocessing_enabled, log_directory, iterations)
-    
-    if save_to_file:
-        save_summary([output_filename, results, get_formats(PARAM_DICT), file_delim, '\n', get_headers(PARAM_DICT)], open_on_finish)
-
-    print_process_summary(p_start)
+    run_iterations(results, PARAM_DICT)
