@@ -3,6 +3,7 @@
 __pycache__/
 logs/
 .vs/
+test/
 
 # Don't track these extensions
 *.pyc
