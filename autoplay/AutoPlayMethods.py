@@ -1,7 +1,7 @@
 from game.BoardState import BoardState
 from game.Direction import Direction
 import random
-from autoplay.pseudo_ML import Pseudo_ML
+from autoplay.pml.pseudo_ML import Pseudo_ML
 
 MAX_MOVES = 5000 # after this point we're probably going in a circle for some reason
 

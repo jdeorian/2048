@@ -19,7 +19,7 @@ file_delim = '\t' #tab-delimited file output
 save_detailed_logs = True  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
 log_directory = "logs"
 
-number_of_plays = 2 # number of iterations to test autoplay method
+number_of_plays = 1000 # number of iterations to test autoplay method
 autoplay_method = "pseudo_ML" # pick the method to run here
 ########################################################################
 
@@ -29,6 +29,8 @@ def run_method(x, method_to_call, log_path:str = '', params: dict = {}):
     start_time = time.time()
     method_to_call(new_board, params)
     end_time = time.time()
+
+    print(f'End: {x}')
 
     # save the detailed log, if appropriate
     if log_path:
