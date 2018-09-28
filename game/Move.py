@@ -5,6 +5,9 @@ comma = ","
 pipe = "|"
 colon = ":"
 
+LOG_FIELD_CNT = 4
+BOARD_SIZE = 4 # TODO: eliminate dependence on this
+
 class Move:
     def __init__(self, direction: Direction):
         self.direction = direction
@@ -53,13 +56,26 @@ class Move:
     
     def get_weight_str(self): # Up:0,Down:-11,Left:23,Right:4
         return comma.join([f"{str(d).split('.')[1]}:{'%.4f' % w}" for d, w in self.weights.items()])
+
+    def is_valid(self):
+        return hasattr(self, 'start_state') and hasattr(self, 'end_state')
     
     @staticmethod
-    def from_log_entry(text: str):        
-        items = text.split(pipe)
+    def from_log_entry(text: str):       
+        items = [str.strip(item) for item in text.split(pipe)]
+        if len(items) != LOG_FIELD_CNT:
+            return Move(Direction.Up)
         new_move = Move(Direction[items[1]])
-        new_move.start_state = unflatten(list(map(int, items[0].split(comma))), 4) # TODO: make this so it accepts an arbitary size
-        new_move.end_state = unflatten(list(map(int, items[2].split(comma))),4)
+
+        # (try to) parse start and end state
+        try:
+            psi = [int(s) for s in items[0].split(comma)]
+            pei = [int(s) for s in items[2].split(comma)]
+        except:
+            return Move(Direction.Up) # this means there was a parsing error
+
+        new_move.start_state = unflatten(psi, BOARD_SIZE) # TODO: make this so it accepts an arbitary size
+        new_move.end_state = unflatten(pei, BOARD_SIZE)
         
         # TODO: Do this with list comprehension
         for w in items[3].split(comma):

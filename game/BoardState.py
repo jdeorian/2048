@@ -139,7 +139,7 @@ class BoardState:
         return False # if we weren't able to find any adjacent moves
 
     def reset_board(self):
-        self.field = [[0] * self.BOARD_SIZE] * self.BOARD_SIZE
+        self.field = [[0] * self.BOARD_SIZE for _ in range(self.BOARD_SIZE)]
         self.Lost = False
         self.move_history = []
 
