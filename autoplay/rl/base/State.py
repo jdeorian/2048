@@ -1,4 +1,6 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
+
+# NOTE: This is currently in conflict with the "RewardMethod" class. Where does the scoring mechanism belong?
 
 # Because methods of scoring a given state are dependent on the
 # implementation details of that state, a state and its respective
@@ -6,6 +8,8 @@ from abc import abstractmethod
 # should inherit from State and implement the score_state method.
 
 class State:
+    __metaclass__ = ABCMeta # prevents classes from inheriting unless the abstract methods have been overloaded
+
     # states are represented by [][] of integers ("fields")
     def __init__(self, state_old: list, state_new: list):
         self.state_old = state_old

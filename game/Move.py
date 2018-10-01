@@ -16,8 +16,10 @@ class Move:
     def apply(self, board_state):
         self.start_state = array_2d_copy(board_state.field)
         self.board = board_state
+        # old_score = self.board.get_score()
         self.slide()
         self.end_state = array_2d_copy(board_state.field)
+        # self.reward = self.board.get_score() - old_score # naive reward calculation
         self.trigger_new_block = self.changed_board()
 
     def changed_board(self):

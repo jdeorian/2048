@@ -1,9 +1,11 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 
 # to use this inheritable base, declare a class that inherits from it,
 # then implement the get_discounted_reward method
 
 class RewardDiscountMethod:
+    __metaclass__ = ABCMeta # prevents classes from inheriting unless the abstract methods have been overloaded
+
     def __init__(self, rate: float):
         self.discount_rate = rate
     

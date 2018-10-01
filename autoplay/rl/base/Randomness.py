@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 
 # to use this inheritable base, declare a class that inherits from it,
 # then 
@@ -11,6 +11,8 @@ from abc import abstractmethod
 # randomness rate of 0 means that the randomness rate will be unchanged
 # from the base iteration randomness rate.
 class RandomnessMethod:
+    __metaclass__ = ABCMeta # prevents classes from inheriting unless the abstract methods have been overloaded
+
     def __init__(self, iter_rate: float, move_rate):
         self.iteration_rate = iter_rate
         self.move_rate = move_rate
