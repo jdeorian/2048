@@ -1,5 +1,7 @@
 from game.Direction import Direction
 from util.ArrayMagic import flatten, unflatten, array_2d_copy
+from game.Field import Field
+from anytree import Node
 
 comma = ","
 pipe = "|"
@@ -8,44 +10,47 @@ colon = ":"
 LOG_FIELD_CNT = 4
 BOARD_SIZE = 4 # TODO: eliminate dependence on this
 
-class Move:
-    def __init__(self, direction: Direction):
-        self.direction = direction
+class Move(Node):
+    def __init__(self, direction: Direction, parent: Node = None):
+        super().__init__(str(direction), parent)
+        if parent:
+            self.board = parent.board
+            self.start_state = parent.end_state
+        else: 
+            self.start_state = Field()
+
+        self.chance = 1
+        self.direction = direction        
         self.weights = { d:0 for d in Direction } # store the direction weights
-    
+
+    # return the reward decision, which is the ancestor direction nearest to the root that is not the root
+    def reward_direction(self):
+        if not self.parent:
+            return None
+        return self.get_root_eldest_child().direction
+
+    def get_root(self):
+        if not self.parent: # this is the root
+            return self
+        return self.get_root_eldest_child().parent
+
+    def get_root_eldest_child(self):
+        if not self.parent: # this is the root
+            return None
+        
+        m = self
+        while m.parent.parent:
+            m = m.parent
+        return m
+
+   
     def apply(self, board_state):
-        self.start_state = array_2d_copy(board_state.field)
         self.board = board_state
-        # old_score = self.board.get_score()
-        self.slide()
-        self.end_state = array_2d_copy(board_state.field)
-        # self.reward = self.board.get_score() - old_score # naive reward calculation
+        self.board.field = self.end_state = board_state.field.slide(self.direction)
         self.trigger_new_block = self.changed_board()
 
     def changed_board(self):
         return self.start_state != self.end_state
-
-    def slide(self):
-        transformed = self.board.transform_dict[self.direction][0](self.start_state)
-        moved = [self.slide_row_left(row) for row in transformed]
-        self.board.field = self.board.transform_dict[self.direction][1](moved)
-
-    # the board will be transformed to suit this
-    def slide_row_left(self, row):
-        slide = [num for num in row if num]
-        pairs = []
-        for idx, num in enumerate(slide):
-            if idx == len(slide)-1:
-                pairs.append(num)
-                break
-            elif num == slide[idx+1]:
-                pairs.append(num+1)
-                slide[idx+1] = None
-            else:
-                pairs.append(num)  # Even if not pair you must append
-        slide = [pair for pair in pairs if pair] 
-        slide.extend([0] * (len(row) - len(slide)))
-        return slide
 
     # cs start_state|direction|cs end_state|weights
     def as_log_entry(self):
@@ -86,3 +91,38 @@ class Move:
             new_move.weights[w_d] = float(weight[1])
 
         return new_move
+
+    # creates a move object to represent a possible future state of a board
+    @staticmethod
+    def as_future_state(direction: Direction, parent, end_state:Field, chance: float):
+        m = Move(direction, parent)
+        m.end_state = end_state
+        m.chance = chance * parent.chance
+        return m
+
+    @staticmethod
+    def as_root_node(board):
+        m = Move(Direction.Up)
+        m.board = board
+        m.end_state = board.field
+        return m
+
+    def generate_children(self, force_overwrite: bool = False):
+        # if there are already children and we don't need to generate new ones,
+        # return the ones we already have
+        if not force_overwrite and self.children:
+            return self.children
+
+        # clear children
+        self.children = []
+
+        for d in Direction:
+            if self.end_state != self.end_state.slide(d):
+                outcomes = self.end_state.enumerate_possible_outcomes(d, self.board.FOUR_CHANCE)
+                for o in outcomes:
+                    Move.as_future_state(d, self, *o) # add these to the tree
+        
+        return self.children
+    
+    def get_reward(self):
+        return self.end_state.get_score() - self.get_root().end_state.get_score()

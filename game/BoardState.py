@@ -3,21 +3,12 @@ from math import floor
 from game.Move import Move
 from util.ArrayMagic import invert, transpose, array_2d_copy
 import random
+from game.Field import Field
 
 class BoardState:
     moved_index_lookup = {}
     combined_index_lookup = {}
-    # (do, undo)
-    transform_dict = { 
-        Direction.Left:  (lambda field: array_2d_copy(field),\
-                          lambda field: array_2d_copy(field)),  
-        Direction.Right: (lambda field: invert(field),\
-                          lambda field: invert(field)),                       
-        Direction.Up:    (lambda field: transpose(invert(field)),\
-                          lambda field: invert(transpose(field))),
-        Direction.Down:  (lambda field: invert(transpose(field)),\
-                          lambda field: transpose(invert(field)))
-    }
+
 
     def __init__(self):        
         self.BOARD_SIZE = 4
@@ -38,32 +29,12 @@ class BoardState:
     def get_value(self, x, y):
         return self.field[x][y]
 
-    def get_score(self):
-        return sum([self.score_value(item) for row in self.field for item in row])
-
-    def get_index(self, x, y):
-        return (x - 1) + self.BOARD_SIZE * (y - 1)
-
     def get_display_value(self, x, y):
         return self.display_value(self.field[x][y])
-
-    def get_y(self, index):
-        return int(index/self.BOARD_SIZE + 1)
-    
-    def get_x(self, index):
-        return int(index % self.BOARD_SIZE + 1)
-
-    # square values are stored as powers of 2. So:
-    # 1 = 2, 2 = 4, 3 = 8, and so on. That way when
-    # square combine, they can increment without
-    # needing to be aware of their actual values.
-    @staticmethod
-    def score_value(square_value):
-        return 1 << square_value
     
     @staticmethod
     def display_value(square_value):
-        return str(BoardState.score_value(square_value))
+        return str(Field.score_value(square_value))
 
     # direction must be Direction object. Returns the move object.
     # :add_random_squares determines whether random squares will be added after the move
@@ -71,17 +42,15 @@ class BoardState:
     #                after the calculation. This is useful for branch assessments.
     def move(self, direction: Direction, weights:dict = {}, add_random_squares=True, apply_results=True):            
 		# shortcut for repeat moves
+        last_move = None
         if len(self.move_history) > 0:
             last_move = self.move_history[len(self.move_history) - 1]
 
             #if we already tried this move and nothing happened, don't bother re-calculating
             if last_move.direction == direction and not last_move.trigger_new_block:
                 return last_move
-
-        # print("Before:")
-        # print(self.get_2d_state())  
-        # print("Score: " + str(self.get_score()))
-        move = Move(direction)
+        
+        move = Move(direction, last_move)
         move.apply(self)
 
         if move.trigger_new_block and add_random_squares:
@@ -94,52 +63,30 @@ class BoardState:
                move.weights = weights #assign it
            self.move_history.append(move)
         else: #undo the move
-            self.field = [row[:] for row in move.start_state]
+            self.field = Field(field=move.start_state)
 
         #either way, return the move data
         return move
-
-        # print("After:")
-        # print(self.get_2d_state())
-        # print("Score: " + str(self.get_score()))
     
-    def invalid_coordinates(self, x, y):
-        return not 1 <= x <= self.BOARD_SIZE or \
-               not 1 <= y <= self.BOARD_SIZE
-
-    def get_empty_squares(self):
-        return [(i,j) for i in range(self.BOARD_SIZE) \
-                      for j in range(self.BOARD_SIZE) \
-                      if self.field[i][j] == 0]
-
     def new_random_square(self):
-        # get the value of the new square
         new_val = 2 if random.random() <= self.FOUR_CHANCE else 1
-
-        # get coordinates of new square
-        (i,j) = random.choice([(i,j) for i in range(self.BOARD_SIZE) \
-                                     for j in range(self.BOARD_SIZE) \
-                                     if self.field[i][j] == 0])
-
-        # set the value
-        self.field[i][j] = new_val
+        self.field.set_random_empty_square(new_val)
     
     def check_if_lost(self):
-        no_empty_squares = not any([item == 0 for row in self.field for item in row])
-        moves = self.moves_on_board()
-        self.Lost = no_empty_squares and not moves
+        no_empty_squares =  not any(self.field.get_empty_squares())
+        self.Lost = no_empty_squares and not self.moves_on_board()
         
     # checks to see if there are adjacent numbers
     def moves_on_board(self):
-        for x in range(self.BOARD_SIZE):
-            for y in range(self.BOARD_SIZE):
-                if (x != (self.BOARD_SIZE - 1) and self.field[x][y] == self.field[x + 1][y]) or \
-                   (y != (self.BOARD_SIZE - 1) and self.field[x][y] == self.field[x][y + 1]):
-                    return True
-        return False # if we weren't able to find any adjacent moves
+        fld = self.field
+        sz = fld.size
+        return any([(x,y) for x in range(sz) \
+                          for y in range(sz) \
+                          if (x != (sz - 1) and fld[x][y] == fld[x + 1][y]) or \
+                             (y != (sz - 1) and fld[x][y] == fld[x][y + 1])])
 
     def reset_board(self):
-        self.field = [[0] * self.BOARD_SIZE for _ in range(self.BOARD_SIZE)]
+        self.field = Field(self.BOARD_SIZE)
         self.Lost = False
         self.move_history = []
 

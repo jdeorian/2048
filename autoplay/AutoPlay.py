@@ -13,14 +13,14 @@ import multiprocessing as mp
 save_to_file = True
 output_filename = "output.txt" # set output filename
 open_on_finish = True
-multiprocessing_enabled = True
+multiprocessing_enabled = False
 file_delim = '\t' #tab-delimited file output
 
 save_detailed_logs = True  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
 log_directory = "logs"
 
-number_of_plays = 1000 # number of iterations to test autoplay method
-autoplay_method = "pseudo_ML" # pick the method to run here
+number_of_plays = 1 # number of iterations to test autoplay method
+autoplay_method = "branch" # pick the method to run here
 ########################################################################
 
 # Blank log_path of no log desired
@@ -40,7 +40,7 @@ def run_method(x, method_to_call, log_path:str = '', params: dict = {}):
         log_file.close()        
     
     # return the results
-    return [x, len(new_board.move_history), new_board.get_score(), end_time - start_time, *params.values()]
+    return [x, len(new_board.move_history), new_board.field.get_score(), end_time - start_time, *params.values()]
 
 def get_param_permutations(params: dict):
     iteration_sets = [[(key, x) for x in range(*val)] for key, val in params.items()]
@@ -65,7 +65,7 @@ def save_summary(it_results: list, params:dict = {}):
             webbrowser.open(output_filename)
 
 def get_headers(params: dict = {}, delim: str = '\t'):
-    headers = ["Iteration", "Steps", "Score", "Time(s)"] + list(params.keys())
+    headers = ["Iter", "Steps", "Score", "Time(s)"] + list(params.keys())
     return delim.join(headers)
 
 def get_formats(params: dict = {}):

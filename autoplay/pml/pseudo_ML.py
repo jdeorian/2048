@@ -46,6 +46,7 @@ class Pseudo_ML:
         
         return { key:val for key, val in direction_scores.items() if val != 0 }
     
+    # returns an array of possible outcomes with their associated likelihood (field, chance)
     def enumerate_possible_outcomes(self, squares_array, four_chance, size):
         retVal = []        
         empty_indexes = [idx for idx, val in enumerate(squares_array) \
