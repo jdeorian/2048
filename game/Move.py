@@ -1,7 +1,6 @@
 from game.Direction import Direction
 from util.ArrayMagic import flatten, unflatten, array_2d_copy
 from game.Field import Field
-from anytree import Node
 
 comma = ","
 pipe = "|"
@@ -10,9 +9,11 @@ colon = ":"
 LOG_FIELD_CNT = 4
 BOARD_SIZE = 4 # TODO: eliminate dependence on this
 
-class Move(Node):
-    def __init__(self, direction: Direction, parent: Node = None):
-        super().__init__(str(direction), parent)
+class Move:
+    children = []
+
+    def __init__(self, direction: Direction, parent = None):
+        self.parent = parent
         if parent:
             self.board = parent.board
             self.start_state = parent.end_state
@@ -20,8 +21,20 @@ class Move(Node):
             self.start_state = Field()
 
         self.chance = 1
-        self.direction = direction        
-        self.weights = { d:0 for d in Direction } # store the direction weights
+        self.direction = direction
+
+    # _weights property, only initialized if used
+    _weights = {}
+
+    def get_weights(self):
+        if not self._weights:
+            self._weights = { d:0 for d in Direction }
+        return self._weights
+    
+    def set_weights(self, weights: dict):
+        self._weights = weights
+
+    weights = property(get_weights, set_weights)
 
     # return the reward decision, which is the ancestor direction nearest to the root that is not the root
     def reward_direction(self):
@@ -120,9 +133,10 @@ class Move(Node):
             if self.end_state != self.end_state.slide(d):
                 outcomes = self.end_state.enumerate_possible_outcomes(d, self.board.FOUR_CHANCE)
                 for o in outcomes:
-                    Move.as_future_state(d, self, *o) # add these to the tree
+                    self.children.append(Move.as_future_state(d, self, *o)) # add these to the tree
         
         return self.children
     
+    # TODO: this needs to take in a reward calculation method
     def get_reward(self):
-        return self.end_state.get_score() - self.get_root().end_state.get_score()
+        return self.end_state.get_sum() - self.get_root().end_state.get_sum()

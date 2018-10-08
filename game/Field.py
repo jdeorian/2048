@@ -132,3 +132,7 @@ class Field(list):
 
     def get_score(self):
         return sum([self.score_value(item) for row in self for item in row])
+
+    # an even more naive score calculation that performs extremely well
+    def get_sum(self):
+        return sum(map(sum, self))
