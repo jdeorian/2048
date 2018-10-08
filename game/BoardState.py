@@ -6,9 +6,6 @@ import random
 from game.Field import Field
 
 class BoardState:
-    moved_index_lookup = {}
-    combined_index_lookup = {}
-
 
     def __init__(self):        
         self.BOARD_SIZE = 4
@@ -19,13 +16,6 @@ class BoardState:
         self.new_random_square()
         self.new_random_square()
 
-    # square positions are as follows
-    #    x: 1  2  3  4
-    # y:    -  -  -  -
-    # 1:    0  1  2  3
-    # 2:    4  5  6  7
-    # 3:    8  9 10 11
-    # 4:   12 13 14 15 
     def get_value(self, x, y):
         return self.field[x][y]
 
