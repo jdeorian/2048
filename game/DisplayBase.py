@@ -90,7 +90,7 @@ class DisplayBase(tk.Tk):
                 self.grid_cells[i][j].configure(text=txt,                             \
                                                   bg=CELL_COLORS[((val+1) % 12) - 1], \
                                                   fg=TEXT_COLORS[((val+1) % 12) - 1])
-        self.title("Score: " + str(self.board.get_score()))
+        self.title("Score: " + str(self.board.field.get_score()))
         self.update_idletasks() # performs rendering tasks while avoiding race conditions due to callbacks
     
     def quit_program(self, e):

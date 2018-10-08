@@ -1,2 +1,5 @@
 -Add averages to autoplay output
 -Change replay format to structured text, like json
+
+
+Play a few games by hand and see the distribution of boards generated.

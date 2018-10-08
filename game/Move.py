@@ -81,8 +81,8 @@ class Move(Node):
         except:
             return Move(Direction.Up) # this means there was a parsing error
 
-        new_move.start_state = unflatten(psi, BOARD_SIZE) # TODO: make this so it accepts an arbitary size
-        new_move.end_state = unflatten(pei, BOARD_SIZE)
+        new_move.start_state = Field(field=unflatten(psi, BOARD_SIZE), no_copy=True) # TODO: make this so it accepts an arbitary size
+        new_move.end_state = Field(field=unflatten(pei, BOARD_SIZE), no_copy=True)
         
         # TODO: Do this with list comprehension
         for w in items[3].split(comma):
