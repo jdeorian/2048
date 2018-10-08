@@ -16,10 +16,10 @@ open_on_finish = True
 multiprocessing_enabled = False
 file_delim = '\t' #tab-delimited file output
 
-save_detailed_logs = True  #this outputs a detailed move-by-move log of the game which can also be used for "playback"
+save_detailed_logs = True  # this outputs a detailed move-by-move log of the game which can also be used for "playback"
 log_directory = "logs"
 
-number_of_plays = 1 # number of iterations to test autoplay method
+number_of_plays =  1# number of iterations to test autoplay method
 autoplay_method = "branch" # pick the method to run here
 ########################################################################
 
@@ -105,7 +105,7 @@ def run_iterations(it_results: list, param_dict: dict = {}):
         it_params.append({})
 
     # perform test iterations
-    p = mp.Pool()
+    p = mp.Pool() if multiprocessing_enabled else None
     i = 0
     p_start = time.time()
     for i_params in it_params:
@@ -117,8 +117,9 @@ def run_iterations(it_results: list, param_dict: dict = {}):
                 p.apply_async(run_method, method_params, callback=it_results.append)                       
             else:
                 it_results.append(run_method(*(method_params)))
-    p.close() # doesn't do any harm if we're not multi-processing
-    p.join()
+    if multiprocessing_enabled:
+        p.close()
+        p.join()
     save_summary(it_results, param_dict)  
     print_process_summary(p_start)
 
