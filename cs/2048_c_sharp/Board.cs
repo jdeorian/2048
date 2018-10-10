@@ -31,7 +31,10 @@ namespace _2048_c_sharp
             }
 
             var m = new Move(direction, lastMove);
+            var oldState = Field.AsCopy();
             m.Apply(this);
+            if (Field.IsEqualTo(oldState))
+                throw new Exception("You can't make a move that doesn't change the board.");
 
             if (m.ChangedBoard() && addRandomSquares)
             {
@@ -56,7 +59,11 @@ namespace _2048_c_sharp
 
         public override string ToString()
         {
-            return $"Score: {Field.Score()} Moves: {MoveHistory.Count()} Max: {Field.MaxValue()}";
+            return $"Score: {Score} Moves: {MoveHistory.Count()} Max: {Field.MaxValue()}";
         }
+
+        public decimal Score => Field.Score();
+
+        public decimal Reward => Field.Reward();
     }
 }

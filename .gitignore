@@ -5,12 +5,16 @@ logs/
 .vs/
 test/
 cs/packages/
-/cs/2048_c_sharp/bin/
-/cs/2048_c_sharp/obj/
+cs/2048_c_sharp/bin/
+cs/2048_c_sharp/obj/
+perf/
 
 # Don't track these extensions
 *.pyc
 *.json
+*.vsp
+*.vspx
+*.psess
 
 # Don't track these files
 output.txt

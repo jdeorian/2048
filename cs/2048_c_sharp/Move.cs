@@ -85,10 +85,13 @@ namespace _2048_c_sharp
         public void Initialize(Direction direction, Move parent = null)
         {
             Parent = parent;
+            Board = parent?.Board;
             Direction = direction;
         }
 
-        public decimal GetReward() => EndState.Score() - Root.EndState.Score();
+        public decimal Reward => EndState.Reward() - StartState.Reward();
+        public decimal SumOfRewards => EndState.Reward() - (RootEldestChild?.StartState.Reward() ?? 0);
+        public decimal Score => EndState.Score();
 
         public void Apply(Board board)
         {
