@@ -10,7 +10,7 @@ namespace _2048_c_sharp
         static void Main(string[] args)
         {
             //PerfTest();
-            RunBranchComparisons();
+            RunBranchComparisons(true);
             Console.ReadKey();
         }
 
@@ -43,7 +43,7 @@ namespace _2048_c_sharp
 
         static void RunBranchComparisons(bool async = false)
         {            
-            int it_cnt = 0;
+            int it_cnt = 1;
             var tasks = new List<Task>();
             while (!(Console.KeyAvailable &&
                    Console.ReadKey(true).Key == ConsoleKey.Escape))
@@ -52,11 +52,16 @@ namespace _2048_c_sharp
                 {
                     tasks = tasks.Where(t => !t.IsCompleted).ToList();
                     var newTaskCount = MAX_BOARDS - tasks.Count();
-                    tasks.AddRange(Enumerable.Range(1, newTaskCount).Select(i => Task.Run(() => UpdateBestBoard(BranchComparison(it_cnt + i)))));
+                    tasks.AddRange(Enumerable.Range(it_cnt, newTaskCount).Select(i => Task.Run(() => UpdateBestBoard(BranchComparison(i)))));
                     it_cnt += newTaskCount;
                 }
+                else
+                {
+                    UpdateBestBoard(BranchComparison(++it_cnt));
+                }
 
-                UpdateBestBoard(BranchComparison(++it_cnt));
+                System.Threading.Thread.Sleep(SLEEP_LENGTH);
+                
             }
 
             Console.WriteLine("Finishing remaining tasks...");
@@ -82,6 +87,7 @@ namespace _2048_c_sharp
 
         private static Board BranchComparison(int iteration)
         {
+            Console.WriteLine($"Starting iteration #{iteration} @ {DateTime.Now}");
             var board = new Board() {
                 Iteration = iteration
             };
