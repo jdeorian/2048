@@ -12,13 +12,12 @@ BOARD_SIZE = 4 # TODO: eliminate dependence on this
 class Move:
     children = []
 
-    def __init__(self, direction: Direction, parent = None):
+    def __init__(self, direction: Direction, parent = None, board = None):
         self.parent = parent
         if parent:
             self.board = parent.board
-            self.start_state = parent.end_state
-        else: 
-            self.start_state = Field()
+        elif board:
+            self.board = board
 
         self.chance = 1
         self.direction = direction
@@ -35,6 +34,14 @@ class Move:
         self._weights = weights
 
     weights = property(get_weights, set_weights)
+
+    def get_start_state(self):
+        return Field(BOARD_SIZE) if not self.parent else self.parent.end_state
+
+    def set_start_state(self):
+        raise Exception("You can't set this.")
+
+    start_state = property(get_start_state, set_start_state)
 
     # return the reward decision, which is the ancestor direction nearest to the root that is not the root
     def reward_direction(self):
@@ -81,21 +88,19 @@ class Move:
         return hasattr(self, 'start_state') and hasattr(self, 'end_state')
     
     @staticmethod
-    def from_log_entry(text: str):       
+    def from_log_entry(text: str, parent = None):       
         items = [str.strip(item) for item in text.split(pipe)]
         if len(items) != LOG_FIELD_CNT:
             return Move(Direction.Up)
-        new_move = Move(Direction[items[1]])
+        new_move = Move(Direction[items[1]], parent)
 
         # (try to) parse start and end state
         try:
-            psi = [int(s) for s in items[0].split(comma)]
             pei = [int(s) for s in items[2].split(comma)]
         except:
             return Move(Direction.Up) # this means there was a parsing error
 
-        new_move.start_state = Field(field=unflatten(psi, BOARD_SIZE), no_copy=True) # TODO: make this so it accepts an arbitary size
-        new_move.end_state = Field(field=unflatten(pei, BOARD_SIZE), no_copy=True)
+        new_move.end_state = Field(field=unflatten(pei, BOARD_SIZE), no_copy=True) # TODO: make this so it accepts an arbitary size
         
         # TODO: Do this with list comprehension
         for w in items[3].split(comma):
