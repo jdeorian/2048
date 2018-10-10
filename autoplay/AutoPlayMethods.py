@@ -89,7 +89,7 @@ class AutoPlayMethods:
                 next_layer = []
                 for move in current_layer:
                     next_layer.extend(move.generate_children())
-                if len(next_layer) == 0:
+                if not any(next_layer):
                     next_layer = current_layer
                     break
             
@@ -97,8 +97,7 @@ class AutoPlayMethods:
             weights = { d:0 for d in Direction }
             for d in Direction:
                 scores = [move.get_reward() for move in filter(lambda mv: mv.reward_direction() == d, next_layer)]
-                count = len(scores)
-                if count > 0:
+                if len(scores) > 0:
                     weights[d] = mean(scores)
             
             top_score = max(weights.values())

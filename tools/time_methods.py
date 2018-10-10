@@ -7,8 +7,7 @@ def method1():
     fld.get_score()
 
 def method2():
-    fld = Field(4)
-    fld.alt_score()
+    s = sum(map(sum, Field(4)))
     
 ###################
 iterations = 100000

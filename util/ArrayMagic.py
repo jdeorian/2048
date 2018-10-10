@@ -8,13 +8,14 @@ def unflatten(state, size: int): # state is an array of values, size is square s
 def flatten(state):
     return [item for row in state for item in row]
 
-# transpose a 2d array
+# transpose a 2d array (reverses x and y)
 def transpose(field):
     return [list(row) for row in zip(*field)]
 
-# invert a 2d array
+# invert a 2d array (mirror horizontally)
 def invert(field):
     return [row[::-1] for row in field]
 
+#mirror vertically
 def flip(field):
     return [field[len(field) - x - 1] for x in range(len(field))]

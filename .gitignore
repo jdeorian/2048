@@ -4,6 +4,9 @@ __pycache__/
 logs/
 .vs/
 test/
+cs/packages/
+/cs/2048_c_sharp/bin/
+/cs/2048_c_sharp/obj/
 
 # Don't track these extensions
 *.pyc
