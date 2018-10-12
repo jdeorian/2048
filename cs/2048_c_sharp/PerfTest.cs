@@ -8,38 +8,69 @@ namespace _2048_c_sharp
 {
     public static class PerfTest
     {
-        static void Run()
+        static readonly int tries = 1_000_000;
+        public static void Run()
         {
-            int tries = 100000;
+            ///////////////////////////
+            ///     Setup 1
+            //////////////////////////
+            var board = new Board();
+            var root = new Move(Direction.Up, null, board) { EndState = board.Field };
+            byte[,] sq = new byte[4, 4];
+            sq[3, 1] = 2;
+            sq[2, 1] = 6;
+            sq[0, 0] = 9;
+            //////////////////////////
 
-            var squares = new int[4, 4];
-            squares[2, 1] = 2;
-            squares[3, 0] = 1;
+            Console.WriteLine("Starting test 1...");
             var start = DateTime.Now;
             for (int x = 0; x < tries; x++)
             {
-                var es = squares.GetRowWithoutZeros(2);
-                var t = es.Count();
+                ///////////////////////////
+                ///     Test 1
+                //////////////////////////
+                var o = sq.CanonicalFieldID();
+                o++;
+                /////////////////////////
             }
             var end = DateTime.Now;
             var duration = end - start;
             Console.WriteLine(duration.ToString());
 
+            ///////////////////////////
+            ///     Setup 2
+            //////////////////////////
+
+            //////////////////////////
+            Console.WriteLine("Starting test 2...");
             start = DateTime.Now;
             for (int x = 0; x < tries; x++)
             {
-                //var es = squares.EnumerateOutcomes3(new Move(Direction.Up), .11f);
-                //var t = es.Count();
+                ///////////////////////////
+                ///     Test 2
+                //////////////////////////
+                var o = sq.GetEmptySquares_Slow();
+                /////////////////////////
             }
             end = DateTime.Now;
             duration = end - start;
             Console.WriteLine(duration.ToString());
 
+            ///////////////////////////
+            ///     Setup 3
+            //////////////////////////
+            
+            //////////////////////////
+
+            Console.WriteLine("Starting test 3...");
             start = DateTime.Now;
             for (int x = 0; x < tries; x++)
             {
-                var es = squares.GetRowWithoutZeros(2);
-                var t = es.Count();
+                ///////////////////////////
+                ///     Test 3
+                //////////////////////////
+                var o = sq.GetEmptySquares();
+                /////////////////////////
             }
             end = DateTime.Now;
             duration = end - start;

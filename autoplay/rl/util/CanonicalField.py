@@ -15,3 +15,11 @@ def to_hex_digit(d: int):
 
 def get_fieldID(field):
     return sum([x*16**idx for idx, x in enumerate(flatten(field))])
+
+def get_fieldID_Bitshift(field):
+    fieldID = 0   
+    for x in range(4):
+        for y in range(4):
+            fieldID <<= 4
+            fieldID += field[x][y]
+    return fieldID

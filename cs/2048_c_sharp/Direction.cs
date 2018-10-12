@@ -8,8 +8,8 @@ namespace _2048_c_sharp
 {
     public enum Direction
     {
-        Up,
-        Down,
+        Down = 0,
+        Up,        
         Left,
         Right
     }

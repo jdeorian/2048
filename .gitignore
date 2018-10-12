@@ -7,6 +7,8 @@ test/
 cs/packages/
 cs/2048_c_sharp/bin/
 cs/2048_c_sharp/obj/
+cs/Tests/bin/
+cs/Tests/obj/
 perf/
 
 # Don't track these extensions

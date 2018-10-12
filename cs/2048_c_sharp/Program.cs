@@ -9,7 +9,7 @@ namespace _2048_c_sharp
     {
         static void Main(string[] args)
         {
-            //PerfTest();
+            //PerfTest.Run();
             BranchComparison.RunBranchComparisons();
             Console.ReadKey();
         }        

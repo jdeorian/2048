@@ -9,11 +9,11 @@ namespace _2048_c_sharp
     public class Move: Node<Move>
     {
         const int BOARD_SIZE = 4;
-        public int[,] StartState => Parent?.EndState ?? Board.StartState;
-        public int[,] IntermediateState => StartState.Slide(Direction);
+        public byte[,] StartState => Parent?.EndState ?? Board.StartState;
+        public byte[,] IntermediateState => StartState.Slide(Direction);
 
-        private int[,] endState;
-        public int[,] EndState
+        private byte[,] endState;
+        public byte[,] EndState
         {
             get
             {
@@ -37,7 +37,7 @@ namespace _2048_c_sharp
             Weights = weights;
         }
 
-        public Move(Direction direction, Move parent, int[,] endState, float chance): base(parent)
+        public Move(Direction direction, Move parent, byte[,] endState, float chance): base(parent)
         {
             Initialize(direction, parent.Board);
             EndState = endState;

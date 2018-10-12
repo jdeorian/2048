@@ -102,7 +102,8 @@ namespace _2048_c_sharp
                 foreach (var n in currentLayer)
                     nextLayer.AddRange(n.GetChildren());
 
-                if (!nextLayer.Any()) return currentLayer;
+                if (!nextLayer.Any())
+                    return currentLayer.Count == 1 && currentLayer[0].Equals(this) ? new List<T>() : currentLayer;
             }
             return nextLayer;
         }

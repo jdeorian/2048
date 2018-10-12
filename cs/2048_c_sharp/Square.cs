@@ -12,10 +12,10 @@ namespace _2048_c_sharp
     {
         public int X { get; set; }
         public int Y { get; set; }
-        public int Value { get; set; }
+        public byte Value { get; set; }
         public float Chance { get; set; }
 
-        public Square(int x, int y, int val, float chance = 1f)
+        public Square(int x, int y, byte val, float chance = 1f)
         {
             X = x;
             Y = y;
