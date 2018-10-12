@@ -40,6 +40,7 @@ Components to build:
 
 Notes:
     -Since we need to back-propogate rewards anyway, it makes sense to make use of the BoardState.move_history field. We can run the game, calculate the rewards at the end, then write the results to the policy.
+    -We can use a different type of state for scoring than we do for decision making. We can score the actual environment, then store the state with the score.
     
 
 

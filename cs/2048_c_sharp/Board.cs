@@ -11,48 +11,36 @@ namespace _2048_c_sharp
         public int Iteration { get; set; } // here as an easy way to store the iteration count of external multi-processing methods
         public const int BOARD_SIZE = 4;
         public const float FOUR_CHANCE = .11f;
-        public int[,] Field { get; set; } = new int[BOARD_SIZE, BOARD_SIZE];
+        public readonly int[,] StartState;
+        public int[,] Field => MoveHistory.LastOrDefault()?.EndState ?? StartState;
         public List<Move> MoveHistory { get; set; } = new List<Move>();
-        public Board()
+        public int MoveCount => _lastMoveIndex + 1;
+        private int _lastMoveIndex = -1; //here to reduce traversing through the history list every time we access the end state
+        public Move LastMove => _lastMoveIndex == -1 ? null : MoveHistory[_lastMoveIndex]; //error on board with no moves
+        public Board(int[,] startState = null)
         {
-            Field.SetRandomSquare(FOUR_CHANCE);
-            Field.SetRandomSquare(FOUR_CHANCE);
-        }
-
-        public Move Move(Direction direction, Dictionary<Direction, decimal> weights = null, bool addRandomSquares = true, bool applyResults = true)
-        {
-            var lastMove = MoveHistory.LastOrDefault();
-
-            //make sure we're not repeating something that didn't work
-            if (lastMove != null)
+            if (startState == null)
             {
-                if (lastMove.Direction == direction && !lastMove.ChangedBoard())
-                    return lastMove;
-            }
-
-            var m = new Move(direction, lastMove);
-            var oldState = Field.AsCopy();
-            m.Apply(this);
-            if (Field.IsEqualTo(oldState))
-                throw new Exception("You can't make a move that doesn't change the board.");
-
-            if (m.ChangedBoard() && addRandomSquares)
-            {
-                Field.SetRandomSquare(FOUR_CHANCE);
-                m.EndState = Field.AsCopy();
-            }
-
-            if (applyResults)
-            {
-                m.Weights = weights;
-                MoveHistory.Add(m);
+                int[,] start = new int[BOARD_SIZE, BOARD_SIZE];
+                start.SetRandomSquare(FOUR_CHANCE);
+                start.SetRandomSquare(FOUR_CHANCE);
+                StartState = start;
             }
             else
             {
-                Field = m.StartState.AsCopy();
+                StartState = startState;
             }
+        }
 
-            return m;
+        public Board(Move rootMove)
+        {
+            StartState = rootMove.EndState;
+        }
+
+        public void Move(Direction direction, Dictionary<Direction, float> weights = null)
+        {
+            MoveHistory.Add(new Move(direction, LastMove, this, weights));
+            _lastMoveIndex++;            
         }
 
         public bool Lost => !Field.PossibleMoves().Any();
@@ -62,8 +50,8 @@ namespace _2048_c_sharp
             return $"Score: {Score} Moves: {MoveHistory.Count()} Max: {Field.MaxValue()}";
         }
 
-        public decimal Score => Field.Score();
+        public float Score => Field.Score();
 
-        public decimal Reward => Field.Reward();
+        public float Reward => Field.Reward();
     }
 }

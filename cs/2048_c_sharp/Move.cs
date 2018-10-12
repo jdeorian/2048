@@ -6,103 +6,73 @@ using System.Threading.Tasks;
 
 namespace _2048_c_sharp
 {
-    public class Move
+    public class Move: Node<Move>
     {
         const int BOARD_SIZE = 4;
+        public int[,] StartState => Parent?.EndState ?? Board.StartState;
+        public int[,] IntermediateState => StartState.Slide(Direction);
 
-        private List<Move> children = new List<Move>();
-        public List<Move> Children
+        private int[,] endState;
+        public int[,] EndState
         {
             get
             {
-                GetChildren();
-                return children;
+                if (endState == null)
+                {
+                    endState = StartState.Slide(Direction);
+                    endState.SetRandomSquare(Board.FOUR_CHANCE);
+                }
+                return endState;
             }
+            set => endState = value;
         }
-        public Move Parent { get; set; }
-        public int[,] StartState => Parent?.EndState ?? new int[BOARD_SIZE, BOARD_SIZE];
-        public int[,] EndState { get; set; } = new int[BOARD_SIZE, BOARD_SIZE];
-        public float Chance { get; set; } = 1f;
         public Direction Direction { get; set; }
         public Board Board { get; set; }
+        public Dictionary<Direction, float> Weights { get; set; }
+        public Direction RewardDirection => RootEldestChild.Direction; //throws exception if root
 
-        private Dictionary<Direction, decimal> weights;
-        public Dictionary<Direction, decimal> Weights
+        public Move(Direction direction, Move parent = null, Board board = null, Dictionary<Direction, float> weights = null): base(parent)
         {
-            get
-            {
-                if (weights == null)
-                    weights = XT.EnumVals<Direction>().ToDictionary(d => d, d => 0m);
-                return weights;
-            }
-            set => weights = value;
+            Initialize(direction, board);
+            Weights = weights;
         }
 
-        public Direction RewardDirection
+        public Move(Direction direction, Move parent, int[,] endState, float chance): base(parent)
         {
-            get
-            {
-                if (Parent == null) throw new Exception("Can't do that shit");
-                return RootEldestChild.Direction;
-            }
-        }
-
-        public Move RootEldestChild
-        {
-            get
-            {
-                if (Parent == null) return null; //this is the parent
-                var m = this;
-                while (m.Parent.Parent != null)
-                    m = m.Parent;
-                return m;
-            }
-        }
-
-        public Move Root
-        {
-            get
-            {
-                if (Parent == null) return this;
-                return RootEldestChild.Parent;
-            }
-        }
-
-        public Move(Direction direction, Move parent = null)
-        {
-            Initialize(direction, parent);
-        }
-
-        public Move(Direction direction, Move parent, int[,] endState, float chance)
-        {
-            Initialize(direction, parent);
+            Initialize(direction, parent.Board);
             EndState = endState;
             Chance = chance * parent.Chance;
         }
 
         public bool ChangedBoard() => !StartState.IsEqualTo(EndState);
 
-        public void Initialize(Direction direction, Move parent = null)
+        public void Initialize(Direction direction, Board board = null)
         {
-            Parent = parent;
-            Board = parent?.Board;
+            Board = board ?? Parent?.Board;
             Direction = direction;
+            if (board == null) throw new Exception("Moves need to have boards.");
         }
 
-        public decimal Reward => EndState.Reward() - StartState.Reward();
-        public decimal SumOfRewards => EndState.Reward() - (RootEldestChild?.StartState.Reward() ?? 0);
-        public decimal Score => EndState.Score();
+        public override float GetReward() => EndState.Reward() - StartState.Reward();
+        public float Score => EndState.Score();
 
-        public void Apply(Board board)
+        public override List<Move> GetChildren()
         {
-            Board = board;
-            board.Field = EndState = board.Field.Slide(Direction);
-        }
-
-        public void GetChildren()
-        {
-            if (!children.Any())
-                children.AddRange(EndState.EnumerateOutcomes(this, Board.FOUR_CHANCE));
+            var moves = XT.EnumVals<Direction>().Select(d => new { dir = d, field = EndState.Slide(d) })
+                                                .Where(f => !f.field.IsEqualTo(EndState));
+            var outcomes = new List<Move>();
+            var TWO_CHANCE = 1 - Board.FOUR_CHANCE;
+            foreach (var move in moves)
+            {
+                foreach (var (i, j) in move.field.GetEmptySquares())
+                {
+                    var fld = move.field.AsCopyWithUpdate(i, j, 1);     // add outcomes that add a 2
+                    outcomes.Add(new Move(move.dir, this, fld, TWO_CHANCE));
+                    fld = move.field.AsCopyWithUpdate(i, j, 2);         // add outcomes that add a 4
+                    outcomes.Add(new Move(move.dir, this, fld, Board.FOUR_CHANCE));
+                }
+            }
+            return Children = outcomes;
         }
     }
 }

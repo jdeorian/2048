@@ -12,7 +12,8 @@ namespace _2048_c_sharp
     public static class FieldExtensions
     {
         //scoring parameters
-        const int EMPTY_SQUARE_REWARD = 8;
+        const int EMPTY_SQUARE_REWARD = 3;
+        static readonly int sz_int = sizeof(int);
 
         const int SZ = 4; //this is an abomination, but getting the length of the array so often has a material performance impact, so.... *sigh*
         const int SZ_2D = 16;
@@ -138,7 +139,6 @@ namespace _2048_c_sharp
         public static int[] GetRow(this int[,] squares, int row)
         {
             //int sz_y = squares.GetLength(1);
-            int sz_int = sizeof(int);
             int[] tmp = new int[SZ];
             Buffer.BlockCopy(squares, sz_int * SZ * row, tmp, 0, sz_int * SZ);
             return tmp;
@@ -146,8 +146,6 @@ namespace _2048_c_sharp
 
         public static void SetRow(this int[,] squares, int[] row, int row_idx)
         {
-            int sz_int = sizeof(int);
-            //int sz_y = squares.GetLength(1);
             Buffer.BlockCopy(row, 0, squares, sz_int * row_idx * SZ, sz_int * SZ);
         }
 
@@ -159,17 +157,24 @@ namespace _2048_c_sharp
             int[] tmp = new int[SZ];
             int idx = 0;
             for (int x = 0; x < SZ; x++)
-                if (squares[x, row_idx] != 0)
+                if (squares[row_idx, x] != 0)
                     tmp[idx++] = squares[row_idx, x];
+
+            //return array with a length equal to the count of non-zero values
+            Array.Resize(ref tmp, idx);
             return tmp;
         }
         public static int[] GetRowWithoutZeros(this List<int> row)
         {
             int[] tmp = new int[SZ];
+            int sz_x = row.Count();
             int idx = 0;
-            for (int x = 0; x < SZ; x++)
+            for (int x = 0; x < sz_x; x++)
                 if (row[x] != 0)
                     tmp[idx++] = row[x];
+
+            //return array with a length equal to the count of non-zero values
+            Array.Resize(ref tmp, idx);
             return tmp;
         }
             
@@ -190,7 +195,6 @@ namespace _2048_c_sharp
         public static int[,] SlideLeft(this int[,] squares)
         {
             //for each row
-            int sz_int = sizeof(int);
             //int sz_x = squares.GetLength(0);
             //int sz_y = squares.GetLength(1);
             int[,] tmp = new int[SZ, SZ];
@@ -234,31 +238,12 @@ namespace _2048_c_sharp
 
         public static int[,] AsCopyWithUpdate(this int[,] squares, Square s) => squares.AsCopyWithUpdate(s.X, s.Y, s.Value);
 
-        public static IEnumerable<Move> EnumerateOutcomes(this int[,] squares, Move parent, float FOUR_CHANCE)
-        {
-            var moves = XT.EnumVals<Direction>().Select(d => new { dir = d, field = squares.Slide(d) })
-                                                .Where(f => !f.field.IsEqualTo(squares));
-            var outcomes = new List<Move>();
-            var TWO_CHANCE = 1 - FOUR_CHANCE;
-            foreach (var move in moves)
-            {                
-                foreach (var (i, j) in move.field.GetEmptySquares())
-                {
-                    var fld = move.field.AsCopyWithUpdate(i, j, 1);     // add outcomes that add a 2
-                    outcomes.Add(new Move(move.dir, parent, fld, TWO_CHANCE));
-                    fld = move.field.AsCopyWithUpdate(i, j, 2);         // add outcomes that add a 4
-                    outcomes.Add(new Move(move.dir, parent, fld, FOUR_CHANCE));
-                }
-            }
-            return outcomes;
-        }
-
         public static IEnumerable<Direction> PossibleMoves(this int[,] squares)
         {
             return XT.EnumVals<Direction>().Where(d => !squares.Slide(d).IsEqualTo(squares));
         }
 
-        public static decimal Score(this int[,] squares)
+        public static float Score(this int[,] squares)
         {
             var t = 0;
             for (int i = 0; i < SZ; i++)
@@ -273,10 +258,10 @@ namespace _2048_c_sharp
                 for (int j = 0; j < SZ; j++)
                     if (squares[i, j] > max)
                         max = squares[i, j];
-            return 1 << max;
+            return max;
         }
             //=> squares.Flatten().Max(s => 1 << s);
-        public static decimal Reward(this int[,] squares)
+        public static float Reward(this int[,] squares)
         {
             return squares.Score() + squares.CountEmptySquares() * EMPTY_SQUARE_REWARD;
         }

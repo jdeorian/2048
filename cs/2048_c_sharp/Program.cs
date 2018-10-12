@@ -10,23 +10,23 @@ namespace _2048_c_sharp
         static void Main(string[] args)
         {
             //PerfTest();
-            RunBranchComparisons(true);
+            RunBranchComparisons();
             Console.ReadKey();
         }
 
         static readonly string EX_MSG = $"Press ESC to stop.";
         static Board bestBoard = new Board();
-        static int highestIt = 0;
+        //static int highestIt = 0;
         const int MAX_BOARDS = 8;
         const int SLEEP_LENGTH = 100; //in ms
 
         static void UpdateBestBoard(Board board)
         {
-            if (board.Iteration > highestIt)
-            {
-                highestIt = board.Iteration;
-                Console.Write($"It: {highestIt}");
-            }
+            //if (board.Iteration > highestIt)
+            //{
+            //    highestIt = board.Iteration;
+            //    Console.Write($"It: {highestIt}");
+            //}
 
             if (board.Field.Score() > bestBoard.Field.Score())
             {
@@ -42,7 +42,8 @@ namespace _2048_c_sharp
         }
 
         static void RunBranchComparisons(bool async = false)
-        {            
+        {
+            Console.WriteLine();
             int it_cnt = 1;
             var tasks = new List<Task>();
             while (!(Console.KeyAvailable &&
@@ -57,7 +58,7 @@ namespace _2048_c_sharp
                 }
                 else
                 {
-                    UpdateBestBoard(BranchComparison(++it_cnt));
+                    UpdateBestBoard(BranchComparison(it_cnt++));
                 }
 
                 System.Threading.Thread.Sleep(SLEEP_LENGTH);
@@ -97,39 +98,16 @@ namespace _2048_c_sharp
             {
                 //Console.WriteLine(board.ToString());
                 //Console.WriteLine(board.Field.AsString());
-                int layerCount = layerDict[board.Field.Flatten().Max()];
+                int layerCount = layerDict[board.Field.MaxValue()];
                 //Console.WriteLine($"Layer count: {layerCount}");
 
-                var currentLayer = new List<Move>();
-                var root = new Move(Direction.Up) {
-                    Board = board,
-                    EndState = board.Field.AsCopy()
-                };
-                var nextLayer = new List<Move> { root };
-                for (int layer = 0; layer < layerCount; layer++)
-                {
-                    currentLayer = nextLayer;
-                    nextLayer = new List<Move>();
-
-                    //this triggers the children to be generated concurrently, useful for large numbers of children
-                    var tasks = new List<Task>();
-                    foreach (var m in currentLayer)
-                        m.GetChildren();
-                    //    tasks.Add(Task.Run(() => m.GetChildren()));    // no point in layering concurrency and obfuscating areas that need optimization
-                    //Task.WaitAll(tasks.ToArray());
-
-                    nextLayer.AddRange(currentLayer.SelectMany(m => m.Children));
-                    if (!nextLayer.Any())
-                    {
-                        nextLayer = currentLayer;
-                        break;
-                    }
-                }
+                var root = new Move(Direction.Up, null, board) { EndState = board.Field };
+                var outcomes = root.BuildBranches(layerCount);
 
                 //next layer is the final set of children. Get the reward weights for all directions
-                var weights = nextLayer.GroupBy(m => m.RewardDirection)
-                                       .ToDictionary(g => g.Key,
-                                                     g => g.Average(m => m.SumOfRewards));
+                var weights = outcomes.GroupBy(m => m.RewardDirection)
+                                      .ToDictionary(g => g.Key,
+                                                    g => g.Average(m => m.SumOfRewards));
 
                 var topScore = weights.Max(d => d.Value);
                 var topScorers = weights.Where(d => d.Value == topScore)
@@ -138,7 +116,6 @@ namespace _2048_c_sharp
                 var recDir = XT.GetRandom(topScorers, rnd);
 
                 board.Move(recDir, weights);
-
                 root = root.Children.Where(m => m.Direction == recDir)
                                     .Single(m => m.EndState.IsEqualTo(board.Field));
                 root.Parent = null;
