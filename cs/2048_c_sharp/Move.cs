@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,8 @@ namespace _2048_c_sharp
     public class Move: Node<Move>
     {
         const int BOARD_SIZE = 4;
-        public byte[,] StartState => Parent?.EndState ?? Board.StartState;
+        public byte[,] StartState => Parent?.EndState
+                                  ?? Board.StartState;
         public byte[,] IntermediateState => StartState.Slide(Direction);
 
         private byte[,] endState;
@@ -29,7 +31,7 @@ namespace _2048_c_sharp
         public Direction Direction { get; set; }
         public Board Board { get; set; }
         public Dictionary<Direction, float> Weights { get; set; }
-        public Direction RewardDirection => RootEldestChild.Direction; //throws exception if root
+        public Direction RewardDirection => IsRoot ? Direction.Up : RootEldestChild.Direction;
 
         public Move(Direction direction, Move parent = null, Board board = null, Dictionary<Direction, float> weights = null): base(parent)
         {
@@ -41,7 +43,7 @@ namespace _2048_c_sharp
         {
             Initialize(direction, parent.Board);
             EndState = endState;
-            Chance = chance * parent.Chance;
+            Chance = chance;
         }
 
         public bool ChangedBoard() => !StartState.IsEqualTo(EndState);
@@ -53,7 +55,17 @@ namespace _2048_c_sharp
             if (board == null) throw new Exception("Moves need to have boards.");
         }
 
-        public override float GetReward() => EndState.Reward() - StartState.Reward();
+        private float _reward = 0f;
+        public override float Reward
+        {
+            get
+            {
+                if (_reward == 0f)
+                    _reward = EndState.Reward();
+                return _reward;
+            }
+        }
+
         public float Score => EndState.Score();
 
         public override List<Move> GetChildren()
@@ -74,5 +86,40 @@ namespace _2048_c_sharp
             }
             return Children = outcomes;
         }
+
+        //Index ParentIndex Field Chance
+        public string AsTreeString => string.Join("\t", new [] {
+            Index.ToString(),
+            Parent?.Index.ToString() ?? "-1",
+            Direction.ToString(),
+            RewardDirection.ToString(),
+            StartState.AsFlatString(),
+            EndState.AsFlatString(),
+            Reward.ToString(),
+            SumOfRewards.ToString(),
+            Chance.ToString()
+        });
+
+        public void SaveToTreeFile(string filename = "move.tree")
+        {
+            using (var sw = new StreamWriter(filename))
+            {
+                sw.WriteLine("Index\tParent\tDirection\tRewardDirection\tStart\tEnd\tReward\tSumOfRewards\tChance");
+                var next_set = new List<Move> { this };
+                var current_set = new List<Move>();
+                while(next_set.Count() > 0)
+                {
+                    current_set = next_set;
+                    next_set = new List<Move>();
+                    foreach (var move in current_set)
+                    {
+                        sw.WriteLine(move.AsTreeString);
+                        next_set.AddRange(move.Children);
+                    }
+                }
+            }
+        }
     }
+
+
 }

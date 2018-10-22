@@ -73,7 +73,7 @@ class AutoPlayMethods:
     def branch(board_state: BoardState, params: dict = None):
         layers: int = params.get("LAYERS")
         if not layers:
-            layers = 3
+            layers = 2
         if layers < 1: return
 
         move_num = 1

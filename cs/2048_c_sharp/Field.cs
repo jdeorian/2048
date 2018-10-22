@@ -12,7 +12,7 @@ namespace _2048_c_sharp
     public static class FieldExtensions
     {
         //scoring parameters
-        const byte EMPTY_SQUARE_REWARD = 3;
+        const byte EMPTY_SQUARE_REWARD = 2;
         static readonly byte sz_byte = sizeof(byte);
 
         const byte SZ = 4; //this is an abomination, but getting the length of the array so often has a material performance impact, so.... *sigh*
@@ -290,19 +290,25 @@ namespace _2048_c_sharp
             return true;
         }
 
-        public static string AsString(this byte[,] squares)
+        public static string AsString(this byte[,] squares, string row_sep = "\n", string col_sep = "\t")
         {
-            var result = string.Empty;
-            //byte sz_x = squares.GetLength(0);
-            //byte sz_y = squares.GetLength(1);
+            StringBuilder sb = new StringBuilder();
             for (int x = 0; x < SZ; x++)
             {
-                for (int y = 0; y < SZ; y++)
-                    result += $"\t{1 << squares[x, y]}";
-                result += Environment.NewLine;
+                sb.Append(string.Join(col_sep,
+                                      Enumerable.Range(0, SZ)
+                                                .Select(y => $"{(squares[x, y] == 0 ? 0 : 1 << squares[x, y])}")));
+                sb.Append(row_sep);
             }
-            return result;
+            return sb.ToString();
         }
+
+        /// <summary>
+        /// Version without line breaks
+        /// </summary>
+        /// <param name="squares"></param>
+        /// <returns></returns>
+        public static string AsFlatString(this byte[,] squares) => squares.AsString("|", ",");
 
         public static long CanonicalFieldID(this byte[,] squares)
         {

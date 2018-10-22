@@ -93,7 +93,7 @@ namespace _2048_c_sharp
 
             while (!board.Lost)
             {
-                //Console.WriteLine(board.ToString());
+                //Console.WriteLine("----------------------------");
                 //Console.WriteLine(board.Field.AsString());
                 int layerCount = layerDict[board.Field.MaxValue()];
                 //Console.WriteLine($"Layer count: {layerCount}");
@@ -112,10 +112,12 @@ namespace _2048_c_sharp
                                         .ToArray();
                 var recDir = XT.GetRandom(topScorers, rnd);
 
+                //Console.WriteLine($"Rec. Dir.: {recDir}");
+                //Console.WriteLine(string.Join(" ", weights.Select(w => $"{w.Key}:{w.Value}")));
                 board.Move(recDir, weights);
                 root = root.Children.Where(m => m.Direction == recDir)
                                     .Single(m => m.EndState.IsEqualTo(board.Field));
-                root.Parent = null;
+                root.Root = root;
             }
             //Console.WriteLine("Board done.");
             //Console.WriteLine(board.Field.AsString());

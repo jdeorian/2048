@@ -1,16 +1,19 @@
 # easy setup for testing the performance of two methods
 import time
 from game.Field import Field
+from autoplay.rl.util.CanonicalField import get_fieldID_Bitshift
+
+fld = [[9,0,0,0],[0,0,0,0],[0,6,0,0],[0,2,0,0]]
 
 def method1():
-    fld = Field(4)
-    fld.get_score()
+    ID = get_fieldID_Bitshift(fld)
+    ID += 1
 
 def method2():
-    s = sum(map(sum, Field(4)))
+    pass #s = sum(map(sum, Field(4)))
     
 ###################
-iterations = 100000
+iterations = 10000000
 ###################
 
 # don't touch anything below this

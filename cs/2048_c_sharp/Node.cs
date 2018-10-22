@@ -11,52 +11,105 @@ namespace _2048_c_sharp
         #region Branch/node scoring
 
         public float Chance { get; set; } = 1f;
-        public abstract float GetReward(); //represents the reward for only this move
-        public float SumOfRewards => Chance * (GetReward() - Ancestors.Last().GetReward());
+        private float _chanceFromRoot = 0f;
+        public float ChanceFromRoot
+        {
+            get
+            {
+                if (IsRoot) return Chance;
+                if (_chanceFromRoot == 0f)
+                {
+                    _chanceFromRoot = 1f;
+                    foreach(var a in Ancestors)
+                        _chanceFromRoot *= a.Chance;
+                }
+                return _chanceFromRoot;
+            }
+        }
+        public abstract float Reward { get; } //represents the reward for only this move
+        public float SumOfRewards => ChanceFromRoot * (Reward - Root.Reward);
+        public override bool Equals(object obj)
+        {
+            if (obj.GetType() == GetType()) return Equals((T)obj);
+            return false;
+        }
+        public bool Equals(Node<T> node) => node.Index == Index;
 
         #endregion
 
         #region Node traversal
 
         public T Parent { get; set; }
-        public List<T> Children { get; set; }
-        public List<T> Siblings => Parent?.Children;
-        public bool IsRoot => Parent == null;
-
-        public Node(T parent)
-        {
-            Parent = parent;
-        }
-
-        private T _rootEldestChild = null;
-        public T RootEldestChild
-        {
-            get
-            {
-                //reset if an eldest child becomes the root
-                if (_rootEldestChild != null && IsRoot) _rootEldestChild = null;
-
-                //set if unset
-                if (_rootEldestChild == null && !IsRoot) //if this is the root, then the eldest child SHOULD be null
-                {
-                    _rootEldestChild = (T)this;
-                    while (_rootEldestChild.Parent.Parent != null)
-                        _rootEldestChild = _rootEldestChild.Parent;
-                }
-
-                return _rootEldestChild;
-            }
-        }
-
         private T _root = null;
         public T Root
         {
             get
             {
                 if (_root == null)
-                    _root = IsRoot ? (T)this : RootEldestChild.Parent;              
+                    _root = GetRoot();
                 return _root;
             }
+            set
+            {
+                //setting the root of a node sets the root of all child nodes
+                _root = value;
+                Children.ForEach(c => c.ResetRoot(value));
+            }
+        }
+        public List<T> Children { get; set; } = new List<T>();
+        public List<T> Siblings => Parent?.Children;
+        public bool IsRoot => Root == this;
+
+        public void ResetRoot(T root)
+        {
+            Root = root;
+            _chanceFromRoot = 0f;
+        }
+
+        private int _index = -1;
+        public int Index
+        {
+            get
+            {
+                if (_index == -1)
+                    _index = NodeIndexer.GetNextInt;
+                return _index;
+            }
+        }
+
+        public Node(T parent, T root = null)
+        {
+            Parent = parent;
+            _root = root ?? parent?.Root ?? (T)this;
+        }
+
+        public override int GetHashCode() => Index;
+
+        public T RootEldestChild
+        {
+            get
+            {
+                if (IsRoot) return null;
+                if (Parent == null) return null;
+
+                T current = (T)this;
+                while (true)
+                {
+                    if (current.Parent.IsRoot)
+                        return current;
+                    current = current.Parent;
+                }
+            }
+        }
+
+        private T GetRoot()
+        {
+            if (IsRoot) return (T)this;
+
+            T current = (T)this;
+            while ((current = current.Parent) != null) { }
+
+            return current;
         }
 
         /// <summary>
@@ -74,7 +127,10 @@ namespace _2048_c_sharp
                 var ancestors = new List<T>();
                 T current = (T)this;
                 while ((current = current.Parent) != null)
+                {
                     ancestors.Add(current);
+                    if (current.IsRoot) break;
+                }
 
                 return ancestors;
             }
@@ -138,5 +194,11 @@ namespace _2048_c_sharp
         public abstract List<T> GetChildren();
 
         #endregion
+    }
+
+    public static class NodeIndexer
+    {
+        private static int _currentInt = 0;
+        public static int GetNextInt => ++_currentInt;
     }
 }

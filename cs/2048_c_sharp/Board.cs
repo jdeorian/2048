@@ -12,7 +12,7 @@ namespace _2048_c_sharp
         public const int BOARD_SIZE = 4;
         public const float FOUR_CHANCE = .11f;
         public readonly byte[,] StartState;
-        public byte[,] Field => MoveHistory.LastOrDefault()?.EndState ?? StartState;
+        public byte[,] Field => LastMove?.EndState ?? StartState;
         public List<Move> MoveHistory { get; set; } = new List<Move>();
         public int MoveCount => _lastMoveIndex + 1;
         private int _lastMoveIndex = -1; //here to reduce traversing through the history list every time we access the end state
