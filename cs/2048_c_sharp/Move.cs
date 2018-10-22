@@ -119,6 +119,18 @@ namespace _2048_c_sharp
                 }
             }
         }
+
+        public string[] GetOrderedWeights()
+        {
+            string getWeight(Direction direction) => Weights.TryGetValue(direction, out float val) ? val.ToString() : "";
+            var retVal = new[] {
+                getWeight(Direction.Up),
+                getWeight(Direction.Down),
+                getWeight(Direction.Left),
+                getWeight(Direction.Right)
+            };
+            return retVal;
+        }
     }
 
 

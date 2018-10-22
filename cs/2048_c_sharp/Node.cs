@@ -140,6 +140,8 @@ namespace _2048_c_sharp
 
         #region Branch building
 
+        const int MAX_NODES_WITH_CHILDREN = 10_000;
+
         /// <summary>
         /// Returns a list of the youngest children
         /// </summary>
@@ -151,8 +153,12 @@ namespace _2048_c_sharp
             List<T> currentLayer = new List<T>();
             List<T> nextLayer = new List<T>() { (T)this };
 
-            for(int layer_num = 1; layer_num <= layers; layer_num++)
+            //int layer = 0;
+            while(nextLayer.Count() < MAX_NODES_WITH_CHILDREN)
             {
+                //layer++;
+                //if (layer > 5)
+                //    Console.WriteLine($"Extra layer: {layer}");
                 currentLayer = nextLayer;
                 nextLayer = new List<T>();
                 foreach (var n in currentLayer)

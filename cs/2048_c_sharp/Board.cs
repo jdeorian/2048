@@ -53,5 +53,7 @@ namespace _2048_c_sharp
         public float Score => Field.Score();
 
         public float Reward => Field.Reward();
+
+        public IEnumerable<string> ToTrainingData() => MoveHistory.Select(m => $"{m.StartState.CanonicalFieldID()}\t{m.Direction}\t{Score}");
     }
 }
