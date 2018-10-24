@@ -8,7 +8,6 @@ namespace _2048_c_sharp
 {
     public class Board
     {
-        public int Iteration { get; set; } // here as an easy way to store the iteration count of external multi-processing methods
         public const int BOARD_SIZE = 4;
         public const float FOUR_CHANCE = .11f;
         public readonly byte[,] StartState;
