@@ -106,9 +106,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Auto\AutoBase.cs" />
-    <Compile Include="Auto\ConductorBase.cs" />
-    <Compile Include="Auto\Logger.cs" />
+    <Compile Include="Auto\Base\AutoBase.cs" />
+    <Compile Include="Auto\Base\ConductorBase.cs" />
+    <Compile Include="Auto\Base\Logger.cs" />
     <Compile Include="Model\Board.cs" />
     <Compile Include="Auto\RL\RLBase.cs" />
     <Compile Include="Auto\BranchComparison.cs" />
