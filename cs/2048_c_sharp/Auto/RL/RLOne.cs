@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace _2048_c_sharp.Auto.RL
 {
-    public class RLOne : RLBase
+    public class RLOne : AutoBase
     {
+        public RLOne(int i) : base(i) { }
+
+        public override Dictionary<Direction, float> GetMoveWeights()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

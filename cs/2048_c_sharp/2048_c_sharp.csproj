@@ -107,10 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Auto\Base\AutoBase.cs" />
-    <Compile Include="Auto\Base\ConductorBase.cs" />
+    <Compile Include="Auto\Conductor.cs" />
     <Compile Include="Auto\Base\Logger.cs" />
     <Compile Include="Auto\Base\RLTrainingSettings.cs" />
-    <Compile Include="Auto\RL\RLConductor.cs" />
     <Compile Include="Auto\RL\RLOne.cs" />
     <Compile Include="Model\Board.cs" />
     <Compile Include="Auto\RandomPlay.cs" />

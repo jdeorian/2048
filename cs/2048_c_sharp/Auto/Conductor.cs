@@ -10,7 +10,7 @@ using static _2048_c_sharp.Auto.Logger;
 
 namespace _2048_c_sharp.Auto
 {
-    public abstract class ConductorBase<T> where T : AutoBase
+    public class Conductor<T> where T : AutoBase
     {
         static readonly string EX_MSG = $"Press ESC to stop.";
         public Board BestBoard { get; set; }
@@ -18,28 +18,27 @@ namespace _2048_c_sharp.Auto
         const int MAX_CONCURRENT_BOARDS = 8;
         const int SLEEP_LENGTH = 100; //in ms
 
+        public RLTrainingSettings RLTSettings { get; set; }
+
         private SQLiteConnection _conn = null;
-        private SQLiteConnection conn
+        private SQLiteConnection Conn
         {
             get
             {
                 if (_conn == null)
                 {
-                    _conn = new SQLiteConnection(RLTrainingSettings.ConnectionString);
+                    _conn = new SQLiteConnection(RLTSettings.ConnectionString);
                     _conn.Open(); //automatically creates file if it doesn't exist
                     InitializeDB(_conn); //creates tables if they don't exist
                 }                
                 return _conn;
             }
         }
-
-        private RLTrainingSettings _settings = null;
-        public RLTrainingSettings RLTrainingSettings => _settings ?? (_settings = GetTrainingSettings());
-
-        /////////// abstract methods //////////////
-        public abstract RLTrainingSettings GetTrainingSettings();
-        public abstract string GetInsertRecordSQL(Move move, float finalScore);
-        ///////////////////////////////////////////
+        
+        public Conductor(RLTrainingSettings trainingSettings)
+        {
+            RLTSettings = trainingSettings;
+        }
 
         public void Run(bool async = false)
         {
@@ -80,8 +79,6 @@ namespace _2048_c_sharp.Auto
             log("Done.", Priority.Highest_1);
         }
 
-        public abstract void UpdateTrainingDB(T finishedIteration);
-
         private void UpdateBestBoard(T board)
         {
             if (board.Board.Score >= BestBoard.Score) return;
@@ -101,25 +98,25 @@ namespace _2048_c_sharp.Auto
         private void InitializeDB(SQLiteConnection connection)
         {
             //create table
-            string sql = RLTrainingSettings.DBInitializationSQL; //"CREATE TABLE IF NOT EXISTS training_raw (Id INTEGER, Decision VARCHAR(4), Score REAL)";
+            string sql = RLTSettings.DBInitializationSQL; //"CREATE TABLE IF NOT EXISTS training_raw (Id INTEGER, Decision VARCHAR(4), Score REAL)";
             var command = new SQLiteCommand(sql, connection);
             command.ExecuteNonQuery();
         }
 
         private void InsertRawTrainingRecord(Move move, float finalScore)
         {
-            var sql = GetInsertRecordSQL(move, finalScore); // $"INSERT INTO training_raw (Id, Decision, Score) values ({id}, '{decision}', {score})";
-            var command = new SQLiteCommand(sql, conn);
+            var sql = RLTSettings.GetInsertRecordSQL(move, finalScore); // $"INSERT INTO training_raw (Id, Decision, Score) values ({id}, '{decision}', {score})";
+            var command = new SQLiteCommand(sql, Conn);
             command.ExecuteNonQuery();
         }
 
-        private void InsertBoardMoveHistoryRawTrainingRecords(Board board)
+        private void UpdateTrainingDB(T iteration)
         {
-            var tr = conn.BeginTransaction();
-            foreach (var m in board.MoveHistory)
+            var tr = Conn.BeginTransaction();
+            foreach (var m in iteration.Board.MoveHistory)
             {
-                var command = conn.CreateCommand();
-                command.CommandText = GetInsertRecordSQL(m, board.Score); // $"INSERT INTO training_raw (Id, Decision, Score) values ({m.StartState.CanonicalFieldID()}, '{m.Direction}', {board.Score})";
+                var command = Conn.CreateCommand();
+                command.CommandText = RLTSettings.GetInsertRecordSQL(m, iteration.Board.Score); // $"INSERT INTO training_raw (Id, Decision, Score) values ({m.StartState.CanonicalFieldID()}, '{m.Direction}', {board.Score})";
                 command.ExecuteNonQuery();
             }
 
