@@ -109,6 +109,7 @@
     <Compile Include="Auto\Base\AutoBase.cs" />
     <Compile Include="Auto\Base\ConductorBase.cs" />
     <Compile Include="Auto\Base\Logger.cs" />
+    <Compile Include="Auto\Base\RLTrainingSettings.cs" />
     <Compile Include="Model\Board.cs" />
     <Compile Include="Auto\RL\RLBase.cs" />
     <Compile Include="Auto\BranchComparison.cs" />

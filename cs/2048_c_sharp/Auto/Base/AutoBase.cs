@@ -10,6 +10,7 @@ namespace _2048_c_sharp.Auto
 {
     public abstract class AutoBase
     {
+        const int MAX_BOARDS = 8;
         public int Iteration { get; set; } = 0;
         public Board Board { get; set; } = new Board();
         public Random rnd { get; set; } = new Random();
