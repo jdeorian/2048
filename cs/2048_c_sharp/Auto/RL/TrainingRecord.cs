@@ -5,6 +5,9 @@ using LinqToDB.Mapping;
 
 namespace _2048_c_sharp.Auto
 {
+    /// <summary>
+    /// Each record represents the expected reward for a given state (Id) for all directions
+    /// </summary>
     [Table(Name = "training")]
     public sealed class Training
     {
