@@ -33,6 +33,11 @@ namespace _2048_c_sharp
         public Dictionary<Direction, float> Weights { get; set; }
         public Direction RewardDirection => IsRoot ? Direction.Up : RootEldestChild.Direction;
 
+        private long _canonicalFieldId = 0;
+        public long CanonicalFieldId {
+            get => _canonicalFieldId == 0 ? _canonicalFieldId = StartState.CanonicalFieldID() : _canonicalFieldId;
+        }
+
         public Move(Direction direction, Move parent = null, Board board = null, Dictionary<Direction, float> weights = null): base(parent)
         {
             Initialize(direction, board);
