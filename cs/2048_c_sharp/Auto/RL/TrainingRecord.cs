@@ -12,69 +12,64 @@ namespace _2048_c_sharp.Auto
         public Training(long id) => Id = id;
         public Training(long id, Direction direction, float reward) : this(id) => Update(direction, reward);
 
+        [PrimaryKey, Identity] public long Id { get; set; }
+        [Column,     NotNull ] public byte[] Results { get; set; } = new byte[State.StateSize];
 
-        [PrimaryKey, Identity]
-        public long Id { get; set; }
-
-        [Column, NotNull] public float UpWeight {
-            get => Weights[Direction.Up];
-            set => Weights[Direction.Up] = value;
-        }
-        [Column, NotNull] public float DownWeight {
-            get => Weights[Direction.Down];
-            set => Weights[Direction.Down] = value;
-        }
-        [Column, NotNull] public float LeftWeight {
-            get => Weights[Direction.Left];
-            set => Weights[Direction.Left] = value;
-        }
-        [Column, NotNull] public float RightWeight {
-            get => Weights[Direction.Right];
-            set => Weights[Direction.Right] = value;
-        }
-
-        [Column, NotNull] public int UpCount {
-            get => Counts[Direction.Up];
-            set => Counts[Direction.Up] = value;
-        }
-        [Column, NotNull] public int DownCount {
-            get => Counts[Direction.Down];
-            set => Counts[Direction.Down] = value;
-        }
-        [Column, NotNull] public int LeftCount {
-            get => Counts[Direction.Left];
-            set => Counts[Direction.Left] = value;
-        }
-        [Column, NotNull] public int RightCount {
-            get => Counts[Direction.Right];
-            set => Counts[Direction.Right] = value;
-        }
-
-        public Dictionary<Direction, int> Counts = new Dictionary<Direction, int> {
-            { Direction.Up, default },
-            { Direction.Down, default },
-            { Direction.Left, default },
-            { Direction.Right, default }
-        };
-
-        public Dictionary<Direction, float> Weights = new Dictionary<Direction, float> {
-            { Direction.Up, default },
-            { Direction.Down, default },
-            { Direction.Left, default },
-            { Direction.Right, default }
-        };
-
-        public float GetWeight(Direction direction)
+        public WeightData this[int direction]
         {
-            var cnt = Counts[direction];
-            if (cnt == 0) return default;
-            return Weights[direction] / cnt;
-        }           
+            get => new WeightData(Results, State.WeightSize * direction);
+            set => Buffer.BlockCopy(value.ToByteArray(), 0, Results, State.WeightSize * direction, State.WeightSize);
+        }
 
         public void Update(Direction direction, float reward)
+            => this[(int)direction] = new WeightData(this[(int)direction], reward);
+    }
+
+    /// <summary>
+    /// One option for weight storage would be to use a single "State" blob field (byte[]) in the database. 16 bytes
+    /// would be assigned to the counts (4 bytes per count), and 16 bytes would be assigned to the weights.
+    /// </summary>
+
+    public class WeightData
+    {
+        public readonly float Rewards;
+        public readonly int Count;
+
+        public float Weight => Count == 0 ? default : Rewards / Count;
+
+        public byte[] ToByteArray()
         {
-            Counts[direction]++;
-            Weights[direction] += reward;
+            var retVal = new byte[State.BYTES_PER_REWARD + State.BYTES_PER_COUNT];
+            Buffer.BlockCopy(BitConverter.GetBytes(Count), 0, retVal, 0, State.BYTES_PER_COUNT);
+            Buffer.BlockCopy(BitConverter.GetBytes(Rewards), 0, retVal, State.BYTES_PER_COUNT, State.BYTES_PER_REWARD);
+            return retVal;
         }
+
+        public WeightData(int count, float rewards)
+        {
+            Count = count;
+            Rewards = rewards;
+        }
+
+        public WeightData(WeightData current, float newRewards)
+        {
+            Count = current.Count + 1;
+            Rewards = current.Rewards + newRewards;
+        }
+
+        public WeightData(byte[] data, int offset = 0)
+        {
+            Count = BitConverter.ToInt32(data, offset);
+            Rewards = BitConverter.ToSingle(data, offset + sizeof(float));
+        }
+    }
+
+    public static class State
+    {
+        public const int BYTES_PER_COUNT = 4;
+        public const int BYTES_PER_REWARD = 4;
+        public const int DIRECTION_COUNT = 4;
+        public static int StateSize => (BYTES_PER_COUNT + BYTES_PER_REWARD) * DIRECTION_COUNT;
+        public static int WeightSize => BYTES_PER_REWARD + BYTES_PER_COUNT;
     }
 }
