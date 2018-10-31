@@ -10,7 +10,7 @@ namespace _2048_c_sharp.Auto
 {
     public class BranchComparison: AutoBase
     {
-        public BranchComparison(int iteration) : base(iteration) { }
+        public BranchComparison(DBTraining training, int iteration) : base(training, iteration) { }
 
         private readonly Dictionary<int, int> layerDict = new Dictionary<int, int> {
                 { 1, 1 }, // 2

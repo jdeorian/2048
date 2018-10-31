@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using LinqToDB.Mapping;
+using LinqToDB;
 
 namespace _2048_c_sharp.Auto
 {
@@ -15,7 +17,7 @@ namespace _2048_c_sharp.Auto
         public Training(long id) => Id = id;
         public Training(long id, Direction direction, float reward) : this(id) => Update(direction, reward);
 
-        [PrimaryKey, Identity] public long Id { get; set; }
+        [Column,     NotNull, PrimaryKey] public long Id { get; set; }
         [Column,     NotNull ] public byte[] Results { get; set; } = new byte[State.StateSize];
 
         public WeightData this[int direction]
@@ -23,6 +25,12 @@ namespace _2048_c_sharp.Auto
             get => new WeightData(Results, State.WeightSize * direction);
             set => Buffer.BlockCopy(value.ToByteArray(), 0, Results, State.WeightSize * direction, State.WeightSize);
         }
+
+        public Dictionary<Direction, float> GetWeights
+            => XT.EnumVals<Direction>().ToDictionary(d => d, d => this[(int)d].Weight);
+
+        public Dictionary<Direction, WeightData> GetWeightData
+            => XT.EnumVals<Direction>().ToDictionary(d => d, d => this[(int)d]);
 
         public void Update(Direction direction, float reward)
             => this[(int)direction] = new WeightData(this[(int)direction], reward);
@@ -65,6 +73,13 @@ namespace _2048_c_sharp.Auto
             Count = BitConverter.ToInt32(data, offset);
             Rewards = BitConverter.ToSingle(data, offset + sizeof(float));
         }
+    }
+
+    public static class WeightDataExtensions
+    {
+        public static int GetRecordCount(this Dictionary<Direction, WeightData> data) => data.Sum(kvp => kvp.Value.Count);
+        public static Direction GetRecDirection(this Dictionary<Direction, WeightData> data)
+            => data.OrderByDescending(kvp => kvp.Value.Weight).First().Key;
     }
 
     public static class State

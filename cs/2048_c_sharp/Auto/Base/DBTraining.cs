@@ -34,7 +34,6 @@ namespace _2048_c_sharp.Auto
 
         public void Update(IEnumerable<(Move, float)> data) => Update(data.Select(d => (d.Item1.CanonicalFieldId, d.Item1.Direction, d.Item2)));
 
-
         public void Update(IEnumerable<(long, Direction, float)> data)
         {
             var records = GetExisting(data.Select(d => d.Item1)).ToDictionary(k => k.Id, v => v);
@@ -45,7 +44,7 @@ namespace _2048_c_sharp.Auto
                 if (records.TryGetValue(id, out Training training))
                     training.Update(dir, reward);
                 else
-                    training = new Training(id, dir, reward));
+                    training = new Training(id, dir, reward);
 
                 this.InsertOrReplace(training);
             }
