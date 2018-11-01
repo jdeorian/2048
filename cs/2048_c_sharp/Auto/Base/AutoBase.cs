@@ -28,42 +28,44 @@ namespace _2048_c_sharp.Auto
             while (!Board.Lost)
             {
                 PrintBoardState();
-
-                //get the recommended direction algorithmically
-                var moveWeights = GetMoveWeights();               
-
-                //get the database data
-                var pastResults = db.TrainingRecords.FirstOrDefault(t => t.Id == Board.Field.CanonicalFieldID());
-                var recDir = PickMoveDirection(pastResults, moveWeights);
-
-                Board.Move(recDir);
-                PrintMoveResults(moveWeights, recDir);
+                var recDir = PickMoveDirection(out var moveWeights);
+                Board.Move(recDir, moveWeights);
+                PrintMoveResults(moveWeights, recDir);                          
             }
             return;
         }
 
         public abstract Dictionary<Direction, float> GetMoveWeights();
 
-        private Direction PickMoveDirection(Training td, Dictionary<Direction, float> moveWeights)
+        private Direction PickMoveDirection(out Dictionary<Direction, float> moveWeights)
         {
-            //get the recommended direction for whatever algorithm is in use
+            //get the database value
+            Training td = null;
+            lock (db) { td = db.TrainingRecords.FirstOrDefault(t => t.Id == Board.Field.CanonicalFieldID()); }
+            
+            if (td?.DecisionSufficient() ?? false)
+            {
+                moveWeights = td.GetWeights();
+                log("Holy shit using a policy weight!", Priority.Medium_5);
+                return GetRecommendation(moveWeights);
+            }
+
+            //It wasn't sufficient, so use the algorithm
+            moveWeights = GetMoveWeights();
+            var recDir = GetRecommendation(moveWeights);
+            return recDir;
+        }
+
+        private Direction GetRecommendation(Dictionary<Direction, float> moveWeights)
+        {
+
             var highestWeight = moveWeights.Values.Max();
             var highestDirs = moveWeights.Where(kvp => kvp.Value == highestWeight)
                                          .Select(kvp => kvp.Key);
             var recDir = highestDirs.Count() == 1 ? highestDirs.First()
                                                   : XT.GetRandom(XT.EnumVals<Direction>().ToArray(), rnd);
-
-            //if no training data is available, we need to get some.
-            if (td == null) return recDir;
-            var weightData = td.GetWeightData;
-            if (weightData.Any(wd => wd.Value.Count < MIN_TRAINING_COUNT))
-            {
-                return weightData.FirstOrDefault(wd => wd.Value.Count < MIN_TRAINING_COUNT).Key;
-            }
-
-            //if there is training data, return the best value
-            return weightData.GetRecDirection();
-        }        
+            return recDir;
+        }
 
         public Dictionary<Move, float> GetSumOfRewards()
         {
@@ -86,7 +88,7 @@ namespace _2048_c_sharp.Auto
         public void PrintTrainingData(Training td)
         {
             log("Training data:");
-            PrintWeights(td.GetWeights);
+            PrintWeights(td.GetWeights());
         }
 
         public void PrintPreMoveState()

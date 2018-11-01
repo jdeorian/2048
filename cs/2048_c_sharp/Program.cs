@@ -11,9 +11,12 @@ namespace _2048_c_sharp
     {
         static void Main(string[] args)
         {
+            var db = new DBTraining();            
 
-            var c = new Conductor<RLOne>(new DBTraining());
-            c.Run();
+            var c = new Conductor<BranchComparison>(db);
+            //var c = new Conductor<RLOne>(db);
+            Console.WriteLine($"Current records: {c.CountIterations()}");
+            c.Run(true);
 
             Console.ReadKey();
         }        

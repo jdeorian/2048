@@ -19,130 +19,72 @@ namespace _2048_c_sharp.Auto
         const int SLEEP_LENGTH = 100; //in ms
 
         public DBTraining db { get; set; } = new DBTraining();
-
-        //public RLTrainingSettings RLTSettings { get; set; }
-
-        //private SQLiteConnection _conn = null;
-        //private SQLiteConnection Conn
-        //{
-        //    get
-        //    {
-        //        if (_conn == null)
-        //        {
-        //            _conn = new SQLiteConnection(RLTSettings.ConnectionString);
-        //            _conn.Open(); //automatically creates file if it doesn't exist
-        //            InitializeDB(_conn); //creates tables if they don't exist
-        //        }                
-        //        return _conn;
-        //    }
-        //}
         
-        public Conductor(DBTraining trainingDB )//RLTrainingSettings trainingSettings)
-        {
-            //RLTSettings = trainingSettings;
-        }
+        public Conductor(DBTraining trainingDB) { }
 
         public void Run(bool async = false)
         {
 
             int it_cnt = 1;
-            tasks = Enumerable.Range(0, MAX_CONCURRENT_BOARDS)
+            int boards = async ? MAX_CONCURRENT_BOARDS : 1;
+            tasks = Enumerable.Range(0, boards)
                               .Select(i => Task.Run(() => { }))
                               .ToList(); //initialized as empty, completed tasks
             while (!(Console.KeyAvailable &&
                    Console.ReadKey(true).Key == ConsoleKey.Escape))
             {
-                if (async)
-                {
-                    var removed = tasks.RemoveAll(t => t.IsCompleted);
-                    if (removed > 0)
-                        tasks.AddRange(Enumerable.Range(it_cnt, removed)
-                                                 .Select(i => Task.Run(() => {
-                                                     var iter = (T)Activator.CreateInstance(typeof(T), db, i);
-                                                     iter.Run();
-                                                     UpdateBestBoard(iter);
-                                                     UpdateTrainingDB(iter); //this may not be moved to a sychronous thread
-                                                 })));
-                    it_cnt += removed;
-                }
-                else
-                {
-                    var iteration = (T)Activator.CreateInstance(typeof(T), db, it_cnt++);
-                    iteration.Run();
-                    UpdateBestBoard(iteration);
-                    UpdateTrainingDB(iteration);
-                }
-
+                var removed = tasks.RemoveAll(t => t.IsCompleted);
+                if (removed > 0)
+                    tasks.AddRange(Enumerable.Range(it_cnt, removed)
+                                                .Select(i => Task.Run(() => {
+                                                    var iter = (T)Activator.CreateInstance(typeof(T), db, i);
+                                                    iter.Run();
+                                                    UpdateBestBoard(iter);
+                                                    UpdateTrainingDB(iter); //this may not be moved to a sychronous thread
+                                                })));
+                it_cnt += removed;
                 System.Threading.Thread.Sleep(SLEEP_LENGTH);
-
             }
 
             log("Finishing remaining tasks...", Priority.Highest_1);
             Task.WaitAll(tasks.ToArray());
-
-            log("Finishing remaining tasks...", Priority.Highest_1);
             log("Done.", Priority.Highest_1);
         }
 
         private void UpdateBestBoard(T board)
         {
             if (board.Board.Score <= (BestBoard?.Score ?? 0)) return;
-            Console.WriteLine(Environment.NewLine);
             var lines = new[] {
+                        string.Empty,
                         $"Iteration: {board.Iteration}: {board.ToString()} @ {DateTime.Now}",
                         board.Board.Field.AsString()
                     };
             
-            Console.WriteLine(string.Join(Environment.NewLine, lines));
+            log(string.Join(Environment.NewLine, lines), Priority.P2);
             BestBoard = board.Board;
-
         }
 
         private void UpdateTrainingDB(T iteration)
         {
-            db.Update(iteration.GetSumOfRewards()
-                               .Select(kvp => (kvp.Key.StartState.CanonicalFieldID(),
-                                               kvp.Key.Direction,
-                                               kvp.Value)));
+            lock (db)
+            {                
+                db.Update(iteration.GetSumOfRewards()
+                                   .Select(kvp => (kvp.Key.StartState.CanonicalFieldID(),
+                                                   kvp.Key.Direction,
+                                                   kvp.Value)));
+            }
         }
 
-        //#region Update Training DB
+        public int CountIterations()
+        {
+            var PAGE_SIZE = 1000;
+            var pages = 0;
+            var count = 0;
+            IEnumerable<Training> records;
+            while ((records = db.TrainingRecords.Skip(PAGE_SIZE*pages++).Take(PAGE_SIZE)).Any())
+                count += records.Sum(r => r.TotalCount);
 
-        //private void InitializeDB(SQLiteConnection connection)
-        //{
-        //    //create table
-        //    string sql = RLTSettings.DBInitializationSQL; //"CREATE TABLE IF NOT EXISTS training_raw (Id INTEGER, Decision VARCHAR(4), Score REAL)";
-        //    var command = new SQLiteCommand(sql, connection);
-        //    command.ExecuteNonQuery();
-        //}
-
-        //private void InsertRawTrainingRecord(Move move, float finalScore)
-        //{
-        //    var sql = RLTSettings.GetInsertRecordSQL(move, finalScore); // $"INSERT INTO training_raw (Id, Decision, Score) values ({id}, '{decision}', {score})";
-        //    var command = new SQLiteCommand(sql, Conn);
-        //    command.ExecuteNonQuery();
-        //}
-
-        //private void UpdateTrainingDB(T iteration)
-        //{
-        //    var tr = Conn.BeginTransaction();
-        //    foreach (var m in iteration.Board.MoveHistory)
-        //    {
-        //        var command = Conn.CreateCommand();
-        //        command.CommandText = RLTSettings.GetInsertRecordSQL(m, iteration.Board.Score); // $"INSERT INTO training_raw (Id, Decision, Score) values ({m.StartState.CanonicalFieldID()}, '{m.Direction}', {board.Score})";
-        //        command.ExecuteNonQuery();
-        //    }
-
-        //    //commit
-        //    try { tr.Commit(); }
-        //    catch (Exception)
-        //    {
-        //        Console.WriteLine("Error writing training data, rolled back");
-        //        tr.Rollback();
-        //    }
-        //    finally { tr.Dispose(); }
-        //}
-
-        //#endregion
+            return count;
+        }
     }
 }

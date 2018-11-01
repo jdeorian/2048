@@ -13,6 +13,8 @@ namespace _2048_c_sharp.Auto
     [Table(Name = "training")]
     public sealed class Training
     {
+        public const int MIN_SUFFICIENT_SAMPLES = 10;
+
         public Training() { }
         public Training(long id) => Id = id;
         public Training(long id, Direction direction, float reward) : this(id) => Update(direction, reward);
@@ -26,14 +28,28 @@ namespace _2048_c_sharp.Auto
             set => Buffer.BlockCopy(value.ToByteArray(), 0, Results, State.WeightSize * direction, State.WeightSize);
         }
 
-        public Dictionary<Direction, float> GetWeights
-            => XT.EnumVals<Direction>().ToDictionary(d => d, d => this[(int)d].Weight);
+        public Dictionary<Direction, float> GetWeights()
+            => GetWeightData().GetWeights();
 
-        public Dictionary<Direction, WeightData> GetWeightData
+        public Dictionary<Direction, WeightData> GetWeightData()
             => XT.EnumVals<Direction>().ToDictionary(d => d, d => this[(int)d]);
 
         public void Update(Direction direction, float reward)
             => this[(int)direction] = new WeightData(this[(int)direction], reward);
+
+        public int TotalCount => GetWeightData().GetRecordCount();
+
+        /// <summary>
+        /// Is there enough data to make a decision?
+        /// </summary>
+        /// <returns></returns>
+        public bool DecisionSufficient()
+        {
+            var data = GetWeightData();
+            if (data.GetRecordCount() < MIN_SUFFICIENT_SAMPLES) return false;
+
+            return true;
+        }
     }
 
     /// <summary>
@@ -78,8 +94,11 @@ namespace _2048_c_sharp.Auto
     public static class WeightDataExtensions
     {
         public static int GetRecordCount(this Dictionary<Direction, WeightData> data) => data.Sum(kvp => kvp.Value.Count);
-        public static Direction GetRecDirection(this Dictionary<Direction, WeightData> data)
-            => data.OrderByDescending(kvp => kvp.Value.Weight).First().Key;
+        //public static Direction GetRecDirection(this Dictionary<Direction, WeightData> data)
+        //    => data.OrderByDescending(kvp => kvp.Value.Weight).First().Key;
+
+        public static Dictionary<Direction, float> GetWeights(this Dictionary<Direction, WeightData> data) 
+            => data.ToDictionary(d => d.Key, d => d.Value.Weight);
     }
 
     public static class State
