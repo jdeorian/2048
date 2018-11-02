@@ -23,7 +23,7 @@ namespace _2048_c_sharp.GUI
     public partial class MainWindow : Window
     {
         private static DBTraining db { get; set; } = new DBTraining();
-        //private static Conductor<RLOne> conductor = new Conductor<RLOne>(db);
+        //private static Conductor<RLOne> conductor = new Conductor<RLOne>(db); //use this one for random chance
         private static Conductor<BranchComparison> conductor = new Conductor<BranchComparison>(db);
         private static DispatcherTimer timer = new DispatcherTimer();
         public ObservableCollection<List<int>> BestBoard { get; set; } = new ObservableCollection<List<int>>();
@@ -80,7 +80,10 @@ namespace _2048_c_sharp.GUI
             }
 
             //add any new boards
-            IterationStatuses.AddRange(activeBoards.Where(b => !IterationStatuses.Any(s => s.Iteration == b.Iteration)));            
+            IterationStatuses.AddRange(activeBoards.Where(b => !IterationStatuses.Any(s => s.Iteration == b.Iteration)));
+
+            //refresh the sort
+            SortColumn(dgThreads, nameof(IterationStatus.Closed), ListSortDirection.Descending);
         }
 
         private void UpdateBestBoard()
@@ -176,6 +179,13 @@ namespace _2048_c_sharp.GUI
             if (col == null) return;
             col.SortDirection = listSortDirection;
             dg.Items.SortDescriptions.Add(new SortDescription(col.SortMemberPath, listSortDirection));            
+        }
+
+        private void SortColumn(DataGrid dg, string colName, ListSortDirection listSortDirection = ListSortDirection.Ascending)
+        {
+            var col = dg.Columns.FirstOrDefault(c => c.Header.ToString() == colName);
+            if (col == null) return;
+            col.SortDirection = listSortDirection;
         }
     }
 }

@@ -141,6 +141,7 @@
     <Compile Include="Model\Move.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Utilities\KVPExtentions.cs" />
+    <Compile Include="Utilities\ListExtensions.cs" />
     <Compile Include="Utilities\ObservableCollectionExtensions.cs" />
     <Compile Include="Utilities\PerfTest.cs" />
     <Compile Include="Program.cs" />

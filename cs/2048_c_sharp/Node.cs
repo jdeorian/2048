@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using _2048_c_sharp.Utilities;
+
 namespace _2048_c_sharp
 {
     public abstract class Node<T> where T: Node<T>
@@ -153,16 +155,11 @@ namespace _2048_c_sharp
             List<T> currentLayer = new List<T>();
             List<T> nextLayer = new List<T>() { (T)this };
 
-            //int layer = 0;
             while(nextLayer.Count() < MAX_NODES_WITH_CHILDREN)
             {
-                //layer++;
-                //if (layer > 5)
-                //    Console.WriteLine($"Extra layer: {layer}");
                 currentLayer = nextLayer;
                 nextLayer = new List<T>();
-                foreach (var n in currentLayer)
-                    nextLayer.AddRange(n.GetChildren());
+                nextLayer.AddRange(currentLayer.AsParallel().SelectMany(l => l.GetChildren()));
 
                 if (!nextLayer.Any())
                     return currentLayer.Count == 1 && currentLayer[0].Equals(this) ? new List<T>() : currentLayer;
