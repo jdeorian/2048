@@ -14,40 +14,54 @@ namespace _2048_c_sharp.Auto
     {
         static readonly string EX_MSG = $"Press ESC to stop.";
         public Board BestBoard { get; set; }
-        private List<Task> tasks { get; set; }
-        const int MAX_CONCURRENT_BOARDS = 8;
+        public List<Task> Tasks { get; set; }
+        public List<T> ActiveBoards { get; private set; } = new List<T>();
+        public const int MAX_CONCURRENT_BOARDS = 16;
         const int SLEEP_LENGTH = 100; //in ms
 
         public DBTraining db { get; set; } = new DBTraining();
-        
+        public bool Stop { get; set; } = false;
         public Conductor(DBTraining trainingDB) { }
 
-        public void Run(bool async = false)
+        private int _boards = 1;
+        public int Boards
         {
+            get => _boards;
+            set
+            {
+                if (value < 1 || value > MAX_CONCURRENT_BOARDS) return;
+                _boards = value;
+            }
+        }
 
+        public void Run(int boards = 1)
+        {
+            Stop = false;
             int it_cnt = 1;
-            int boards = async ? MAX_CONCURRENT_BOARDS : 1;
-            tasks = Enumerable.Range(0, boards)
+            Boards = boards;
+            Tasks = Enumerable.Range(0, Boards)
                               .Select(i => Task.Run(() => { }))
                               .ToList(); //initialized as empty, completed tasks
-            while (!(Console.KeyAvailable &&
-                   Console.ReadKey(true).Key == ConsoleKey.Escape))
+            while (!Stop)// && !(Console.KeyAvailable &&
+                         //     Console.ReadKey(true).Key == ConsoleKey.Escape))   //TODO: needs to work with console and GUI
             {
-                var removed = tasks.RemoveAll(t => t.IsCompleted);
+                var removed = Tasks.RemoveAll(t => t.IsCompleted);
                 if (removed > 0)
-                    tasks.AddRange(Enumerable.Range(it_cnt, removed)
+                    Tasks.AddRange(Enumerable.Range(it_cnt, removed)
                                                 .Select(i => Task.Run(() => {
                                                     var iter = (T)Activator.CreateInstance(typeof(T), db, i);
+                                                    ActiveBoards.Add(iter);
                                                     iter.Run();
                                                     UpdateBestBoard(iter);
-                                                    UpdateTrainingDB(iter); //this may not be moved to a sychronous thread
+                                                    UpdateTrainingDB(iter);
+                                                    ActiveBoards.Remove(iter);
                                                 })));
                 it_cnt += removed;
                 System.Threading.Thread.Sleep(SLEEP_LENGTH);
             }
 
             log("Finishing remaining tasks...", Priority.Highest_1);
-            Task.WaitAll(tasks.ToArray());
+            Task.WaitAll(Tasks.ToArray());
             log("Done.", Priority.Highest_1);
         }
 

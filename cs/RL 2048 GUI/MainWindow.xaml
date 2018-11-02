@@ -1,0 +1,56 @@
+﻿<Window x:Class="_2048_c_sharp.GUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="573.941" Width="753.284">
+
+    <Window.Resources>
+        <DataTemplate x:Key="DataTemplate_Level2">
+            <Label Content="{Binding}" Height="40" Width="50" BorderBrush="Black" BorderThickness="1" Margin="1,1,1,1" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DataTemplate_Level1">
+            <ItemsControl ItemsSource="{Binding}" ItemTemplate="{DynamicResource DataTemplate_Level2}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </DataTemplate>
+
+    </Window.Resources>
+    <Grid Margin="0,0,2,0">
+        <xctk:IntegerUpDown Name="iudConcurrentBoardCount" HorizontalAlignment="Left" Margin="130,13,0,0" VerticalAlignment="Top" Width="75" MaxLength="2" Minimum="1" Maximum="48" Value="4" ValueChanged="IntegerUpDown_ValueChanged"/>
+        <Label Content="Concurrent threads:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Button Content="Start" HorizontalAlignment="Left" Margin="629,16,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click" Name="btnStart"/>
+        <Label Content="Threads:" HorizontalAlignment="Left" Margin="10,52,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+        <DataGrid HorizontalAlignment="Left" Height="450" Margin="10,83,0,0" VerticalAlignment="Top" Width="487" Name="dgThreads" SelectionChanged="DgThreads_SelectionChanged" SelectionMode="Single"/>
+        <Label Content="Best Board:" HorizontalAlignment="Left" Margin="502,52,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+        <Label Content="Score:" HorizontalAlignment="Left" Margin="502,83,0,0" VerticalAlignment="Top"/>
+        <Label Content="0" HorizontalAlignment="Left" Margin="549,83,0,0" VerticalAlignment="Top" Name="lblBBScore"/>
+        <Label Content="Moves:" HorizontalAlignment="Left" Margin="641,83,0,0" VerticalAlignment="Top"/>
+        <Label Content="0" HorizontalAlignment="Left" Margin="688,83,0,0" VerticalAlignment="Top" Name="lblBBMoves"/>
+        <Grid HorizontalAlignment="Left" Height="200" Margin="510,114,-20,0" VerticalAlignment="Top" Width="222">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0*"/>
+                <ColumnDefinition Width="107*"/>
+                <ColumnDefinition Width="166*"/>
+            </Grid.ColumnDefinitions>
+            <ItemsControl x:Name="bestBoardDisplay" ItemTemplate="{DynamicResource DataTemplate_Level1}" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Grid>
+        <Grid HorizontalAlignment="Left" Height="200" Margin="510,334,-20,0" VerticalAlignment="Top" Width="222">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0*"/>
+                <ColumnDefinition Width="107*"/>
+                <ColumnDefinition Width="166*"/>
+            </Grid.ColumnDefinitions>
+            <ItemsControl x:Name="selectedBoardDisplay" ItemTemplate="{DynamicResource DataTemplate_Level1}" Grid.ColumnSpan="3" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Grid>
+        <Label Content="Selected Board:" HorizontalAlignment="Left" Margin="510,303,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+
+    </Grid>
+</Window>

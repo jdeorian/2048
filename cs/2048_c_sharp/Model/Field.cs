@@ -254,6 +254,16 @@ namespace _2048_c_sharp
                     t += 1 << squares[i, j];
             return t;
         }
+
+        public static int[,] AsDisplayValues(this byte[,] squares)
+        {
+            var retVal = new int[SZ, SZ];
+            for (byte i = 0; i < SZ; i++)
+                for (byte j = 0; j < SZ; j++)
+                    retVal[i, j] = 1 << squares[i, j];
+            return retVal;
+        }
+
         public static byte MaxValue(this byte[,] squares)
         {
             byte max = 0;

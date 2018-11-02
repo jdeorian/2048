@@ -18,13 +18,16 @@ namespace _2048_c_sharp.Auto
         public int Iteration { get; set; } = 0;
         public Board Board { get; set; } = new Board();
         public Random rnd { get; set; } = new Random();
+        public DateTime TimeStarted { get; private set; }
+        public DateTime TimeEnded { get; private set; }
 
         private DBTraining db { get; set; }
 
         public AutoBase(DBTraining trainingDB, int iteration) { Iteration = iteration; db = trainingDB; }
 
         public void Run()
-        {            
+        {
+            TimeStarted = DateTime.Now;
             while (!Board.Lost)
             {
                 PrintBoardState();
@@ -32,6 +35,7 @@ namespace _2048_c_sharp.Auto
                 Board.Move(recDir, moveWeights);
                 PrintMoveResults(moveWeights, recDir);                          
             }
+            TimeEnded = DateTime.Now;
             return;
         }
 
@@ -115,6 +119,21 @@ namespace _2048_c_sharp.Auto
             log($"Score: {Board.Field.Score()}");
         }
 
+        public IterationStatus GetStatus() => new IterationStatus() {
+            Iteration = Iteration,
+            MoveCount = Board.MoveHistory.Count(),
+            TimeStarted = TimeStarted,
+            TimeEnded = TimeEnded,
+            Score = Board.Score
+        };
+    }
 
+    public struct IterationStatus
+    {
+        public int Iteration { get; set; }
+        public int MoveCount { get; set; }
+        public DateTime TimeStarted { get; set; }
+        public DateTime TimeEnded { get; set; }
+        public float Score { get; set; }
     }
 }
