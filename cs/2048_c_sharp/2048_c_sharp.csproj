@@ -135,11 +135,13 @@
     <Compile Include="Auto\RandomPlay.cs" />
     <Compile Include="Auto\BranchComparison.cs" />
     <Compile Include="Model\Direction.cs" />
+    <Compile Include="Model\IterationStatus.cs" />
     <Compile Include="Utilities\EnumExtensions.cs" />
     <Compile Include="Model\Field.cs" />
     <Compile Include="Model\Move.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Utilities\KVPExtentions.cs" />
+    <Compile Include="Utilities\ObservableCollectionExtensions.cs" />
     <Compile Include="Utilities\PerfTest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

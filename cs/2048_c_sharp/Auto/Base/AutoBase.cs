@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -126,14 +127,5 @@ namespace _2048_c_sharp.Auto
             TimeEnded = TimeEnded,
             Score = Board.Score
         };
-    }
-
-    public struct IterationStatus
-    {
-        public int Iteration { get; set; }
-        public int MoveCount { get; set; }
-        public DateTime TimeStarted { get; set; }
-        public DateTime TimeEnded { get; set; }
-        public float Score { get; set; }
     }
 }

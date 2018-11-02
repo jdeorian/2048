@@ -17,7 +17,7 @@ namespace _2048_c_sharp.Auto
         public List<Task> Tasks { get; set; }
         public List<T> ActiveBoards { get; private set; } = new List<T>();
         public const int MAX_CONCURRENT_BOARDS = 16;
-        const int SLEEP_LENGTH = 100; //in ms
+        const int SLEEP_LENGTH = 200; //in ms
 
         public DBTraining db { get; set; } = new DBTraining();
         public bool Stop { get; set; } = false;
@@ -45,9 +45,11 @@ namespace _2048_c_sharp.Auto
             while (!Stop)// && !(Console.KeyAvailable &&
                          //     Console.ReadKey(true).Key == ConsoleKey.Escape))   //TODO: needs to work with console and GUI
             {
-                var removed = Tasks.RemoveAll(t => t.IsCompleted);
-                if (removed > 0)
-                    Tasks.AddRange(Enumerable.Range(it_cnt, removed)
+                Tasks.RemoveAll(t => t.IsCompleted);
+                int newBoards = Boards - Tasks.Count();
+                if (newBoards > 0)
+                { 
+                    Tasks.AddRange(Enumerable.Range(it_cnt, newBoards)
                                                 .Select(i => Task.Run(() => {
                                                     var iter = (T)Activator.CreateInstance(typeof(T), db, i);
                                                     ActiveBoards.Add(iter);
@@ -56,7 +58,8 @@ namespace _2048_c_sharp.Auto
                                                     UpdateTrainingDB(iter);
                                                     ActiveBoards.Remove(iter);
                                                 })));
-                it_cnt += removed;
+                    it_cnt += newBoards;
+                }                
                 System.Threading.Thread.Sleep(SLEEP_LENGTH);
             }
 

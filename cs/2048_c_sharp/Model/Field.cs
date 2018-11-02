@@ -242,25 +242,21 @@ namespace _2048_c_sharp
         public static byte[,] AsCopyWithUpdate(this byte[,] squares, Square s) => squares.AsCopyWithUpdate(s.X, s.Y, s.Value);
 
         public static IEnumerable<Direction> PossibleMoves(this byte[,] squares)
-        {
-            return XT.EnumVals<Direction>().Where(d => !squares.Slide(d).IsEqualTo(squares));
-        }
+            => XT.EnumVals<Direction>().Where(d => !squares.Slide(d).IsEqualTo(squares));
 
-        public static float Score(this byte[,] squares)
-        {
-            var t = 0;
-            for (byte i = 0; i < SZ; i++)
-                for (byte j = 0; j < SZ; j++)
-                    t += 1 << squares[i, j];
-            return t;
-        }
+        public static float Score(this byte[,] squares) => squares.AsDisplayValues().Cast<int>().Sum();
+
 
         public static int[,] AsDisplayValues(this byte[,] squares)
         {
+            int val = 0;
             var retVal = new int[SZ, SZ];
             for (byte i = 0; i < SZ; i++)
                 for (byte j = 0; j < SZ; j++)
-                    retVal[i, j] = 1 << squares[i, j];
+                {
+                    if ((val = 1 << squares[i, j]) > 1) //prevents 1s from being added
+                        retVal[i, j] = val;
+                }
             return retVal;
         }
 
@@ -303,14 +299,15 @@ namespace _2048_c_sharp
         public static string AsString(this byte[,] squares, string row_sep = "\n", string col_sep = "\t")
         {
             StringBuilder sb = new StringBuilder();
+            var disp = squares.AsDisplayValues();
             for (int x = 0; x < SZ; x++)
             {
                 sb.Append(string.Join(col_sep,
                                       Enumerable.Range(0, SZ)
-                                                .Select(y => $"{(squares[x, y] == 0 ? 0 : 1 << squares[x, y])}")));
+                                                .Select(y => $"{disp[x, y]}")));
                 sb.Append(row_sep);
             }
-            return sb.ToString();
+            return sb.ToString().TrimEnd(); //we know by default we'll have a trailing newline
         }
 
         /// <summary>
