@@ -49,6 +49,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -128,8 +129,6 @@
     <Compile Include="Auto\Base\DBTraining.cs" />
     <Compile Include="Auto\Conductor.cs" />
     <Compile Include="Auto\Base\Logger.cs" />
-    <Compile Include="Auto\Base\RLTrainingSettings.cs" />
-    <Compile Include="Auto\RL\RLOne.cs" />
     <Compile Include="Auto\RL\TrainingRecord.cs" />
     <Compile Include="Model\Board.cs" />
     <Compile Include="Auto\RandomPlay.cs" />

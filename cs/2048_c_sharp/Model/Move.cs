@@ -9,7 +9,6 @@ namespace _2048_c_sharp
 {
     public class Move: Node<Move>
     {
-        const int BOARD_SIZE = 4;
         public byte[,] StartState => Parent?.EndState
                                   ?? Board.StartState;
         public byte[,] IntermediateState => StartState.Slide(Direction);
@@ -71,8 +70,6 @@ namespace _2048_c_sharp
             }
         }
 
-        public float Score => EndState.Score();
-
         public override List<Move> GetChildren()
         {
             var moves = XT.EnumVals<Direction>().Select(d => new { dir = d, field = EndState.Slide(d) })
@@ -112,7 +109,7 @@ namespace _2048_c_sharp
                 sw.WriteLine("Index\tParent\tDirection\tRewardDirection\tStart\tEnd\tReward\tSumOfRewards\tChance");
                 var next_set = new List<Move> { this };
                 var current_set = new List<Move>();
-                while(next_set.Count() > 0)
+                while(next_set.Any())
                 {
                     current_set = next_set;
                     next_set = new List<Move>();
@@ -127,14 +124,13 @@ namespace _2048_c_sharp
 
         public string[] GetOrderedWeights()
         {
-            string getWeight(Direction direction) => Weights.TryGetValue(direction, out float val) ? val.ToString() : "";
-            var retVal = new[] {
+            string getWeight(Direction direction) => Weights.TryGetValue(direction, out var val) ? val.ToString() : "";
+            return new[] {
                 getWeight(Direction.Up),
                 getWeight(Direction.Down),
                 getWeight(Direction.Left),
                 getWeight(Direction.Right)
             };
-            return retVal;
         }
     }
 

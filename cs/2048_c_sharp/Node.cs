@@ -45,12 +45,7 @@ namespace _2048_c_sharp
         private T _root = null;
         public T Root
         {
-            get
-            {
-                if (_root == null)
-                    _root = GetRoot();
-                return _root;
-            }
+            get => _root ?? (_root = GetRoot());
             set
             {
                 //setting the root of a node sets the root of all child nodes
@@ -79,7 +74,7 @@ namespace _2048_c_sharp
             }
         }
 
-        public Node(T parent, T root = null)
+        protected Node(T parent, T root = null)
         {
             Parent = parent;
             _root = root ?? parent?.Root ?? (T)this;
@@ -108,8 +103,9 @@ namespace _2048_c_sharp
         {
             if (IsRoot) return (T)this;
 
-            T current = (T)this;
-            while ((current = current.Parent) != null) { }
+            var current = (T)this;
+            while (current.Parent != null)
+                current = current.Parent;
 
             return current;
         }
@@ -152,12 +148,11 @@ namespace _2048_c_sharp
         public List<T> BuildBranches(int layers = 1)
         {
             if (layers < 1) throw new Exception("Cannot have < 1 layers.");
-            List<T> currentLayer = new List<T>();
-            List<T> nextLayer = new List<T>() { (T)this };
+            var nextLayer = new List<T>() { (T)this };
 
             while(nextLayer.Count() < MAX_NODES_WITH_CHILDREN)
             {
-                currentLayer = nextLayer;
+                var currentLayer = nextLayer;
                 nextLayer = new List<T>();
                 nextLayer.AddRange(currentLayer.AsParallel().SelectMany(l => l.GetChildren()));
 
@@ -165,29 +160,6 @@ namespace _2048_c_sharp
                     return currentLayer.Count == 1 && currentLayer[0].Equals(this) ? new List<T>() : currentLayer;
             }
             return nextLayer;
-        }
-
-        /// <summary>
-        /// Recursively build out the node structure to the desired number of layers. 1 means
-        /// just the possible outcomes of the current state. 2 is 1 extra layer into the future,
-        /// and so on. YoungestChildren is a performance concession and is used so that finding
-        /// the youngest children doesn't require a second traversal of the tree.
-        /// 
-        /// This is faster if you don't need the list of youngest children returned.
-        /// </summary>
-        /// <param name="layers"></param>
-        public T BuildBranches_Recursive(int layers = 1)
-        {
-            if (layers < 1) throw new Exception("Cannot have 0 or negative layers.");
-
-            if (!Children.Any())
-                Children = GetChildren();
-
-            if (layers != 1)
-                foreach (var child in Children)
-                    child.BuildBranches_Recursive(layers - 1);
-
-            return (T)this;
         }
 
         /// <summary>

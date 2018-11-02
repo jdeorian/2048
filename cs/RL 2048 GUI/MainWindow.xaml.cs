@@ -22,10 +22,9 @@ namespace _2048_c_sharp.GUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static DBTraining db { get; set; } = new DBTraining();
         //private static Conductor<RLOne> conductor = new Conductor<RLOne>(db); //use this one for random chance
-        private static Conductor<BranchComparison> conductor = new Conductor<BranchComparison>(db);
-        private static DispatcherTimer timer = new DispatcherTimer();
+        private static readonly Conductor<BranchComparison> conductor = new Conductor<BranchComparison>();
+        private static readonly DispatcherTimer timer = new DispatcherTimer();
         public ObservableCollection<List<int>> BestBoard { get; set; } = new ObservableCollection<List<int>>();
         public ObservableCollection<List<int>> SelectedBoard { get; set; } = new ObservableCollection<List<int>>();
         private int selectedBoardIndex = -1;
@@ -80,7 +79,7 @@ namespace _2048_c_sharp.GUI
             }
 
             //add any new boards
-            IterationStatuses.AddRange(activeBoards.Where(b => !IterationStatuses.Any(s => s.Iteration == b.Iteration)));
+            IterationStatuses.AddRange(activeBoards.Where(b => IterationStatuses.All(s => s.Iteration != b.Iteration)));
 
             //refresh the sort
             SortColumn(dgThreads, nameof(IterationStatus.Closed), ListSortDirection.Descending);
@@ -89,14 +88,13 @@ namespace _2048_c_sharp.GUI
         private void UpdateBestBoard()
         {
             //get the best board info, if it's available
-            if (conductor.BestBoard != null)
-            {
-                var disp = conductor.BestBoard.Field.AsDisplayValues();
-                UpdateBoardDisplay(disp, BestBoard);
-                bestBoardDisplay.ItemsSource = BestBoard;
-                lblBBScore.Content = disp.Cast<int>().Sum().ToString();
-                lblBBMoves.Content = conductor.BestBoard.MoveCount;
-            }
+            if (conductor.BestBoard == null) return;
+
+            var disp = conductor.BestBoard.Field.AsDisplayValues();
+            UpdateBoardDisplay(disp, BestBoard);
+            bestBoardDisplay.ItemsSource = BestBoard;
+            lblBBScore.Content = disp.Cast<int>().Sum().ToString();
+            lblBBMoves.Content = conductor.BestBoard.MoveCount;
         }
 
         private void UpdateSelectedBoard()

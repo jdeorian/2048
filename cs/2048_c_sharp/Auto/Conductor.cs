@@ -12,7 +12,6 @@ namespace _2048_c_sharp.Auto
 {
     public class Conductor<T> where T : AutoBase
     {
-        static readonly string EX_MSG = $"Press ESC to stop.";
         public Board BestBoard { get; set; }
         public List<Task> Tasks { get; set; }
         public List<T> ActiveBoards { get; private set; } = new List<T>();
@@ -21,7 +20,6 @@ namespace _2048_c_sharp.Auto
 
         public DBTraining db { get; set; } = new DBTraining();
         public bool Stop { get; set; } = false;
-        public Conductor(DBTraining trainingDB) { }
 
         private int _boards = 1;
         public int Boards
@@ -37,7 +35,7 @@ namespace _2048_c_sharp.Auto
         public void Run(int boards = 1)
         {
             Stop = false;
-            int it_cnt = 1;
+            var it_cnt = 1;
             Boards = boards;
             Tasks = Enumerable.Range(0, Boards)
                               .Select(i => Task.Run(() => { }))

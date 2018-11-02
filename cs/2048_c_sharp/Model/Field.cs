@@ -47,7 +47,7 @@ namespace _2048_c_sharp
         //=> squares.Flatten().CountEmptySquares();
         public static byte CountEmptySquares(this byte[] squares)
         {
-            byte sz_x = SZ_2D;
+            var sz_x = SZ_2D;
             byte count = 0;
             for (byte x = 0; x < sz_x; x++)
                 if (squares[x] == 0) count++;
@@ -56,14 +56,14 @@ namespace _2048_c_sharp
 
         public static byte[] Flatten(this byte[,] squares)
         {
-            byte[] tmp = new byte[SZ_2D];   //squares.GetLength(0) * squares.GetLength(1)];
+            var tmp = new byte[SZ_2D];   //squares.GetLength(0) * squares.GetLength(1)];
             Buffer.BlockCopy(squares, 0, tmp, 0, SZ_2D * sz_byte);
             return tmp;
         }
 
         public static byte[,] Unflatten(this byte[] squares, byte size)
         {
-            byte[,] tmp = new byte[SZ, SZ];
+            var tmp = new byte[SZ, SZ];
             for (byte x = 0; x < SZ; x++)
                 for (byte y = 0; y < SZ; y++)
                     tmp[x, y] = squares[y * SZ + x];
@@ -73,7 +73,7 @@ namespace _2048_c_sharp
         //reverses x and y
         public static byte[,] Transpose(this byte[,] squares)
         {
-            byte[,] tmp = new byte[SZ, SZ];
+            var tmp = new byte[SZ, SZ];
             for (byte x = 0; x < SZ; x++)
                 for (byte y = 0; y < SZ; y++)
                     tmp[y, x] = squares[x, y];
@@ -85,7 +85,7 @@ namespace _2048_c_sharp
         {
             //byte sz_x = squares.GetLength(0);
             //byte sz_y = squares.GetLength(1);
-            byte[,] tmp = new byte[SZ, SZ];
+            var tmp = new byte[SZ, SZ];
             for (byte x = 0; x < SZ; x++)
                 for (byte y = 0; y < SZ; y++)
                     tmp[x, y] = squares[SZ - x - 1, y];
@@ -97,7 +97,7 @@ namespace _2048_c_sharp
         {
             //byte sz_x = squares.GetLength(0);
             //byte sz_y = squares.GetLength(1);
-            byte[,] tmp = new byte[SZ, SZ];
+            var tmp = new byte[SZ, SZ];
             for (byte x = 0; x < SZ; x++)
                 for (byte y = 0; y < SZ; y++)
                     tmp[x, y] = squares[x, SZ - y - 1];
@@ -106,7 +106,7 @@ namespace _2048_c_sharp
 
         public static byte[,] AsCopy(this byte[,] squares)
         {
-            byte[,] tmp = new byte[SZ, SZ];
+            var tmp = new byte[SZ, SZ];
             Buffer.BlockCopy(squares, 0, tmp, 0, SZ_2D * sizeof(byte));
             return tmp;
         }
@@ -139,7 +139,7 @@ namespace _2048_c_sharp
         public static byte[] GetRow(this byte[,] squares, byte row)
         {
             //byte sz_y = squares.GetLength(1);
-            byte[] tmp = new byte[SZ];
+            var tmp = new byte[SZ];
             Buffer.BlockCopy(squares, sz_byte * SZ * row, tmp, 0, sz_byte * SZ);
             return tmp;
         }
@@ -149,12 +149,9 @@ namespace _2048_c_sharp
             Buffer.BlockCopy(row, 0, squares, sz_byte * row_idx * SZ, sz_byte * SZ);
         }
 
-        //public static byte[] GetRowWithoutZeros(this byte[,] squares, byte row_idx) => squares.GetRow(row_idx).GetRowWithoutZeros();
-        //public static byte[] GetRowWithoutZeros(this IEnumerable<byte> row) => row.Where(i => i != 0).ToArray();
-
         public static byte[] GetRowWithoutZeros(this byte[,] squares, int row_idx)
         {
-            byte[] tmp = new byte[SZ];
+            var tmp = new byte[SZ];
             byte idx = 0;
             for (byte x = 0; x < SZ; x++)
                 if (squares[row_idx, x] != 0)
@@ -166,8 +163,8 @@ namespace _2048_c_sharp
         }
         public static byte[] GetRowWithoutZeros(this List<byte> row)
         {
-            byte[] tmp = new byte[SZ];
-            byte sz_x = (byte)row.Count();
+            var tmp = new byte[SZ];
+            var sz_x = (byte)row.Count();
             byte idx = 0;
             for (byte x = 0; x < sz_x; x++)
                 if (row[x] != 0)
@@ -178,8 +175,6 @@ namespace _2048_c_sharp
             return tmp;
         }
             
-            //=> row.Where(i => i != 0).ToArray();
-
         public static bool IsEqualTo(this byte[,] squares1, byte[,] squares2)
         {
             //byte sz_x = squares1.GetLength(0);
@@ -197,15 +192,15 @@ namespace _2048_c_sharp
             //for each row
             //byte sz_x = squares.GetLength(0);
             //byte sz_y = squares.GetLength(1);
-            byte[,] tmp = new byte[SZ, SZ];
-            for (int x = 0; x < SZ; x++)
+            var tmp = new byte[SZ, SZ];
+            for (var x = 0; x < SZ; x++)
             {
                 var newRow = new List<byte>();
                 var oldRow = squares.GetRowWithoutZeros(x);
-                for (int y = 0; y < oldRow.GetLength(0); y++)
+                for (var y = 0; y < oldRow.GetLength(0); y++)
                 {
                     //skip 0s
-                    byte num = oldRow[y];
+                    var num = oldRow[y];
                     if (num == 0) continue;
                     
                     //handle the case for the last item in the list                        
@@ -249,11 +244,11 @@ namespace _2048_c_sharp
 
         public static int[,] AsDisplayValues(this byte[,] squares)
         {
-            int val = 0;
             var retVal = new int[SZ, SZ];
             for (byte i = 0; i < SZ; i++)
                 for (byte j = 0; j < SZ; j++)
                 {
+                    var val = 0;
                     if ((val = 1 << squares[i, j]) > 1) //prevents 1s from being added
                         retVal[i, j] = val;
                 }
@@ -263,44 +258,47 @@ namespace _2048_c_sharp
         public static byte MaxValue(this byte[,] squares)
         {
             byte max = 0;
-            for (int i = 0; i < SZ; i++)
-                for (int j = 0; j < SZ; j++)
+            for (var i = 0; i < SZ; i++)
+                for (var j = 0; j < SZ; j++)
                     if (squares[i, j] > max)
                         max = squares[i, j];
             return max;
         }
             //=> squares.Flatten().Max(s => 1 << s);
         public static float Reward(this byte[,] squares)
-        {
-            return squares.Score() + squares.CountEmptySquares() * EMPTY_SQUARE_REWARD;
-        }
+            => squares.Score() + squares.CountEmptySquares() * EMPTY_SQUARE_REWARD;
 
         public static (byte i, byte j) GetRandomSquare(this byte[,] squares, Random rnd = null)
         {
             if (rnd == null) rnd = new Random();
             var emptySquares = squares.GetEmptySquares();
             var len = emptySquares.Count();
-            if (len == 0) return (Byte.MaxValue, Byte.MaxValue); //this isn't allowed
-            if (len == 1) return emptySquares[0];
-
-            return emptySquares[rnd.Next(len)];
+            switch (len)
+            {
+                case 0:
+                    return (byte.MaxValue, byte.MaxValue); //this isn't allowed
+                case 1:
+                    return emptySquares[0];
+                default:
+                    return emptySquares[rnd.Next(len)];
+            }
         }
 
         public static bool SetRandomSquare(this byte[,] squares, float FOUR_CHANCE)
         {
             var rnd = new Random();
             var rs = squares.GetRandomSquare(rnd);
-            if (rs == (Byte.MaxValue, Byte.MaxValue)) return false;
-            byte val = rnd.NextDouble() > FOUR_CHANCE ? (byte)1 : (byte)2;
+            if (rs == (byte.MaxValue, byte.MaxValue)) return false;
+            var val = rnd.NextDouble() > FOUR_CHANCE ? (byte)1 : (byte)2;
             squares[rs.i, rs.j] = val;
             return true;
         }
 
         public static string AsString(this byte[,] squares, string row_sep = "\n", string col_sep = "\t")
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             var disp = squares.AsDisplayValues();
-            for (int x = 0; x < SZ; x++)
+            for (var x = 0; x < SZ; x++)
             {
                 sb.Append(string.Join(col_sep,
                                       Enumerable.Range(0, SZ)
@@ -320,7 +318,7 @@ namespace _2048_c_sharp
         public static long CanonicalFieldID(this byte[,] squares)
         {
             var ID = squares.FieldID();
-            for (int x = 1; x < 4; x++) //for each value of the direction enumerable except the first
+            for (var x = 1; x < 4; x++) //for each value of the direction enumerable except the first
             {
                 var txID = squares.Slide((Direction)x).FieldID();
                 if (txID < ID) ID = txID;
@@ -340,8 +338,8 @@ namespace _2048_c_sharp
         public static long FieldID(this byte[,] squares)
         {
             long fieldID = default;
-            for (int i = 0; i < 4; i++)
-                for (int j = 0; j < 4; j++)
+            for (var i = 0; i < 4; i++)
+                for (var j = 0; j < 4; j++)
                 {
                     fieldID <<= 4; //bitshift left 4 bits
                     fieldID += squares[i, j];

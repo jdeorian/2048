@@ -75,10 +75,10 @@ namespace _2048_c_sharp.Auto
         public Dictionary<Move, float> GetSumOfRewards()
         {
             var count = Board.MoveHistory.Count();
-            float[] rewards = new float[count];
-            for (int reward_move_index = 0; reward_move_index < count; reward_move_index++)
+            var rewards = new float[count];
+            for (var reward_move_index = 0; reward_move_index < count; reward_move_index++)
             {
-                float reward = Board.MoveHistory[reward_move_index].Reward;
+                var reward = Board.MoveHistory[reward_move_index].Reward;
                 for (int apply_move_index = reward_move_index; apply_move_index >= 0; apply_move_index--) //going backward means I can multiply instead of using powers
                 {
                     rewards[apply_move_index] += reward;

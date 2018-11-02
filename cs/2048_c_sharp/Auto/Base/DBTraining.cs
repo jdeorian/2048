@@ -19,7 +19,7 @@ namespace _2048_c_sharp.Auto
             //create table(s) if not present. TODO: if we have more, this can be abstracted to automatically create any applicable tables
             var sp = DataProvider.GetSchemaProvider();
             var schema = sp.GetSchema(this);
-            if (!schema.Tables.Any(t => t.TableName == typeof(Training).GetTableName()))
+            if (schema.Tables.All(t => t.TableName != typeof(Training).GetTableName()))
             {
                 this.CreateTable<Training>();
             }
