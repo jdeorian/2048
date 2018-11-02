@@ -7,6 +7,8 @@ test/
 cs/packages/
 cs/2048_c_sharp/bin/
 cs/2048_c_sharp/obj/
+cs/RL 2048 GUI/bin/
+cs/RL 2048 GUI/obj/
 cs/Tests/bin/
 cs/Tests/obj/
 perf/
@@ -17,6 +19,8 @@ perf/
 *.vsp
 *.vspx
 *.psess
+*.pdb
+*.exe
 
 # Don't track these files
 output.txt
