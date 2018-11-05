@@ -134,7 +134,7 @@
     <Compile Include="Auto\RandomPlay.cs" />
     <Compile Include="Auto\BranchComparison.cs" />
     <Compile Include="Model\Direction.cs" />
-    <Compile Include="Model\IterationStatus.cs" />
+    <Compile Include="Auto\IterationStatus.cs" />
     <Compile Include="Utilities\EnumExtensions.cs" />
     <Compile Include="Model\Field.cs" />
     <Compile Include="Model\Move.cs" />

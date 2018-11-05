@@ -22,6 +22,9 @@ namespace _2048_c_sharp.Auto
         public DateTime TimeStarted { get; private set; }
         public DateTime TimeEnded { get; private set; }
 
+        public int PolicyMoves { get; private set; } = 0;
+        public int MethodMoves { get; private set; } = 0;
+
         private DBTraining db { get; set; }
 
         public AutoBase(DBTraining trainingDB, int iteration) { Iteration = iteration; db = trainingDB; }
@@ -51,13 +54,14 @@ namespace _2048_c_sharp.Auto
             if (td?.DecisionSufficient() ?? false)
             {
                 moveWeights = td.GetWeights();
-                log("Holy shit using a policy weight!", Priority.Medium_5);
+                PolicyMoves++;
                 return GetRecommendation(moveWeights);
             }
 
             //It wasn't sufficient, so use the algorithm
             moveWeights = GetMoveWeights();
             var recDir = GetRecommendation(moveWeights);
+            MethodMoves++;
             return recDir;
         }
 
@@ -68,7 +72,7 @@ namespace _2048_c_sharp.Auto
             var highestDirs = moveWeights.Where(kvp => kvp.Value == highestWeight)
                                          .Select(kvp => kvp.Key);
             var recDir = highestDirs.Count() == 1 ? highestDirs.First()
-                                                  : XT.GetRandom(XT.EnumVals<Direction>().ToArray(), rnd);
+                                                  : XT.EnumVals<Direction>().ToArray().GetRandom(rnd);
             return recDir;
         }
 
@@ -125,7 +129,9 @@ namespace _2048_c_sharp.Auto
             MoveCount = Board.MoveHistory.Count(),
             TimeStarted = TimeStarted,
             TimeEnded = TimeEnded,
-            Score = Board.Score
+            Score = Board.Score,
+            PolicyMoves = PolicyMoves,
+            MethodMoves = MethodMoves
         };
     }
 }

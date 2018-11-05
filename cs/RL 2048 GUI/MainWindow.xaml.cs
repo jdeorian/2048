@@ -119,7 +119,6 @@ namespace _2048_c_sharp.GUI
             btnStart.Content = "Start";
             btnStart.IsEnabled = true;
             timer.Stop();
-            IterationStatuses.Clear();
             dgThreads.Items.Refresh();
         }
 

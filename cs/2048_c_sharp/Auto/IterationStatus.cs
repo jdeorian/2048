@@ -12,8 +12,6 @@ namespace _2048_c_sharp.Auto
     {
         public int Iteration { get; set; }
 
-        private int _moveCount = 0;
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
@@ -21,6 +19,10 @@ namespace _2048_c_sharp.Auto
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        public int PolicyMoves { get; set; } = 0;
+        public int MethodMoves { get; set; } = 0;
+
+        private int _moveCount = 0;
         public int MoveCount
         {
             get => _moveCount;
@@ -29,6 +31,9 @@ namespace _2048_c_sharp.Auto
                 if (value == _moveCount) return;
                 _moveCount = value;
                 NotifyPropertyChanged();
+                NotifyPropertyChanged(nameof(MethodMoves));
+                NotifyPropertyChanged(nameof(PolicyMoves));
+                NotifyPropertyChanged(nameof(Score));
             }
         }
         public DateTime TimeStarted { get; set; }
@@ -46,23 +51,15 @@ namespace _2048_c_sharp.Auto
             }
         }
 
-        private float _score = 0f;
-        public float Score
-        {
-            get => _score;
-            set
-            {
-                if (value == _score) return;
-                _score = value;
-                NotifyPropertyChanged();
-            }
-        }
+        public float Score { get; set; }
 
         public void Update(IterationStatus update)
         {
             MoveCount = update.MoveCount;
             TimeEnded = update.TimeEnded;
             Score = update.Score;
+            MethodMoves = update.MethodMoves;
+            PolicyMoves = update.PolicyMoves;
         }
 
         //public void UpdateToClose(IterationStatus update)
