@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,9 @@ namespace _2048_c_sharp.Auto
         public const int MAX_CONCURRENT_BOARDS = 16;
         const int SLEEP_LENGTH = 200; //in ms
 
-        public DBTraining db { get; set; } = new DBTraining();
+        public static DBTraining db { get; set; } = new DBTraining();
+
+        //Triggers the run loop to stop (but does not cancel existing threads)
         public bool Stop { get; set; } = false;
 
         private int _boards = 0;
@@ -59,6 +62,7 @@ namespace _2048_c_sharp.Auto
                                                     lock (ActiveBoards){
                                                         ActiveBoards.Remove(iter);
                                                     }
+                                                    db.UpdatePolicyCache();
                                                 })));
                     it_cnt += newBoards;
                 }                

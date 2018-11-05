@@ -25,9 +25,9 @@ namespace _2048_c_sharp.Auto
         public int PolicyMoves { get; private set; } = 0;
         public int MethodMoves { get; private set; } = 0;
 
-        private DBTraining db { get; set; }
+        private DBTraining db => Conductor<AutoBase>.db;
 
-        public AutoBase(DBTraining trainingDB, int iteration) { Iteration = iteration; db = trainingDB; }
+        public AutoBase(int iteration) { Iteration = iteration; }
 
         public void Run()
         {
@@ -48,14 +48,18 @@ namespace _2048_c_sharp.Auto
         private Direction PickMoveDirection(out Dictionary<Direction, float> moveWeights)
         {
             //get the database value
-            Training td = null;
-            lock (db) { td = db.TrainingRecords.FirstOrDefault(t => t.Id == Board.Field.CanonicalFieldID()); }
-            
-            if (td?.DecisionSufficient() ?? false)
+            var canID = Board.Field.CanonicalFieldID();
+            if (db.PolicyIds.Any(pid => pid == canID))
             {
-                moveWeights = td.GetWeights();
-                PolicyMoves++;
-                return GetRecommendation(moveWeights);
+                Training td = null;
+                lock (db) { td = db.TrainingRecords.FirstOrDefault(t => t.Id == Board.Field.CanonicalFieldID()); }
+
+                if (td?.DecisionSufficient() ?? false)
+                {
+                    moveWeights = td.GetWeights();
+                    PolicyMoves++;
+                    return GetRecommendation(moveWeights);
+                }
             }
 
             //It wasn't sufficient, so use the algorithm
