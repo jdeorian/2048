@@ -32,20 +32,20 @@ namespace _2048_c_sharp.GUI
 
         public MainWindow()
         {
-            timer.Tick += Timer_Tick;
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 500); //500ms
-
             InitializeComponent();
             this.DataContext = this;
+
+            Task.Run(() => conductor.Run(0)); //start the run loop, but let it idle until threads are assigned
+
+            timer.Tick += Timer_Tick;
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 500); //500ms
+            timer.Start();
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (conductor.Stop && !conductor.ActiveBoards.Any())
-            {
-                Done();
-                return;
-            }
+            if (conductor.Boards == 0 && !conductor.ActiveBoards.Any()) return;
+
             //else
             UpdateBestBoard();
             UpdateIterationStatuses();
@@ -56,8 +56,7 @@ namespace _2048_c_sharp.GUI
         {
             //get the ongoing task data
             List<IterationStatus> activeBoards;
-            lock (conductor)
-            {
+            lock (conductor) {
                 activeBoards = conductor.ActiveBoards.Where(ab => ab != null)
                                                      .Select(ab => ab.GetStatus()).ToList();
             }
@@ -82,6 +81,7 @@ namespace _2048_c_sharp.GUI
             IterationStatuses.AddRange(activeBoards.Where(b => IterationStatuses.All(s => s.Iteration != b.Iteration)));
 
             //refresh the sort
+            SortColumn(dgThreads, nameof(IterationStatus.Closed), ListSortDirection.Ascending);
             SortColumn(dgThreads, nameof(IterationStatus.Closed), ListSortDirection.Descending);
         }
 
@@ -93,7 +93,7 @@ namespace _2048_c_sharp.GUI
             var disp = conductor.BestBoard.Field.AsDisplayValues();
             UpdateBoardDisplay(disp, BestBoard);
             bestBoardDisplay.ItemsSource = BestBoard;
-            lblBBScore.Content = disp.Cast<int>().Sum().ToString();
+            lblBBScore.Content = disp.Cast<int>().Sum().ToString(); //we don't use .Score() because it forces a re-calc of display values
             lblBBMoves.Content = conductor.BestBoard.MoveCount;
         }
 
@@ -114,14 +114,11 @@ namespace _2048_c_sharp.GUI
             }
         }
 
-        private void Done()
-        {
-            btnStart.Content = "Start";
-            btnStart.IsEnabled = true;
-            timer.Stop();
-            dgThreads.Items.Refresh();
-        }
-
+        /// <summary>
+        /// Update an ObservableCollection with integers representing a field
+        /// </summary>
+        /// <param name="disp"></param>
+        /// <param name="boundList"></param>
         private void UpdateBoardDisplay(int[,] disp, ObservableCollection<List<int>> boundList)
         {
             boundList.Clear();
@@ -129,25 +126,6 @@ namespace _2048_c_sharp.GUI
                                          .Select(i => Enumerable.Range(0, disp.GetLength(1))
                                                                 .Select(j => disp[i, j])
                                                                 .ToList()));
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            var caption = (string)(sender as Button).Content;
-            if (caption == "Start")
-            {
-                lblBBScore.Content = "0";
-                lblBBMoves.Content = "0";
-                int boardCount = iudConcurrentBoardCount.Value.Value;
-                Task.Run(() => conductor.Run(boardCount));
-                (sender as Button).Content = "Stop";
-                timer.Start();
-            }
-            else
-            {
-                conductor.Stop = true;
-                (sender as Button).IsEnabled = false;
-            }
         }
 
         private void IntegerUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)

@@ -21,13 +21,13 @@ namespace _2048_c_sharp.Auto
         public DBTraining db { get; set; } = new DBTraining();
         public bool Stop { get; set; } = false;
 
-        private int _boards = 1;
+        private int _boards = 0;
         public int Boards
         {
             get => _boards;
             set
             {
-                if (value < 1 || value > MAX_CONCURRENT_BOARDS) return;
+                if (value < 0 || value > MAX_CONCURRENT_BOARDS) return;
                 _boards = value;
             }
         }
