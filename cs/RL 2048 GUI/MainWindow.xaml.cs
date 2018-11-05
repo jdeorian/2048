@@ -54,13 +54,17 @@ namespace _2048_c_sharp.GUI
 
         private void UpdateIterationStatuses()
         {
-            //get the ongoing task data
-            List<IterationStatus> activeBoards;
-            lock (conductor) {
-                activeBoards = conductor.ActiveBoards.Where(ab => ab != null)
+
+            //List<IterationStatus> activeBoards;
+            //lock (conductor) {
+            //    activeBoards = conductor.ActiveBoards.Where(ab => ab != null)
+            //                                         .Select(ab => ab.GetStatus()).ToList();
+            //}
+
+            //get the ongoing task data -- I don't think this need to be locked since no chance is made to the collection
+            var activeBoards = conductor.ActiveBoards.Where(ab => ab != null)
                                                      .Select(ab => ab.GetStatus()).ToList();
-            }
-            
+
             //update any boards we already know of
             foreach (var board in IterationStatuses.Where(s => !s.Closed))
             {
