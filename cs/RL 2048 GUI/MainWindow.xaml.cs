@@ -22,11 +22,13 @@ namespace _2048_c_sharp.GUI
     /// </summary>
     public partial class MainWindow : Window
     {
+
+
         //private static Conductor<RLOne> conductor = new Conductor<RLOne>(db); //use this one for random chance
         private static readonly Conductor<BranchComparison> conductor = new Conductor<BranchComparison>();
         private static readonly DispatcherTimer timer = new DispatcherTimer();
-        public ObservableCollection<List<int>> BestBoard { get; set; } = new ObservableCollection<List<int>>();
-        public ObservableCollection<List<int>> SelectedBoard { get; set; } = new ObservableCollection<List<int>>();
+        public ObservableCollection<List<GridValue>> BestBoard { get; set; } = new ObservableCollection<List<GridValue>>();
+        public ObservableCollection<List<GridValue>> SelectedBoard { get; set; } = new ObservableCollection<List<GridValue>>();
         private int selectedBoardIndex = -1;
         public ObservableCollection<IterationStatus> IterationStatuses { get; set; } = new ObservableCollection<IterationStatus>();
 
@@ -94,10 +96,9 @@ namespace _2048_c_sharp.GUI
             //get the best board info, if it's available
             if (conductor.BestBoard == null) return;
 
-            var disp = conductor.BestBoard.Field.AsDisplayValues();
-            UpdateBoardDisplay(disp, BestBoard);
+            UpdateBoardDisplay(conductor.BestBoard.Field, BestBoard);
             bestBoardDisplay.ItemsSource = BestBoard;
-            lblBBScore.Content = disp.Cast<int>().Sum().ToString(); //we don't use .Score() because it forces a re-calc of display values
+            lblBBScore.Content = conductor.BestBoard.Field.Score();
             lblBBMoves.Content = conductor.BestBoard.MoveCount;
         }
 
@@ -106,12 +107,12 @@ namespace _2048_c_sharp.GUI
             //try to update the selected board
             if (selectedBoardIndex != -1)
             {                
-                int[,] dispState = new int[4, 4];
+                byte[,] dispState = new byte[4, 4];
                 lock (conductor)
                 {
                     var currentState = conductor.ActiveBoards.FirstOrDefault(b => b?.Iteration == selectedBoardIndex); //the null check here prevents some unusual null exceptions
                     if (currentState != null)
-                        dispState = currentState.Board.Field.AsDisplayValues();
+                        dispState = currentState.Board.Field;
                 }
                 UpdateBoardDisplay(dispState, SelectedBoard);
                 selectedBoardDisplay.ItemsSource = SelectedBoard;
@@ -123,12 +124,12 @@ namespace _2048_c_sharp.GUI
         /// </summary>
         /// <param name="disp"></param>
         /// <param name="boundList"></param>
-        private void UpdateBoardDisplay(int[,] disp, ObservableCollection<List<int>> boundList)
+        private void UpdateBoardDisplay(byte[,] disp, ObservableCollection<List<GridValue>> boundList)
         {
             boundList.Clear();
             boundList.AddRange(Enumerable.Range(0, disp.GetLength(0))
                                          .Select(i => Enumerable.Range(0, disp.GetLength(1))
-                                                                .Select(j => disp[i, j])
+                                                                .Select(j => new GridValue(disp[i, j]))
                                                                 .ToList()));
         }
 
@@ -166,5 +167,30 @@ namespace _2048_c_sharp.GUI
             if (col == null) return;
             col.SortDirection = listSortDirection;
         }
+    }
+
+    public class GridValue
+    {
+        public static string[] CELL_COLORS = { "#9e948a", "#eee4da", "#ede0c8", "#f2b179", "#f59563", "#f67c5f",
+                                               "#f65e3b", "#edcf72", "#edcc61", "#edc850", "#edc53f", "#edc22e" };
+        public static string[] TEXT_COLORS = { "#9e948a", "#776e65", "#776e65", "#f9f6f2", "#f9f6f2", "#f9f6f2",
+                                               "#f9f6f2", "#f9f6f2", "#f9f6f2", "#f9f6f2", "#f9f6f2", "#f9f6f2" };
+
+        public GridValue(byte val) => Value = val;
+
+        private byte _value = 0;
+        public byte Value
+        {
+            get => _value;
+            set
+            {
+                _value = value;
+                DispValue = _value == 0 ? 0 : 1 << _value;
+            }
+        }
+
+        public int DispValue { get; private set; }
+        public string CellColor => CELL_COLORS[_value];
+        public string TextColor => TEXT_COLORS[_value];
     }
 }

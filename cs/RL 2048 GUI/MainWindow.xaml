@@ -9,7 +9,7 @@
 
     <Window.Resources>
         <DataTemplate x:Key="DataTemplate_Level2">
-            <Label Content="{Binding}" Height="40" Width="50" BorderBrush="Black" BorderThickness="1" Margin="1,1,1,1" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
+            <Label Content="{Binding DispValue}" Background="{Binding CellColor}" Foreground="{Binding TextColor}" Height="40" Width="50" BorderBrush="Black" BorderThickness="1" Margin="1,1,1,1" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center"/>
         </DataTemplate>
 
         <DataTemplate x:Key="DataTemplate_Level1">
