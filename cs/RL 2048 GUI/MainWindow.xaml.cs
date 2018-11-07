@@ -24,8 +24,8 @@ namespace _2048_c_sharp.GUI
     {
 
 
-        //private static Conductor<RLOne> conductor = new Conductor<RLOne>(db); //use this one for random chance
-        private static readonly Conductor<BranchComparison> conductor = new Conductor<BranchComparison>();
+        private static Conductor<RandomPlay> conductor = new Conductor<RandomPlay>(); //use this one for random chance
+        //private static readonly Conductor<BranchComparison> conductor = new Conductor<BranchComparison>();
         private static readonly DispatcherTimer timer = new DispatcherTimer();
         public ObservableCollection<List<GridValue>> BestBoard { get; set; } = new ObservableCollection<List<GridValue>>();
         public ObservableCollection<List<GridValue>> SelectedBoard { get; set; } = new ObservableCollection<List<GridValue>>();
@@ -57,15 +57,12 @@ namespace _2048_c_sharp.GUI
         private void UpdateIterationStatuses()
         {
 
-            //List<IterationStatus> activeBoards;
-            //lock (conductor) {
-            //    activeBoards = conductor.ActiveBoards.Where(ab => ab != null)
-            //                                         .Select(ab => ab.GetStatus()).ToList();
-            //}
-
-            //get the ongoing task data -- I don't think this need to be locked since no chance is made to the collection
-            var activeBoards = conductor.ActiveBoards.Where(ab => ab != null)
+            List<IterationStatus> activeBoards;
+            lock (conductor.ActiveBoards)
+            {
+                activeBoards = conductor.ActiveBoards.Where(ab => ab != null)
                                                      .Select(ab => ab.GetStatus()).ToList();
+            }
 
             //update any boards we already know of
             foreach (var board in IterationStatuses.Where(s => !s.Closed))
