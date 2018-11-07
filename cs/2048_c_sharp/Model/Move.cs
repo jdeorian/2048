@@ -32,8 +32,8 @@ namespace _2048_c_sharp
         public Dictionary<Direction, float> Weights { get; set; }
         public Direction RewardDirection => IsRoot ? Direction.Up : RootEldestChild.Direction;
 
-        private long _canonicalFieldId = 0;
-        public long CanonicalFieldId {
+        private ulong _canonicalFieldId = 0;
+        public ulong CanonicalFieldId {
             get => _canonicalFieldId == 0 ? _canonicalFieldId = StartState.CanonicalFieldID() : _canonicalFieldId;
         }
 

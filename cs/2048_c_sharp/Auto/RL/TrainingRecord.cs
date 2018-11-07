@@ -16,10 +16,10 @@ namespace _2048_c_sharp.Auto
         public const int MIN_SUFFICIENT_SAMPLES = 10;
 
         public Training() { }
-        public Training(long id) => Id = id;
-        public Training(long id, Direction direction, float reward) : this(id) => Update(direction, reward);
+        public Training(ulong id) => Id = id;
+        public Training(ulong id, Direction direction, float reward) : this(id) => Update(direction, reward);
 
-        [Column,     NotNull, PrimaryKey] public long Id { get; set; }
+        [Column,     NotNull, PrimaryKey] public ulong Id { get; set; }
         [Column,     NotNull ] public byte[] Results { get; set; } = new byte[State.StateSize];
 
         public WeightData this[int direction]

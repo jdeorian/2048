@@ -20,7 +20,7 @@ namespace _2048_c_sharp.Auto
         private static TimeSpan POLICY_CACHE_UPDATE_TIME = new TimeSpan(4, 0, 0);
         private DateTime _nextPolicyUpdateTime = DateTime.MinValue;
 
-        public ImmutableSortedSet<long> PolicyIds { get; set; }
+        public ImmutableSortedSet<ulong> PolicyIds { get; set; }
 
         public void UpdatePolicyCache()
         {
@@ -52,14 +52,14 @@ namespace _2048_c_sharp.Auto
 
         public ITable<Training> TrainingRecords => GetTable<Training>();
 
-        public IEnumerable<Training> GetExisting(IEnumerable<long> ids)
+        public IEnumerable<Training> GetExisting(IEnumerable<ulong> ids)
             => from t in TrainingRecords
                where ids.Contains(t.Id)
                select t;
 
         public void Update(IEnumerable<(Move, float)> data) => Update(data.Select(d => (d.Item1.CanonicalFieldId, d.Item1.Direction, d.Item2)));
 
-        public void Update(IEnumerable<(long, Direction, float)> data)
+        public void Update(IEnumerable<(ulong, Direction, float)> data)
         {
             var records = GetExisting(data.Select(d => d.Item1)).ToDictionary(k => k.Id, v => v);
 
@@ -74,6 +74,23 @@ namespace _2048_c_sharp.Auto
                 this.InsertOrReplace(training);
             }
             CommitTransaction();
+        }
+
+        public void Export(string filename)
+        {
+            var PAGE_SIZE = 1000;
+            var pages = 0;
+            var count = 0;
+            IEnumerable<Training> records;
+            while ((records = TrainingRecords.Skip(PAGE_SIZE * pages++).Take(PAGE_SIZE)).Any())
+                count += records.Sum(r => r.TotalCount);
+
+            //return count;
+        }
+
+        public void Import(string filename)
+        {
+            
         }
     }
 }

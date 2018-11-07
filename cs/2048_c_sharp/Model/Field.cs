@@ -104,6 +104,23 @@ namespace _2048_c_sharp
             return tmp;
         }
 
+        //public static byte[,] Invert_InPlace(this byte[,] squares)
+        //{
+        //    ulong state = squares.FieldID();
+        //    ulong c1 = state & 0xF000F000F000F000L;
+        //    ulong c2 = state & 0x0F000F000F000F00L;
+        //    ulong c3 = state & 0x00F000F000F000F0L;
+        //    ulong c4 = state & 0x000F000F000F000FL;
+
+        //    ulong ulResult = (c1 >> 12) | (c2 >> 4) | (c3 << 4) | (c4 << 12);
+        //    byte[] byteArrayResult = BitConverter.GetBytes(ulResult);
+        //    var retVal = new byte[SZ, SZ];
+        //    for (byte x = 0; x < SZ; x++)
+        //        for (byte y = 0; y < SZ; y++)
+        //            retVal[x, y] = byteArrayResult[y * SZ + x];
+        //    return retVal;
+        //}
+
         public static byte[,] AsCopy(this byte[,] squares)
         {
             var tmp = new byte[SZ, SZ];
@@ -315,7 +332,7 @@ namespace _2048_c_sharp
         /// <returns></returns>
         public static string AsFlatString(this byte[,] squares) => squares.AsString("|", ",");
 
-        public static long CanonicalFieldID(this byte[,] squares)
+        public static ulong CanonicalFieldID(this byte[,] squares)
         {
             var ID = squares.FieldID();
             for (var x = 1; x < 4; x++) //for each value of the direction enumerable except the first
@@ -335,9 +352,9 @@ namespace _2048_c_sharp
         /// </summary>
         /// <param name="squares"></param>
         /// <returns></returns>
-        public static long FieldID(this byte[,] squares)
+        public static ulong FieldID(this byte[,] squares)
         {
-            long fieldID = default;
+            ulong fieldID = default;
             for (var i = 0; i < 4; i++)
                 for (var j = 0; j < 4; j++)
                 {
