@@ -52,7 +52,7 @@ namespace _2048_c_sharp.Auto
                 { 
                     Tasks.AddRange(Enumerable.Range(it_cnt, newBoards)
                                                 .Select(i => Task.Run(() => {
-                                                    var iter = (T)Activator.CreateInstance(typeof(T), db, i);
+                                                    var iter = (T)Activator.CreateInstance(typeof(T), i);
                                                     lock (ActiveBoards) {
                                                         ActiveBoards.Add(iter);
                                                     }                                                    

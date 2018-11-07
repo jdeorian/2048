@@ -19,7 +19,7 @@ namespace _2048_c_sharp.Auto
         public Training(ulong id) => Id = id;
         public Training(ulong id, Direction direction, float reward) : this(id) => Update(direction, reward);
 
-        [Column,     NotNull, PrimaryKey] public ulong Id { get; set; }
+        [Column(DbType ="Unsigned BigInt"),     NotNull, PrimaryKey] public ulong Id { get; set; }
         [Column,     NotNull ] public byte[] Results { get; set; } = new byte[State.StateSize];
 
         public WeightData this[int direction]

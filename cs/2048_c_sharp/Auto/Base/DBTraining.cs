@@ -53,9 +53,14 @@ namespace _2048_c_sharp.Auto
         public ITable<Training> TrainingRecords => GetTable<Training>();
 
         public IEnumerable<Training> GetExisting(IEnumerable<ulong> ids)
-            => from t in TrainingRecords
-               where ids.Contains(t.Id)
-               select t;
+        {
+            lock (TrainingRecords) {
+                return from t in TrainingRecords
+                       where ids.Contains(t.Id)
+                       select t;
+            }
+
+        }
 
         public void Update(IEnumerable<(Move, float)> data) => Update(data.Select(d => (d.Item1.CanonicalFieldId, d.Item1.Direction, d.Item2)));
 
