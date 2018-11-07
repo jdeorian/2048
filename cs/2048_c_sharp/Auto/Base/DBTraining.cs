@@ -53,20 +53,20 @@ namespace _2048_c_sharp.Auto
         public ITable<Training> TrainingRecords => GetTable<Training>();
 
         public IEnumerable<Training> GetExisting(IEnumerable<ulong> ids)
-        {
-            lock (TrainingRecords) {
-                return from t in TrainingRecords
-                       where ids.Contains(t.Id)
-                       select t;
-            }
-
-        }
+            => from t in TrainingRecords
+               where ids.Contains(t.Id)
+               select t;
 
         public void Update(IEnumerable<(Move, float)> data) => Update(data.Select(d => (d.Item1.CanonicalFieldId, d.Item1.Direction, d.Item2)));
 
         public void Update(IEnumerable<(ulong, Direction, float)> data)
         {
-            var records = GetExisting(data.Select(d => d.Item1)).ToDictionary(k => k.Id, v => v);
+
+            Dictionary<ulong, Training> records;
+            lock (this)
+            {
+                records = GetExisting(data.Select(d => d.Item1)).ToDictionary(k => k.Id, v => v);
+            }
 
             BeginTransaction();
             foreach (var (id, dir, reward) in data)
