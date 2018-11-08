@@ -25,8 +25,6 @@ namespace _2048_c_sharp.Auto
         public int PolicyMoves { get; private set; } = 0;
         public int MethodMoves { get; private set; } = 0;
 
-        private DBTraining db => Conductor<AutoBase>.db;
-
         public AutoBase(int iteration) { Iteration = iteration; }
 
         public void Run()
@@ -49,17 +47,12 @@ namespace _2048_c_sharp.Auto
         {
             //get the database value
             var canID = Board.Field.CanonicalFieldID();
-            if (db.PolicyIds.Any(pid => pid == canID))
+            var policy = PolicyData.GetPolicy(canID).Result;
+            if (policy != null)
             {
-                Training td = null;
-                lock (db) { td = db.TrainingRecords.FirstOrDefault(t => t.Id == Board.Field.CanonicalFieldID()); }
-
-                if (td?.DecisionSufficient() ?? false)
-                {
-                    moveWeights = td.GetWeights();
-                    PolicyMoves++;
-                    return GetRecommendation(moveWeights);
-                }
+                moveWeights = policy.GetWeights();
+                PolicyMoves++;
+                return GetRecommendation(moveWeights);
             }
 
             //It wasn't sufficient, so use the algorithm

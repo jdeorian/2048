@@ -19,8 +19,6 @@ namespace _2048_c_sharp.Auto
         public const int MAX_CONCURRENT_BOARDS = 16;
         const int SLEEP_LENGTH = 200; //in ms
 
-        public static DBTraining db { get; set; } = new DBTraining();
-
         //Triggers the run loop to stop (but does not cancel existing threads)
         public bool Stop { get; set; } = false;
 
@@ -62,7 +60,6 @@ namespace _2048_c_sharp.Auto
                                                     lock (ActiveBoards){
                                                         ActiveBoards.Remove(iter);
                                                     }
-                                                    db.UpdatePolicyCache();
                                                 })));
                     it_cnt += newBoards;
                 }                
@@ -88,26 +85,9 @@ namespace _2048_c_sharp.Auto
         }
 
         private void UpdateTrainingDB(T iteration)
-        {
-            lock (db)
-            {                
-                db.Update(iteration.GetSumOfRewards()
-                                   .Select(kvp => (kvp.Key.StartState.CanonicalFieldID(),
-                                                   kvp.Key.Direction,
-                                                   kvp.Value)));
-            }
-        }
-
-        public int CountIterations()
-        {
-            var PAGE_SIZE = 1000;
-            var pages = 0;
-            var count = 0;
-            IEnumerable<Training> records;
-            while ((records = db.TrainingRecords.Skip(PAGE_SIZE*pages++).Take(PAGE_SIZE)).Any())
-                count += records.Sum(r => r.TotalCount);
-
-            return count;
-        }
+            => PolicyData.UpdatePolicy(iteration.GetSumOfRewards()
+                                                .Select(kvp => (kvp.Key.StartState.CanonicalFieldID(),
+                                                                kvp.Key.Direction,
+                                                                kvp.Value)));
     }
 }
