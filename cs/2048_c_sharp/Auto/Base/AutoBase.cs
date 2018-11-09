@@ -47,7 +47,7 @@ namespace _2048_c_sharp.Auto
         {
             //get the database value
             var canID = Board.Field.CanonicalFieldID();
-            var policy = PolicyData.GetPolicy(canID).Result;
+            var policy = PolicyData.GetPolicy(canID)?.Result;
             if (policy != null)
             {
                 moveWeights = policy.GetWeights();

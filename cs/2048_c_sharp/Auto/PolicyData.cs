@@ -11,20 +11,21 @@ namespace _2048_c_sharp.Auto
     public static class PolicyData
     {
         private static DBTraining db { get; set; } = new DBTraining();
+        private static readonly Task Task = Task.Run(() => RunQueue());
 
         #region Policy Update Logic
 
-        public static ImmutableSortedSet<ulong> PolicyIds { get; set; }
+        public static ImmutableSortedSet<ulong> PolicyIds { get; set; } = db.TrainingRecords.Select(tr => tr.Id).ToImmutableSortedSet();
         private static TimeSpan POLICY_CACHE_UPDATE_TIME = new TimeSpan(4, 0, 0);
         private static DateTime _nextPolicyUpdateTime = DateTime.MinValue;
         private static bool updatePolicyCache() //returns whether an update occurred
         {
-            if (PolicyIds == null || timeToUpdate(_nextPolicyUpdateTime))
+            Action update = () => PolicyIds = db.TrainingRecords.Select(tr => tr.Id).ToImmutableSortedSet();
+            if (timeToUpdate(_nextPolicyUpdateTime))
             {
-                _lpQueue.Push(new Task(() => { lock (PolicyIds) {
-                        PolicyIds = db.TrainingRecords.Select(tr => tr.Id).ToImmutableSortedSet();
-                    }
-                }));
+                var task = new Task(() => { lock (PolicyIds) { update(); } });
+                if (PolicyIds == null) task = new Task(() => update());
+                _lpQueue.Push(task);
                 _nextPolicyUpdateTime = DateTime.Now + POLICY_CACHE_UPDATE_TIME; //set next time to update
                 return true;
             }
@@ -51,9 +52,8 @@ namespace _2048_c_sharp.Auto
                 if (_lpQueue.Any() && timeToUpdate(_nextLPUpdateTime))
                 {
                     didSomething = true;
-                    
-                    while ((t = _lpQueue.Pop()) != null)
-                        t.RunSynchronously();
+                    while (_lpQueue.Any())
+                        _lpQueue.Pop().RunSynchronously();
                 }
 
                 //Run all the requests currently in queue

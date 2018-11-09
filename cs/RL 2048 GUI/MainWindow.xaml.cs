@@ -24,8 +24,8 @@ namespace _2048_c_sharp.GUI
     {
 
 
-        private static Conductor<RandomPlay> conductor = new Conductor<RandomPlay>(); //use this one for random chance
-        //private static readonly Conductor<BranchComparison> conductor = new Conductor<BranchComparison>();
+        //private static Conductor<RandomPlay> conductor = new Conductor<RandomPlay>(); //use this one for random chance
+        private static readonly Conductor<BranchComparison> conductor = new Conductor<BranchComparison>();
         private static readonly DispatcherTimer timer = new DispatcherTimer();
         public ObservableCollection<List<GridValue>> BestBoard { get; set; } = new ObservableCollection<List<GridValue>>();
         public ObservableCollection<List<GridValue>> SelectedBoard { get; set; } = new ObservableCollection<List<GridValue>>();

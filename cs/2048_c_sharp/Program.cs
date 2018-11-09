@@ -13,7 +13,7 @@ namespace _2048_c_sharp
         {
             var c = new Conductor<BranchComparison>();
             //var c = new Conductor<RLOne>(db);
-            Console.WriteLine($"Current records: {c.CountIterations()}");
+            Console.WriteLine($"Current records: {PolicyData.CountIterations()}");
             c.Run(8);
 
             Console.ReadKey();
