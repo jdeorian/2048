@@ -132,11 +132,14 @@
     <Compile Include="Auto\Base\Logger.cs" />
     <Compile Include="Auto\PolicyData.cs" />
     <Compile Include="Auto\RL\TrainingRecord.cs" />
+    <Compile Include="Model\ArrayMagic.cs" />
     <Compile Include="Model\Board.cs" />
     <Compile Include="Auto\RandomPlay.cs" />
     <Compile Include="Auto\BranchComparison.cs" />
     <Compile Include="Model\Direction.cs" />
     <Compile Include="Auto\IterationStatus.cs" />
+    <Compile Include="Model\ULongMagic.cs" />
+    <Compile Include="Utilities\EnumerateSlides.cs" />
     <Compile Include="Utilities\EnumExtensions.cs" />
     <Compile Include="Model\Field.cs" />
     <Compile Include="Model\Move.cs" />

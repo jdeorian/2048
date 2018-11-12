@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using _2048_c_sharp.Auto;
+using _2048_c_sharp.Utilities;
 
 namespace _2048_c_sharp
 {
@@ -11,12 +12,17 @@ namespace _2048_c_sharp
     {
         static void Main(string[] args)
         {
+            PerfTest.Run();
+
+            Console.ReadKey();
+        }
+        
+        static void PolicyWork()
+        {
             var c = new Conductor<BranchComparison>();
             //var c = new Conductor<RLOne>(db);
             Console.WriteLine($"Current records: {PolicyData.CountIterations()}");
             c.Run(8);
-
-            Console.ReadKey();
-        }        
+        }
     }
 }

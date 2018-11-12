@@ -22,8 +22,6 @@ namespace _2048_c_sharp.GUI
     /// </summary>
     public partial class MainWindow : Window
     {
-
-
         //private static Conductor<RandomPlay> conductor = new Conductor<RandomPlay>(); //use this one for random chance
         private static readonly Conductor<BranchComparison> conductor = new Conductor<BranchComparison>();
         private static readonly DispatcherTimer timer = new DispatcherTimer();

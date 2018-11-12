@@ -49,18 +49,18 @@ namespace _2048_c_sharp.Auto
                 if (newBoards > 0)
                 { 
                     Tasks.AddRange(Enumerable.Range(it_cnt, newBoards)
-                                                .Select(i => Task.Run(() => {
-                                                    var iter = (T)Activator.CreateInstance(typeof(T), i);
-                                                    lock (ActiveBoards) {
-                                                        ActiveBoards.Add(iter);
-                                                    }                                                    
-                                                    iter.Run();
-                                                    UpdateBestBoard(iter);
-                                                    UpdateTrainingDB(iter);
-                                                    lock (ActiveBoards){
-                                                        ActiveBoards.Remove(iter);
-                                                    }
-                                                })));
+                                             .Select(i => Task.Run(() => {
+                                                 var iter = (T)Activator.CreateInstance(typeof(T), i);
+                                                 lock (ActiveBoards) {
+                                                     ActiveBoards.Add(iter);
+                                                 }
+                                                 iter.Run();
+                                                 UpdateBestBoard(iter);
+                                                 UpdateTrainingDB(iter);
+                                                 lock (ActiveBoards) {
+                                                     ActiveBoards.Remove(iter);
+                                                 }
+                                             })));
                     it_cnt += newBoards;
                 }                
                 System.Threading.Thread.Sleep(SLEEP_LENGTH);

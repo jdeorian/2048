@@ -4,22 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using _2048_c_sharp.Utilities;
+
 namespace _2048_c_sharp
 {
     public static class PerfTest
     {
-        static readonly int tries = 1_000_000;
+        static readonly int tries = 100_000_000;
         public static void Run()
         {
             ///////////////////////////
             ///     Setup 1
             //////////////////////////
-            var board = new Board();
-            var root = new Move(Direction.Up, null, board) { EndState = board.Field };
-            byte[,] sq = new byte[4, 4];
-            sq[3, 1] = 2;
-            sq[2, 1] = 6;
-            sq[0, 0] = 9;
+            Random rnd = new Random();
+            var fieldArrays = Enumerable.Range(1, tries).Select(i => ArrayMagic.GetRandom(rnd)).ToArray();
+            var fieldIDs = fieldArrays.Select(f => f.FieldID()).ToArray();
             //////////////////////////
 
             Console.WriteLine("Starting test 1...");
@@ -29,8 +28,7 @@ namespace _2048_c_sharp
                 ///////////////////////////
                 ///     Test 1
                 //////////////////////////
-                var o = sq.CanonicalFieldID();
-                o++;
+                //var fld = fieldArrays[x].Transpose();
                 /////////////////////////
             }
             var end = DateTime.Now;
@@ -49,7 +47,7 @@ namespace _2048_c_sharp
                 ///////////////////////////
                 ///     Test 2
                 //////////////////////////
-                var o = sq.GetEmptySquares_Slow();
+                var fld = fieldIDs[x].Transpose();
                 /////////////////////////
             }
             end = DateTime.Now;
@@ -69,7 +67,7 @@ namespace _2048_c_sharp
                 ///////////////////////////
                 ///     Test 3
                 //////////////////////////
-                var o = sq.GetEmptySquares();
+                var fld = fieldIDs[x].Transpose2();
                 /////////////////////////
             }
             end = DateTime.Now;

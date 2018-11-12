@@ -2,6 +2,8 @@
 class Field
 {
 	unsigned long data;
+	void slideRowLeft(int);
+	void slideLeft();
 public:
 	Field();
 	~Field();
