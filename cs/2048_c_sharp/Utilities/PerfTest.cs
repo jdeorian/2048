@@ -67,7 +67,7 @@ namespace _2048_c_sharp
                 ///////////////////////////
                 ///     Test 3
                 //////////////////////////
-                var fld = fieldIDs[x].Transpose2();
+                var fld = fieldIDs[x].Transpose();
                 /////////////////////////
             }
             end = DateTime.Now;

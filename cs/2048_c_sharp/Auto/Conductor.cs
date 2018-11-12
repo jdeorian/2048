@@ -77,7 +77,7 @@ namespace _2048_c_sharp.Auto
             var lines = new[] {
                         string.Empty,
                         $"Iteration: {board.Iteration}: {board.ToString()} @ {DateTime.Now}",
-                        board.Board.Field.AsString()
+                        board.Board.Field.AsBoardString()
                     };
             
             log(string.Join(Environment.NewLine, lines), Priority.P2);
@@ -86,7 +86,7 @@ namespace _2048_c_sharp.Auto
 
         private void UpdateTrainingDB(T iteration)
             => PolicyData.UpdatePolicy(iteration.GetSumOfRewards()
-                                                .Select(kvp => (kvp.Key.StartState.CanonicalFieldID(),
+                                                .Select(kvp => (kvp.Key.StartState,
                                                                 kvp.Key.Direction,
                                                                 kvp.Value)));
     }

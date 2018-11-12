@@ -105,7 +105,7 @@ namespace _2048_c_sharp
         //columns and rows are 1-indexed, positions are 0-based
         public static ulong SetTile(this ulong fld, byte pos, byte value)
         {
-            fld &= GetTileMask(pos, out int offset); //set tile to 0        
+            fld &= ~GetTileMask(pos, out int offset); //set tile to 0        
             fld |= (ulong)(value & 0x0F) << offset; //set tile to correct value
             return fld;
         }
@@ -154,7 +154,7 @@ namespace _2048_c_sharp
             byte retVal = (byte)(fld & mask);
             for (int x = 1; x < SZ_FLD; x++)
             {
-                mask <<= SZ_BITS;
+                fld >>= SZ_BITS;
                 byte val = (byte)(fld & mask);
                 if (val > retVal) retVal = val;
             }
@@ -185,19 +185,6 @@ namespace _2048_c_sharp
             }
             var retVal = new uint[SZ_ROW, SZ_ROW];
             Buffer.BlockCopy(flatRetVal, 0, retVal, 0, SZ_FLD * sizeof(uint));
-            return retVal;
-        }
-
-        public static byte Score(this ulong fld)
-        {
-            var mask = GetTileMask(SZ_FLD - 1, out int _);
-            byte retVal = (byte)(fld & mask);
-            for (int x = 1; x < SZ_FLD; x++)
-            {
-                mask <<= SZ_BITS;
-                byte val = (byte)(fld & mask);
-                if (val > retVal) retVal = val;
-            }
             return retVal;
         }
 
@@ -280,6 +267,27 @@ namespace _2048_c_sharp
 
         public static string AsBoardString(this ulong fld) => fld.ToByteArray().AsString();
         public static string AsFlatBoardString(this ulong fld) => fld.ToByteArray().AsString("|", ",");
+
+        #endregion
+
+        #region Scoring
+
+        const byte EMPTY_SQUARE_REWARD = 2;
+
+        public static float Reward(this ulong fld) => fld.Score() + fld.CountEmptySquares() * EMPTY_SQUARE_REWARD;
+
+        public static byte Score(this ulong fld)
+        {
+            var mask = GetTileMask(SZ_FLD - 1, out int _);
+            byte retVal = (byte)(fld & mask);
+            for (int x = 1; x < SZ_FLD; x++)
+            {
+                mask <<= SZ_BITS;
+                byte val = (byte)(fld & mask);
+                if (val > retVal) retVal = val;
+            }
+            return retVal;
+        }
 
         #endregion
 

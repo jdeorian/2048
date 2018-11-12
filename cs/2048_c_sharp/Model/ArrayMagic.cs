@@ -166,8 +166,6 @@ namespace _2048_c_sharp
             return tmp;
         }
 
-        public static byte[,] AsCopyWithUpdate(this byte[,] squares, Square s) => squares.AsCopyWithUpdate(s.X, s.Y, s.Value);
-
         public static byte MaxValue(this byte[,] squares)
         {
             byte max = 0;

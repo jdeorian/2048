@@ -39,7 +39,7 @@ namespace _2048_c_sharp.Auto
                where ids.Contains(t.Id)
                select t;
 
-        public void Update(IEnumerable<(Move, float)> data) => Update(data.Select(d => (d.Item1.CanonicalFieldId, d.Item1.Direction, d.Item2)));
+        public void Update(IEnumerable<(Move, float)> data) => Update(data.Select(d => (d.Item1.EndState, d.Item1.Direction, d.Item2)));
         public void Update(IEnumerable<(ulong, Direction, float)> data)
         {
 

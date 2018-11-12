@@ -101,8 +101,8 @@ namespace _2048_c_sharp.GUI
         {
             //try to update the selected board
             if (selectedBoardIndex != -1)
-            {                
-                byte[,] dispState = new byte[4, 4];
+            {
+                ulong dispState = 0;
                 lock (conductor)
                 {
                     var currentState = conductor.ActiveBoards.FirstOrDefault(b => b?.Iteration == selectedBoardIndex); //the null check here prevents some unusual null exceptions
@@ -119,12 +119,12 @@ namespace _2048_c_sharp.GUI
         /// </summary>
         /// <param name="disp"></param>
         /// <param name="boundList"></param>
-        private void UpdateBoardDisplay(byte[,] disp, ObservableCollection<List<GridValue>> boundList)
+        private void UpdateBoardDisplay(ulong disp, ObservableCollection<List<GridValue>> boundList)
         {
             boundList.Clear();
-            boundList.AddRange(Enumerable.Range(0, disp.GetLength(0))
-                                         .Select(i => Enumerable.Range(0, disp.GetLength(1))
-                                                                .Select(j => new GridValue(disp[i, j]))
+            boundList.AddRange(Enumerable.Range(1, 4)
+                                         .Select(i => Enumerable.Range(1, 4)
+                                                                .Select(j => new GridValue(disp.GetTile((byte)i, (byte)j)))
                                                                 .ToList()));
         }
 

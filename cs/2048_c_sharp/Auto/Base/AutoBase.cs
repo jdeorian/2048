@@ -46,7 +46,7 @@ namespace _2048_c_sharp.Auto
         private Direction PickMoveDirection(out Dictionary<Direction, float> moveWeights)
         {
             //get the database value
-            var canID = Board.Field.CanonicalFieldID();
+            var canID = Board.Field;
             var policy = PolicyData.GetPolicy(canID)?.Result;
             if (policy != null)
             {
@@ -105,6 +105,7 @@ namespace _2048_c_sharp.Auto
 
         public void PrintMoveResults(Dictionary<Direction, float> weights, Direction direction)
         {
+            return; //TODO: make sure these don't execute if they're won't be printed
             PrintWeights(weights);
             log($"Selected direction: {direction}");
             PrintBoardState();            
@@ -112,12 +113,14 @@ namespace _2048_c_sharp.Auto
 
         public void PrintWeights(Dictionary<Direction, float> weights)
         {
+            return; //TODO: make sure these don't execute if they're won't be printed
             log($"Weights {string.Join(" ", weights.Select(w => $"{w.Key}:{w.Value}"))}");
         }
 
         public void PrintBoardState()
         {
-            log(Board.Field.AsString());
+            return; //TODO: make sure these don't execute if they're won't be printed
+            log(Board.Field.AsBoardString());
             log($"Score: {Board.Field.Score()}");
         }
 

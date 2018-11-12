@@ -139,7 +139,6 @@
     <Compile Include="Model\Direction.cs" />
     <Compile Include="Auto\IterationStatus.cs" />
     <Compile Include="Model\ULongMagic.cs" />
-    <Compile Include="Utilities\EnumerateSlides.cs" />
     <Compile Include="Utilities\EnumExtensions.cs" />
     <Compile Include="Model\Field.cs" />
     <Compile Include="Model\Move.cs" />
@@ -150,7 +149,6 @@
     <Compile Include="Utilities\PerfTest.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Model\Square.cs" />
     <Compile Include="Utilities\TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

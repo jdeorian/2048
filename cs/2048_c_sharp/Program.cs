@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using _2048_c_sharp.Auto;
-using _2048_c_sharp.Utilities;
 
 namespace _2048_c_sharp
 {
@@ -12,7 +11,10 @@ namespace _2048_c_sharp
     {
         static void Main(string[] args)
         {
-            PerfTest.Run();
+            //PerfTest.Run();
+
+            BranchComparison bc = new BranchComparison(1);
+            bc.Run();
 
             Console.ReadKey();
         }

@@ -9,19 +9,19 @@ namespace _2048_c_sharp
 {
     public class Move: Node<Move>
     {
-        public byte[,] StartState => Parent?.EndState
+        public ulong StartState => Parent?.EndState
                                   ?? Board.StartState;
-        public byte[,] IntermediateState => StartState.Slide(Direction);
+        public ulong IntermediateState => StartState.Slide(Direction);
 
-        private byte[,] endState;
-        public byte[,] EndState
+        private ulong endState;
+        public ulong EndState
         {
             get
             {
-                if (endState == null)
+                if (endState == 0)
                 {
                     endState = StartState.Slide(Direction);
-                    endState.SetRandomSquare(Board.FOUR_CHANCE);
+                    ULongMagic.SetRandomSquare(ref endState, Board.FOUR_CHANCE);
                 }
                 return endState;
             }
@@ -32,25 +32,20 @@ namespace _2048_c_sharp
         public Dictionary<Direction, float> Weights { get; set; }
         public Direction RewardDirection => IsRoot ? Direction.Up : RootEldestChild.Direction;
 
-        private ulong _canonicalFieldId = 0;
-        public ulong CanonicalFieldId {
-            get => _canonicalFieldId == 0 ? _canonicalFieldId = StartState.CanonicalFieldID() : _canonicalFieldId;
-        }
-
         public Move(Direction direction, Move parent = null, Board board = null, Dictionary<Direction, float> weights = null): base(parent)
         {
             Initialize(direction, board);
             Weights = weights;
         }
 
-        public Move(Direction direction, Move parent, byte[,] endState, float chance): base(parent)
+        public Move(Direction direction, Move parent, ulong endState, float chance): base(parent)
         {
             Initialize(direction, parent.Board);
             EndState = endState;
             Chance = chance;
         }
 
-        public bool ChangedBoard() => !StartState.IsEqualTo(EndState);
+        public bool ChangedBoard() => StartState != EndState;
 
         public void Initialize(Direction direction, Board board = null)
         {
@@ -73,16 +68,16 @@ namespace _2048_c_sharp
         public override List<Move> GetChildren()
         {
             var moves = XT.EnumVals<Direction>().Select(d => new { dir = d, field = EndState.Slide(d) })
-                                                .Where(f => !f.field.IsEqualTo(EndState));
+                                                .Where(f => f.field != EndState);
             var outcomes = new List<Move>();
             var TWO_CHANCE = 1 - Board.FOUR_CHANCE;
             foreach (var move in moves)
             {
-                foreach (var (i, j) in move.field.GetEmptySquares())
+                foreach (var pos in move.field.GetEmptySquares())
                 {
-                    var fld = move.field.AsCopyWithUpdate(i, j, 1);     // add outcomes that add a 2
+                    var fld = move.field.SetTile(pos, 1);     // add outcomes that add a 2
                     outcomes.Add(new Move(move.dir, this, fld, TWO_CHANCE));
-                    fld = move.field.AsCopyWithUpdate(i, j, 2);         // add outcomes that add a 4
+                    fld = move.field.SetTile(pos, 2);         // add outcomes that add a 4
                     outcomes.Add(new Move(move.dir, this, fld, Board.FOUR_CHANCE));
                 }
             }
@@ -95,8 +90,8 @@ namespace _2048_c_sharp
             Parent?.Index.ToString() ?? "-1",
             Direction.ToString(),
             RewardDirection.ToString(),
-            StartState.AsFlatString(),
-            EndState.AsFlatString(),
+            StartState.AsFlatBoardString(),
+            EndState.AsFlatBoardString(),
             Reward.ToString(),
             SumOfRewards.ToString(),
             Chance.ToString()
