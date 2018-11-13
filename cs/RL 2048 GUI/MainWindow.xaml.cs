@@ -44,7 +44,7 @@ namespace _2048_c_sharp.GUI
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (conductor.Boards == 0 && !conductor.ActiveBoards.Any()) return;
+            if (conductor.BoardsCount == 0 && !conductor.ActiveBoards.Any()) return;
 
             //else
             UpdateBestBoard();
@@ -126,7 +126,7 @@ namespace _2048_c_sharp.GUI
 
         private void IntegerUpDown_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            conductor.Boards = (sender as IntegerUpDown).Value.Value;
+            conductor.BoardsCount = (sender as IntegerUpDown).Value.Value;
         }
 
         private void DgThreads_SelectionChanged(object sender, SelectionChangedEventArgs e)

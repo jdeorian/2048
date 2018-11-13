@@ -17,13 +17,13 @@ namespace _2048_c_sharp.Auto
         public List<Task> Tasks { get; set; }
         public List<T> ActiveBoards { get; private set; } = new List<T>();
         public const int MAX_CONCURRENT_BOARDS = 16;
-        const int SLEEP_LENGTH = 200; //in ms
+        const int SLEEP_LENGTH = 500; //in ms
 
         //Triggers the run loop to stop (but does not cancel existing threads)
         public bool Stop { get; set; } = false;
 
         private int _boards = 0;
-        public int Boards
+        public int BoardsCount
         {
             get => _boards;
             set
@@ -37,15 +37,14 @@ namespace _2048_c_sharp.Auto
         {
             Stop = false;
             var it_cnt = 1;
-            Boards = boards;
-            Tasks = Enumerable.Range(0, Boards)
+            BoardsCount = boards;
+            Tasks = Enumerable.Range(0, BoardsCount)
                               .Select(i => Task.Run(() => { }))
                               .ToList(); //initialized as empty, completed tasks
-            while (!Stop)// && !(Console.KeyAvailable &&
-                         //     Console.ReadKey(true).Key == ConsoleKey.Escape))   //TODO: needs to work with console and GUI
+            while (!Stop)
             {
                 Tasks.RemoveAll(t => t.IsCompleted);
-                int newBoards = Boards - Tasks.Count();
+                int newBoards = BoardsCount - Tasks.Count();
                 if (newBoards > 0)
                 { 
                     Tasks.AddRange(Enumerable.Range(it_cnt, newBoards)
@@ -63,7 +62,7 @@ namespace _2048_c_sharp.Auto
                                              })));
                     it_cnt += newBoards;
                 }                
-                System.Threading.Thread.Sleep(SLEEP_LENGTH);
+                System.Threading.Thread.Sleep(SLEEP_LENGTH); //it's not important for this loop to run continuously
             }
 
             log("Finishing remaining tasks...", Priority.Highest_1);
