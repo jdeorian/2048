@@ -28,14 +28,9 @@ namespace _2048_c_sharp.Auto
             };
 
         public override Dictionary<Direction, float> GetMoveWeights()
-        {
-            int layerCount = layerDict[Board.Field.MaxValue()];
-            log($"Layer count: {layerCount}", Priority.Med_Low_7);
-            var root = new Move(Direction.Up, null, Board) { EndState = Board.Field };
-            var outcomes = root.BuildBranches(layerCount);
-            return outcomes.GroupBy(m => m.RewardDirection)
-                           .ToDictionary(g => g.Key,
-                                         g => g.Average(m => m.SumOfRewards));
+        {            
+            int layerCount = layerDict[Board.State.MaxValue()];
+            return Board.State.GetExpectedRewards(layerCount);
         }
     }
 }

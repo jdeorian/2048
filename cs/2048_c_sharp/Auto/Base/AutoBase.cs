@@ -37,9 +37,8 @@ namespace _2048_c_sharp.Auto
             while (!Board.Lost)
             {
                 //PrintBoardState();
-                var recDir = PickMoveDirection(out var moveWeights);
-                Board.Move(recDir, moveWeights);
-                //PrintMoveResults(moveWeights, recDir);                          
+                var recDir = PickMoveDirection();
+                Board.Move(recDir);                         
             }
             TimeEnded = DateTime.Now;
             Console.WriteLine($"Finished iteration {Iteration}...");
@@ -49,32 +48,29 @@ namespace _2048_c_sharp.Auto
 
         public abstract Dictionary<Direction, float> GetMoveWeights();
 
-        private Direction PickMoveDirection(out Dictionary<Direction, float> moveWeights)
+        private Direction PickMoveDirection()
         {
             //check for a forced random value
             var forceRandom = rnd.NextDouble() <= RANDOMNESS;
             if (forceRandom)
             {
-                var options = Board.Field.PossibleMoves().ToArray();
+                var options = Board.State.PossibleDirections().ToArray();
                 var d = XT.GetRandom(options, rnd);
-                moveWeights = options.ToDictionary(k => k, v => 0f);
                 RandomMoves++;
                 return d;
             }
 
             //get the database/policy value
-            var canID = Board.Field;
+            var canID = Board.State;
             var policy = PolicyData.GetPolicy(canID)?.Result;
             if (policy != null)
             {
-                moveWeights = policy.GetWeights();
                 PolicyMoves++;
-                return GetRecommendation(moveWeights);
+                return GetRecommendation(policy.GetWeights());
             }
 
             //It wasn't sufficient, so use the algorithm
-            moveWeights = GetMoveWeights();
-            var recDir = GetRecommendation(moveWeights);
+            var recDir = GetRecommendation(GetMoveWeights());
             MethodMoves++;
             return recDir;
         }
@@ -96,7 +92,7 @@ namespace _2048_c_sharp.Auto
             var rewards = new float[count];
             for (var reward_move_index = 0; reward_move_index < count; reward_move_index++)
             {
-                var reward = Board.MoveHistory[reward_move_index].Reward;
+                var reward = Board.MoveHistory[reward_move_index].EndState.Reward();
                 for (int apply_move_index = reward_move_index; apply_move_index >= 0; apply_move_index--) //going backward means I can multiply instead of using powers
                 {
                     rewards[apply_move_index] += reward;
@@ -134,8 +130,8 @@ namespace _2048_c_sharp.Auto
 
         public void PrintBoardState()
         {
-            log(Board.Field.AsBoardString());
-            log($"Score: {Board.Field.Score()}");
+            log(Board.State.AsBoardString());
+            log($"Score: {Board.State.Score()}");
         }
 
         public IterationStatus GetStatus() => new IterationStatus() {

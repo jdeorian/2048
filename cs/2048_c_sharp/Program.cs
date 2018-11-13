@@ -13,7 +13,10 @@ namespace _2048_c_sharp
         {
             //PerfTest.Run();
 
-            PolicyWork();
+            //PolicyWork();
+
+            var rnd = new Random(); var fld = ULongMagic.LongRandom(rnd); fld &= 0x0F0FF00F0FF0FF00FUL;
+            var r = fld.GetExpectedRewards(3);
 
             Console.ReadKey();
         }

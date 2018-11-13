@@ -16,6 +16,68 @@ namespace _2048_c_sharp
         const byte SZ_FLD_BITS = SZ_FLD * SZ_BITS;
         const byte SZ_ROW_BITS = SZ_BITS * SZ_ROW;
 
+        public const float FOUR_CHANCE = .11f;
+        public const float TWO_CHANCE = 1 - FOUR_CHANCE;
+
+        const ulong END_MASK = 0x0FUL; //mask with 1s for last 4 bits
+
+        #endregion
+
+        #region Branching
+
+        ///The input: one ulong
+        ///The output: A list of directions with their corresponding reward expectations
+        ///    Built from a comprehensive list of all possibilities given n moves.
+        ///    
+        ///Components:
+        /// -Permutatively generate all possible ulong by setting a bit from 0 to 1 or 2
+        
+        private static List<Possibility> NewSquarePossibilities(this ulong fld, float parentChance = 1f)
+        {
+            var offset = 0;
+            var poss = new List<Possibility>(28); //32 is max number of possiblities (14 for 2, 14 for 4)
+            var mask = END_MASK;
+            for (int x = 0; x < SZ_FLD; x++)
+            {
+                //if the last 4 bits are empty, create the possibilities
+                if ((fld & mask) == 0x0UL)
+                {
+                    ulong possibility = fld & ~mask; //set tile to 0
+                    poss.Add(new Possibility { Field = possibility | (0x2UL << offset), Chance = parentChance * FOUR_CHANCE });
+                    poss.Add(new Possibility { Field = possibility | (0x1UL << offset), Chance = parentChance * TWO_CHANCE });
+                }
+                offset += SZ_BITS;
+                mask <<= SZ_BITS;
+            }
+            return poss;
+        }
+
+        public static Dictionary<Direction, float> GetExpectedRewards(this ulong fld, int layers)
+        {
+            //get the first branch
+            var options = fld.GetPossibleMoves()
+                             .ToDictionary(kvp => kvp.Key,
+                                           kvp => kvp.Value.NewSquarePossibilities().ToList());
+            layers--;
+
+            //get the other branches
+            var validDirections = options.Select(o => o.Key).ToArray();
+            var validDirCount = validDirections.Count();
+            while (layers > 0)
+            {
+                foreach(var d in validDirections)
+                    options[d] = options[d].SelectMany(p => p.Field.GetPossibleMoves()
+                                                                   .SelectMany(m => m.Value.NewSquarePossibilities(p.Chance / validDirCount)))
+                                           .ToList();
+                layers--;
+            }
+
+            //combine the values
+            var currentScore = fld.Reward();
+            return options.ToDictionary(kvp => kvp.Key,
+                                        kvp => Possibility.Aggregate(currentScore, kvp.Value.ToArray()));
+        }
+
         #endregion
 
         #region Transforming
@@ -76,8 +138,20 @@ namespace _2048_c_sharp
             }
         }
 
-        public static IEnumerable<Direction> PossibleMoves(this ulong fld)
+        public static IEnumerable<Direction> PossibleDirections(this ulong fld)
             => XT.EnumVals<Direction>().Where(d => fld.Slide(d) != fld);
+
+        public static Dictionary<Direction, ulong> GetPossibleMoves(this ulong fld)
+        {
+            var retVal = new Dictionary<Direction, ulong>(4);
+            foreach(var d in XT.EnumVals<Direction>())
+            {
+                var val = fld.Slide(d);
+                if (val != fld)
+                    retVal[d] = val;
+            }
+            return retVal;
+        }
 
         #endregion
 
@@ -114,7 +188,7 @@ namespace _2048_c_sharp
         public static byte GetTile(this ulong fld, byte pos)
         {
             fld >>= GetTileOffset(pos);
-            return (byte)(fld & 0x0F);
+            return (byte)(fld & END_MASK);
         }
 
         public static byte GetTile(this ulong fld, byte row_num, byte col_num) => fld.GetTile(getPos(row_num, col_num));
@@ -126,7 +200,7 @@ namespace _2048_c_sharp
         private static ulong GetTileMask(byte pos, out int offset) => GetTileMask(pos, (1 << SZ_BITS) - 1, out offset);
         private static ulong GetTileMask(byte pos, byte val, out int offset) //only last 4 bits of val are used
         {
-            ulong mask = val & 0x0FUL; //position 15 mask (final position)
+            ulong mask = val & END_MASK;
             offset = GetTileOffset(pos);
             mask <<= offset;
             return mask;
@@ -168,7 +242,7 @@ namespace _2048_c_sharp
             {
                 flatRetVal[x - 1] = (byte)(
                     (fieldID >> (SZ_BITS * (SZ_FLD - x)))
-                    & 0x0F); //bit shift and take only the last 4 bits
+                    & END_MASK); //bit shift and take only the last 4 bits
             }
             return flatRetVal.Unflatten();
         }
@@ -179,7 +253,7 @@ namespace _2048_c_sharp
             for (byte x = 1; x <= SZ_FLD; x++)
             {
                 int val = (int)((fieldID >> (SZ_BITS * (SZ_FLD - x)))
-                                 & 0x0F); //bit shift and take only the last 4 bits
+                                 & END_MASK); //bit shift and take only the last 4 bits
                 if (val > 0)
                     flatRetVal[x - 1] = 0x1u << val;
             }
@@ -187,6 +261,22 @@ namespace _2048_c_sharp
             Buffer.BlockCopy(flatRetVal, 0, retVal, 0, SZ_FLD * sizeof(uint));
             return retVal;
         }
+
+        public static ulong LongRandom(Random rand)
+        {
+            byte[] buf = new byte[8];
+            rand.NextBytes(buf);
+            return BitConverter.ToUInt64(buf, 0);
+        }
+
+        //public static long LongRandom(long min, long max, Random rand)
+        //{
+        //    byte[] buf = new byte[8];
+        //    rand.NextBytes(buf);
+        //    long longRand = BitConverter.ToInt64(buf, 0);
+
+        //    return (Math.Abs(longRand % (max - min)) + min);
+        //}
 
         #endregion
 
@@ -203,7 +293,7 @@ namespace _2048_c_sharp
             for (int x = 0; x < SZ_FLD; x++)
             {
                 //if the last 4 bits are empty, set a bit in the return value
-                if ((state & 0xFL) == 0)
+                if ((state & END_MASK) == 0)
                     retVal |= (ushort)(1 << (SZ_FLD - x));
                 state >>= SZ_BITS;
             }
@@ -218,7 +308,7 @@ namespace _2048_c_sharp
             for (int x = 0; x < SZ_FLD; x++)
             {
                 //if the last 4 bits are empty, set a bit in the return value
-                if ((state & 0xFL) == 0)
+                if ((state & END_MASK) == 0)
                     retval[es_idx++] = (byte)(SZ_FLD - 1 - x);
                 state >>= SZ_BITS;
             }
@@ -232,7 +322,7 @@ namespace _2048_c_sharp
             for (int x = 0; x < SZ_FLD; x++)
             {
                 //if the last 4 bits are empty, set a bit in the return value
-                if ((state & 0xFL) == 0) retVal++;
+                if ((state & END_MASK) == 0) retVal++;
                 state >>= SZ_BITS;
             }
             return retVal;
@@ -255,7 +345,7 @@ namespace _2048_c_sharp
             }
         }
 
-        public static bool SetRandomSquare(ref ulong fld, float FOUR_CHANCE, Random rnd = null)
+        public static bool SetRandomSquare(ref ulong fld, Random rnd = null)
         {
             rnd = rnd ?? new Random();
             var rs = fld.GetRandomSquare(rnd);
@@ -278,11 +368,10 @@ namespace _2048_c_sharp
 
         public static float Score(this ulong fld)
         {
-            var mask = 0xFUL; //last 4 bits only
             float retVal = 0;
             for (int x = 0; x < SZ_FLD; x++)
             {                
-                byte val = (byte)(fld & mask);
+                byte val = (byte)(fld & END_MASK);
                 if (val > 0)
                     retVal += 0x1UL << val;
                 fld >>= SZ_BITS;
@@ -334,5 +423,24 @@ namespace _2048_c_sharp
         }
 
         #endregion
+    }
+
+    public struct Possibility
+    {
+        public ulong Field { get; set; }
+        public float Chance { get; set; }
+
+        public byte[,] AsByteBoard => Field.ToByteArray();
+
+        public static float Aggregate(float startReward, Possibility[] possibilities)
+        {
+            float retVal = 0;
+            for (int x = 0; x < possibilities.Count(); x++)
+            {
+                var thisPoss = possibilities[x];
+                retVal += thisPoss.Chance * (thisPoss.Field.Reward() - startReward);
+            }
+            return retVal;
+        }
     }
 }

@@ -76,7 +76,7 @@ namespace _2048_c_sharp.Auto
             var lines = new[] {
                         string.Empty,
                         $"Iteration: {board.Iteration}: {board.ToString()} @ {DateTime.Now}",
-                        board.Board.Field.AsBoardString()
+                        board.Board.State.AsBoardString()
                     };
             
             log(string.Join(Environment.NewLine, lines), Priority.P2);

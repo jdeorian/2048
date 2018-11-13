@@ -87,10 +87,10 @@ namespace _2048_c_sharp.GUI
             //get the best board info, if it's available
             if (conductor.BestBoard == null) return;
 
-            UpdateBoardDisplay(conductor.BestBoard.Field, BestBoard);
+            UpdateBoardDisplay(conductor.BestBoard.State, BestBoard);
             bestBoardDisplay.ItemsSource = BestBoard;
-            lblBBScore.Content = conductor.BestBoard.Field.Score();
-            lblBBMoves.Content = conductor.BestBoard.MoveCount;
+            lblBBScore.Content = conductor.BestBoard.State.Score();
+            lblBBMoves.Content = conductor.BestBoard.MoveHistory.Count();
         }
 
         private void UpdateSelectedBoard()
@@ -103,7 +103,7 @@ namespace _2048_c_sharp.GUI
                 {
                     var currentState = conductor.ActiveBoards.FirstOrDefault(b => b?.Iteration == selectedBoardIndex); //the null check here prevents some unusual null exceptions
                     if (currentState != null)
-                        dispState = currentState.Board.Field;
+                        dispState = currentState.Board.State;
                 }
                 UpdateBoardDisplay(dispState, SelectedBoard);
                 selectedBoardDisplay.ItemsSource = SelectedBoard;

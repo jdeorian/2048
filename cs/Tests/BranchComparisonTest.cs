@@ -30,7 +30,7 @@ namespace Tests
             };
 
             var board = new Board(seedState);
-            var root = new Move(Direction.Up, null, board) { EndState = board.Field };
+            var root = new Move(Direction.Up, null, board) { EndState = board.State };
             var outcomes = root.BuildBranches(1);
 
             ///move outcomes in layer 1:
@@ -55,7 +55,7 @@ namespace Tests
             };
 
             var board = new Board(seedState);
-            var root = new Move(Direction.Up, null, board) { EndState = board.Field };
+            var root = new Move(Direction.Up, null, board) { EndState = board.State };
             var outcomes = root.BuildBranches(2);
 
             ///move outcomes in layer 1:
@@ -84,7 +84,7 @@ namespace Tests
             var board = new Board(seedState);
             for (int x = 1; x <= 3; x++)
             {
-                var outcomes = new Move(Direction.Up, null, board) { EndState = board.Field }.BuildBranches(x);
+                var outcomes = new Move(Direction.Up, null, board) { EndState = board.State }.BuildBranches(x);
                 Assert.AreEqual(outcomes.Count, 0);
             }
         }
@@ -102,7 +102,7 @@ namespace Tests
             var board = new Board(seedState);
             for (int x = 1; x <= 3; x++)
             {
-                var outcomes = new Move(Direction.Up, null, board) { EndState = board.Field }.BuildBranches(x);
+                var outcomes = new Move(Direction.Up, null, board) { EndState = board.State }.BuildBranches(x);
                 Assert.AreEqual(outcomes.Count, 4);
             }
         }
@@ -118,7 +118,7 @@ namespace Tests
             };
 
             var board = new Board(seedState);
-            var root = new Move(Direction.Up, null, board) { EndState = board.Field };
+            var root = new Move(Direction.Up, null, board) { EndState = board.State };
             var outcomes = root.BuildBranches(3);
 
             ///move outcomes in layer 1:

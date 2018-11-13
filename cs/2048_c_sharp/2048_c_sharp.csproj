@@ -142,7 +142,6 @@
     <Compile Include="Utilities\EnumExtensions.cs" />
     <Compile Include="Model\Field.cs" />
     <Compile Include="Model\Move.cs" />
-    <Compile Include="Node.cs" />
     <Compile Include="Utilities\KVPExtentions.cs" />
     <Compile Include="Utilities\ListExtensions.cs" />
     <Compile Include="Utilities\ObservableCollectionExtensions.cs" />
