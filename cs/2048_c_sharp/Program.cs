@@ -13,8 +13,7 @@ namespace _2048_c_sharp
         {
             //PerfTest.Run();
 
-            BranchComparison bc = new BranchComparison(1);
-            bc.Run();
+            PolicyWork();
 
             Console.ReadKey();
         }

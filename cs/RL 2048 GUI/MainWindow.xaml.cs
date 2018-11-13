@@ -38,7 +38,7 @@ namespace _2048_c_sharp.GUI
             Task.Run(() => conductor.Run(0)); //start the run loop, but let it idle until threads are assigned
 
             timer.Tick += Timer_Tick;
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 500); //500ms
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 800); //500ms
             timer.Start();
         }
 
