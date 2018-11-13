@@ -13,6 +13,8 @@ namespace _2048_c_sharp
                                   ?? Board.StartState;
         public ulong IntermediateState => StartState.Slide(Direction);
 
+        public override int GetHashCode() => EndState.GetHashCode();
+
         private ulong endState;
         public ulong EndState
         {

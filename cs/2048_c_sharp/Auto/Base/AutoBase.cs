@@ -67,9 +67,9 @@ namespace _2048_c_sharp.Auto
 
             var highestWeight = moveWeights.Values.Max();
             var highestDirs = moveWeights.Where(kvp => kvp.Value == highestWeight)
-                                         .Select(kvp => kvp.Key);
+                                         .Select(kvp => kvp.Key).ToArray();
             var recDir = highestDirs.Count() == 1 ? highestDirs.First()
-                                                  : XT.EnumVals<Direction>().ToArray().GetRandom(rnd);
+                                                  : highestDirs.GetRandom(rnd);
             return recDir;
         }
 

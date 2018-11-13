@@ -22,8 +22,8 @@ namespace _2048_c_sharp.GUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        //private static Conductor<RandomPlay> conductor = new Conductor<RandomPlay>(); //use this one for random chance
-        private static readonly Conductor<BranchComparison> conductor = new Conductor<BranchComparison>();
+        private static Conductor<RandomPlay> conductor = new Conductor<RandomPlay>(); //use this one for random chance
+        //private static readonly Conductor<BranchComparison> conductor = new Conductor<BranchComparison>();
         private static readonly DispatcherTimer timer = new DispatcherTimer();
         public ObservableCollection<List<GridValue>> BestBoard { get; set; } = new ObservableCollection<List<GridValue>>();
         public ObservableCollection<List<GridValue>> SelectedBoard { get; set; } = new ObservableCollection<List<GridValue>>();
@@ -38,7 +38,7 @@ namespace _2048_c_sharp.GUI
             Task.Run(() => conductor.Run(0)); //start the run loop, but let it idle until threads are assigned
 
             timer.Tick += Timer_Tick;
-            timer.Interval = new TimeSpan(0, 0, 0, 0, 500); //500ms
+            timer.Interval = new TimeSpan(0, 0, 0, 0, 200); //500ms
             timer.Start();
         }
 
