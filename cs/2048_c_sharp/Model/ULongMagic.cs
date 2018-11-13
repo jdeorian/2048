@@ -63,12 +63,19 @@ namespace _2048_c_sharp
             //get the other branches
             var validDirections = options.Select(o => o.Key).ToArray();
             var validDirCount = validDirections.Count();
-            while (layers > 0)
+            while (layers > 0) //TODO: We can do one direction at a time to drastically reduce memory usage
             {
-                foreach(var d in validDirections)
-                    options[d] = options[d].SelectMany(p => p.Field.GetPossibleMoves()
-                                                                   .SelectMany(m => m.Value.NewSquarePossibilities(p.Chance / validDirCount)))
-                                           .ToList();
+                try
+                {
+                    foreach (var d in validDirections)
+                        options[d] = options[d].SelectMany(p => p.Field.GetPossibleMoves()
+                                                                       .SelectMany(m => m.Value.NewSquarePossibilities(p.Chance / validDirCount)))
+                                               .ToList();
+                }
+                catch(Exception)
+                {
+                    layers = 0; //if we overflow, just calculate with what we have
+                }
                 layers--;
             }
 
@@ -105,13 +112,16 @@ namespace _2048_c_sharp
 
         public static ulong Transpose(this ulong state)
         {
-            return state & 0xF0000F0000F0000FL //unchanged diagonals
-                | (state & 0x0F0000F0000F0000L) >> 12
-                | (state & 0x0000F0000F0000F0L) << 12
-                | (state & 0x00F0000F00000000L) >> 24
-                | (state & 0x00000000F0000F00L) << 24
-                | (state & 0x000F000000000000L) >> 36
-                | (state & 0x000000000000F000L) << 36;
+            ulong r0 = state & 0xF0000F0000F0000FL; //unchanged diagonals
+
+            ulong t = (state & 0x0000F000FF000FF0UL) * ((1UL << 12) + (1UL << 24));
+            ulong r1 = (state & 0x0F0000F0000F0000L) >> 12;
+            r0 |= (state & 0x00F0000F00000000L) >> 24;
+            r1 |= (state & 0x000F000000000000L) >> 36;
+            r0 |= (state & 0x000000000000F000L) << 36;
+            r1 |= t & 0x0FF000FF000F0000UL;
+
+            return r0 | r1;
         }
 
         public static ulong Transform(this ulong fld, Direction direction)

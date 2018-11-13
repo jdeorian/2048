@@ -10,6 +10,9 @@ namespace _2048_c_sharp.Auto
 {
     public class BranchComparison: AutoBase
     {
+        private const byte EMPTY_SQUARES_TO_ENABLE_FOUR_LAYERS = 8;
+        private const byte UNLOCKED_LAYER_THESHOLD = 3;
+
         public BranchComparison(int iteration) : base(iteration) { }
 
         private readonly Dictionary<int, int> layerDict = new Dictionary<int, int> {
@@ -23,13 +26,17 @@ namespace _2048_c_sharp.Auto
                 { 8, 3 }, // 256
                 { 9, 3 }, // 512
                 {10, 3 }, // 1024
-                {11, 5 }, // 2048
-                {12, 5 } // 4096
+                {11, 4 }, // 2048
+                {12, 4 } // 4096
             };
 
         public override Dictionary<Direction, float> GetMoveWeights()
         {            
             int layerCount = layerDict[Board.State.MaxValue()];
+
+            //failsafe to prevent performance-killing errors on nearly empty boards
+            if (layerCount > UNLOCKED_LAYER_THESHOLD && Board.State.CountEmptySquares() < EMPTY_SQUARES_TO_ENABLE_FOUR_LAYERS)
+                layerCount = UNLOCKED_LAYER_THESHOLD;
             return Board.State.GetExpectedRewards(layerCount);
         }
     }
