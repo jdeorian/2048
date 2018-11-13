@@ -21,6 +21,7 @@ namespace _2048_c_sharp.Auto
 
         public int PolicyMoves { get; set; } = 0;
         public int MethodMoves { get; set; } = 0;
+        public int RandomMoves { get; set; } = 0;
 
         private int _moveCount = 0;
         public int MoveCount
@@ -33,6 +34,7 @@ namespace _2048_c_sharp.Auto
                 NotifyPropertyChanged();
                 NotifyPropertyChanged(nameof(MethodMoves));
                 NotifyPropertyChanged(nameof(PolicyMoves));
+                NotifyPropertyChanged(nameof(RandomMoves));
                 NotifyPropertyChanged(nameof(Score));
             }
         }
@@ -60,6 +62,7 @@ namespace _2048_c_sharp.Auto
             Score = update.Score;
             MethodMoves = update.MethodMoves;
             PolicyMoves = update.PolicyMoves;
+            RandomMoves = update.RandomMoves;
         }
 
         //public void UpdateToClose(IterationStatus update)

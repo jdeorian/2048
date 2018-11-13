@@ -276,15 +276,16 @@ namespace _2048_c_sharp
 
         public static float Reward(this ulong fld) => fld.Score() + fld.CountEmptySquares() * EMPTY_SQUARE_REWARD;
 
-        public static byte Score(this ulong fld)
+        public static float Score(this ulong fld)
         {
-            var mask = GetTileMask(SZ_FLD - 1, out int _);
-            byte retVal = (byte)(fld & mask);
-            for (int x = 1; x < SZ_FLD; x++)
-            {
-                mask <<= SZ_BITS;
+            var mask = 0xFUL; //last 4 bits only
+            float retVal = 0;
+            for (int x = 0; x < SZ_FLD; x++)
+            {                
                 byte val = (byte)(fld & mask);
-                if (val > retVal) retVal = val;
+                if (val > 0)
+                    retVal += 0x1UL << val;
+                fld >>= SZ_BITS;
             }
             return retVal;
         }

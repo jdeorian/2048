@@ -13,6 +13,7 @@ namespace _2048_c_sharp.Auto
     {
         const int MIN_TRAINING_COUNT = 10;
         const int MAX_BOARDS = 8;
+        const float RANDOMNESS = .005f; //some percent of the time, a random move will be chosen just to enrich the policy
 
         public float DiscountRate { get; set; } = .9f;
 
@@ -24,6 +25,7 @@ namespace _2048_c_sharp.Auto
 
         public int PolicyMoves { get; private set; } = 0;
         public int MethodMoves { get; private set; } = 0;
+        public int RandomMoves { get; private set; } = 0;
 
         public AutoBase(int iteration) { Iteration = iteration; }
 
@@ -45,7 +47,18 @@ namespace _2048_c_sharp.Auto
 
         private Direction PickMoveDirection(out Dictionary<Direction, float> moveWeights)
         {
-            //get the database value
+            //check for a forced random value
+            var forceRandom = rnd.NextDouble() <= RANDOMNESS;
+            if (forceRandom)
+            {
+                var options = Board.Field.PossibleMoves().ToArray();
+                var d = XT.GetRandom(options, rnd);
+                moveWeights = options.ToDictionary(k => k, v => 0f);
+                RandomMoves++;
+                return d;
+            }
+
+            //get the database/policy value
             var canID = Board.Field;
             var policy = PolicyData.GetPolicy(canID)?.Result;
             if (policy != null)
@@ -131,7 +144,8 @@ namespace _2048_c_sharp.Auto
             TimeEnded = TimeEnded,
             Score = Board.Score,
             PolicyMoves = PolicyMoves,
-            MethodMoves = MethodMoves
+            MethodMoves = MethodMoves,
+            RandomMoves = RandomMoves
         };
     }
 }

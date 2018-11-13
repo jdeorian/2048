@@ -77,10 +77,8 @@ namespace _2048_c_sharp
             {
                 foreach (var pos in move.field.GetEmptySquares())
                 {
-                    var fld = move.field.SetTile(pos, 1);     // add outcomes that add a 2
-                    outcomes.Add(new Move(move.dir, this, fld, TWO_CHANCE));
-                    fld = move.field.SetTile(pos, 2);         // add outcomes that add a 4
-                    outcomes.Add(new Move(move.dir, this, fld, Board.FOUR_CHANCE));
+                    outcomes.Add(new Move(move.dir, this, move.field.SetTile(pos, 1), TWO_CHANCE));
+                    outcomes.Add(new Move(move.dir, this, move.field.SetTile(pos, 2), Board.FOUR_CHANCE));
                 }
             }
             return Children = outcomes;
