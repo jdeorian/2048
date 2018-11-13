@@ -10,9 +10,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2048_c_sharp.GUI", "RL 2048 GUI\2048_c_sharp.GUI.csproj", "{57042F7D-91C7-4933-9EDB-29278956785B}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -42,8 +39,8 @@ Global
 		{86A5C43F-B7E7-4D79-9B70-6ED2E6BFB921}.Debug|x86.Build.0 = Debug|Any CPU
 		{86A5C43F-B7E7-4D79-9B70-6ED2E6BFB921}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86A5C43F-B7E7-4D79-9B70-6ED2E6BFB921}.Release|Any CPU.Build.0 = Release|Any CPU
-		{86A5C43F-B7E7-4D79-9B70-6ED2E6BFB921}.Release|x64.ActiveCfg = Release|Any CPU
-		{86A5C43F-B7E7-4D79-9B70-6ED2E6BFB921}.Release|x64.Build.0 = Release|Any CPU
+		{86A5C43F-B7E7-4D79-9B70-6ED2E6BFB921}.Release|x64.ActiveCfg = Release|x64
+		{86A5C43F-B7E7-4D79-9B70-6ED2E6BFB921}.Release|x64.Build.0 = Release|x64
 		{86A5C43F-B7E7-4D79-9B70-6ED2E6BFB921}.Release|x86.ActiveCfg = Release|Any CPU
 		{86A5C43F-B7E7-4D79-9B70-6ED2E6BFB921}.Release|x86.Build.0 = Release|Any CPU
 		{57042F7D-91C7-4933-9EDB-29278956785B}.Debug|Any CPU.ActiveCfg = Debug|x64
@@ -54,8 +51,8 @@ Global
 		{57042F7D-91C7-4933-9EDB-29278956785B}.Debug|x86.Build.0 = Debug|Any CPU
 		{57042F7D-91C7-4933-9EDB-29278956785B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57042F7D-91C7-4933-9EDB-29278956785B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{57042F7D-91C7-4933-9EDB-29278956785B}.Release|x64.ActiveCfg = Release|Any CPU
-		{57042F7D-91C7-4933-9EDB-29278956785B}.Release|x64.Build.0 = Release|Any CPU
+		{57042F7D-91C7-4933-9EDB-29278956785B}.Release|x64.ActiveCfg = Release|x64
+		{57042F7D-91C7-4933-9EDB-29278956785B}.Release|x64.Build.0 = Release|x64
 		{57042F7D-91C7-4933-9EDB-29278956785B}.Release|x86.ActiveCfg = Release|Any CPU
 		{57042F7D-91C7-4933-9EDB-29278956785B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
@@ -64,6 +61,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D7DBDAF2-7219-456A-B2B9-D7985115785C}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
